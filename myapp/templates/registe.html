@@ -1,0 +1,39 @@
+
+<!-- register.html -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+</head>
+<body>
+    <h2>User Registration</h2>
+    <!-- Display messages -->
+    {% for message in messages %}
+    <h5>{{ message }}</h5>
+    {% endfor %}
+    
+    <!-- Registration form -->
+    <form method="post" action='register'>
+        {% csrf_token %}
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username" required><br>
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required><br>
+        <label for="pass1">Password:</label><br>
+        <input type="password" id="pass1" name="pass1" required><br>
+        <label for="pass2">Confirm Password:</label><br>
+        <input type="password" id="pass2" name="pass2" required><br>
+        
+        <!-- Checkboxes for roles -->
+        <input type="checkbox" id="engineer" name="role" value="engineer">
+        <label for="engineer">Engineer</label><br>
+        <input type="checkbox" id="worker" name="role" value="worker">
+        <label for="worker">worker</label><br>
+        <input type="checkbox" id="admin" name="role" value="admin">
+        <label for="admin">Admin</label><br>
+        
+        <button type="submit">Register</button>
+    </form>
+</body>
+</html>

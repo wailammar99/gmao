@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineer Profile</title>
+</head>
+<body>
+    <h2>Welcome, {{ user.username }}</h2>
+    <p>You are logged in as an Engineer.</p>
+    
+    <h3>Profile Information:</h3>
+    <ul>
+        <li><strong>Email:</strong> {{ user.email }}</li>
+        <!-- Add additional user attributes as needed -->
+    </ul>
+    
+    <h3>Maintenance Interventions:</h3>
+    <ul>
+        {% for maintenance in maintenances %}
+        <li>
+            <strong>Intervention:</strong> {{ maintenance.intervention }}<br>
+            <strong>Date:</strong> {{ maintenance.date_intervention }}<br>
+            <strong>Duration:</strong> {{ maintenance.dure }}<br>
+            <!-- Add more details about the maintenance intervention as needed -->
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

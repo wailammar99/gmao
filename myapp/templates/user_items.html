@@ -1,0 +1,9 @@
+<!-- user_items.html -->
+<h2>Your Items</h2>
+<ul>
+{% for item in items %}
+    <li>{{ item.name }} - {{ item.description }}</li>
+{% empty %}
+    <li>No items found.</li>
+{% endfor %}
+</ul>

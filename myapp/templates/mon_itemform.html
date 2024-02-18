@@ -1,0 +1,6 @@
+<!-- mon_template.html -->
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Soumettre</button>
+</form>
