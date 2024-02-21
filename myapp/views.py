@@ -76,11 +76,13 @@ def user_login(request):
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            ingg=ing.objects.filter(u=username)
+            m = gestionmaitenace.objects.filter(engineer__u=username)
             if ing.objects.filter(u=user).exists():
                 
                 login(request, user)
                 messages.success(request, "Login successful")
-                return render(request, 'ing.html')
+                return render(request, 'ing.html',{'ing':ingg,'maintenances':m})
             elif worker.objects.filter(u=user).exists():
                 login(request, user)
                 messages.success(request, "Login successful")

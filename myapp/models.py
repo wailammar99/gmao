@@ -33,7 +33,7 @@ class ing (models.Model):
     u=models.CharField(max_length=200,unique=True)
    
     def __str__(self):
-     return  self.nom
+     return  self.mail
 class gestionmaitenace (models.Model):
     intervention=models.IntegerField(max_length=200)
     date_intervention=models.DateField()
