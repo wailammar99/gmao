@@ -1,22 +1,5 @@
-
-from .models import Item,gestionmaitenace,worker,ing
 from django.contrib import admin
-
-
-
-
-
-
-
-
-
-
-admin.site.register(Item)
-admin.site.register(worker)
-admin.site.register(ing)
-
-
-admin.site.register(gestionmaitenace)
-
+from .models import User
 
 # Register your models here.
+admin.site.register(User)

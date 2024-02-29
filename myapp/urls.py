@@ -2,12 +2,14 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('items', views.index, ),
-     path('formitem', views.mon_vue_de_formulaire,),
-     path('user/items/', views.user_items, name='user_items'),
-     path('gestionmaitenacne',views.getionmaitenace,),
-     path('register',views.registe,name='register'),
-      path('login',views.user_login,name='login'),
+     path('login/', views.login_view, name='login_view'),
+    path('register/', views.register, name='register'),
+    path('adminpage/', views.admin, name='adminpage'),
+    path('chefservice/', views.chefservice, name='chefservice'),
+    path('directeur/', views.directeur, name='directeur'),
+    path('technicien/', views.technicien, name='technicien'),
+    path('citoyen/', views.citoyen, name='citoyen'),
+     path('logout/', views.logout_view, name='logout'),  # Add this URL pattern for logout
 
      
    
