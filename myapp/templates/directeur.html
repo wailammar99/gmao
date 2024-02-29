@@ -5,8 +5,31 @@
     <title>customer page</title>
 </head>
 <body>
+    {%if  user.is_directeur%}
  <h1> hello {{ user.username }} your role is directeur</h1>
  <h1> your email is  {{ user.email }} </h1>
+ <table>
+    <thead>
+        <tr>
+            <th>Description</th>
+            <th>Date de création</th>
+            <th>Date de début</th>
+            <th>Date de fin</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in i %}
+            <tr>
+                <td>{{ i.description }}</td>
+                <td>{{ i.date_creation }}</td>
+                <td>{{ i.date_debut }}</td>
+                <td>{{ i.date_fin }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
  <a href="{% url 'logout' %}">Logout</a>
+  {%endif %}
+  
 </body>
 </html>

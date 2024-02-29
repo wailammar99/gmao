@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser
+from .models import CustomUser,interven
 
 class LoginForm(forms.Form):
     username = forms.CharField(widget=forms.TextInput(attrs={"class": "form-control"}))
@@ -15,3 +15,8 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = CustomUser
         fields = ('username', 'email', 'password1', 'password2', 'is_admin', 'is_technicien', 'is_chefservice', 'is_directeur','is_citoyen')
+   
+class IntervenForm(forms.ModelForm):
+    class Meta:
+        model = interven
+        fields = ['description', 'date_creation', 'date_debut', 'date_fin']   

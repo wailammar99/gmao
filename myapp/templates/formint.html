@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Intervention</title>
+</head>
+<body>
+    <h1>Create Intervention</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="des">Description:</label><br>
+        <textarea id="des" name="des" rows="4" cols="50"></textarea><br><br>
+        
+        <label for="dc">Date Creation:</label><br>
+        <input type="date" id="dc" name="dc"><br><br>
+        
+        <label for="dd">Date Debut:</label><br>
+        <input type="date" id="dd" name="dd"><br><br>
+        
+        <label for="df">Date Fin:</label><br>
+        <input type="date" id="df" name="df"><br><br>
+        
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

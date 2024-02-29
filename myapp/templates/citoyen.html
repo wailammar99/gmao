@@ -2,11 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>chef service page</title>
+    <title>citoyen page</title>
 </head>
 <body>
+    {%if  user.is_citoyen%}
  <h1> hello {{ user.username }} your role is citoyen </h1>
+ <a href='{% url 'int' %}'> cree inetrvention </a>
  <h1> your email is  {{ user.email }} </h1>
  <a href="{% url 'logout' %}">Logout</a>
+ {%endif %}
 </body>
 </html>
