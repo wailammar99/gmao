@@ -2,34 +2,100 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>customer page</title>
+    <title>Directeur Page</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
-    {%if  user.is_directeur%}
- <h1> hello {{ user.username }} your role is directeur</h1>
- <h1> your email is  {{ user.email }} </h1>
- <table>
+    
+<h1>Hello {{ user.username }}, your role is Directeur</h1>
+<h1>Your email is {{ user.email }}</h1>
+
+<table>
     <thead>
         <tr>
             <th>Description</th>
             <th>Date de création</th>
             <th>Date de début</th>
             <th>Date de fin</th>
+            <th>État</th>
+            <th>ID du citoyen</th>
+            <th>Chef de Service</th>
+            <th>Technicien</th>
         </tr>
     </thead>
     <tbody>
         {% for i in i %}
-            <tr>
-                <td>{{ i.description }}</td>
-                <td>{{ i.date_creation }}</td>
-                <td>{{ i.date_debut }}</td>
-                <td>{{ i.date_fin }}</td>
-            </tr>
+        <tr>
+            <td>{{ i.description }}</td>
+            <td>{{ i.date_creation }}</td>
+            <td>{{ i.date_debut }}</td>
+            <td>{{ i.date_fin }}</td>
+            <td>{{ i.etat }}</td>
+            <td>{{ i.citoyen.email }}</td>
+            <td>{{ i.chef_service.username }}</td>
+            
+        </tr>
         {% endfor %}
     </tbody>
 </table>
- <a href="{% url 'logout' %}">Logout</a>
-  {%endif %}
+<table>
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Admin</th>
+            <th>Technicien</th>
+            <th>Chef Service</th>
+            <th>Directeur</th>
+            <th>Citoyen</th>
+            <th>ACTIVE</th>
+            <th>action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in u %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{% if user.is_admin %}Admin{% else %}No{% endif %}</td>
+            <td>{% if user.is_technicien %}Technicien{% else %}No{% endif %}</td>
+            <td>{% if user.is_chefservice %}Chef Service{% else %}No{% endif %}</td>
+            <td>{% if user.is_directeur %}Directeur{% else %}No{% endif %}</td>
+            <td>{% if user.is_citoyen %}Citoyen{% else %}No{% endif %}</td>
+            <td>{% if user.is_active %}Active{% else %}Inactive{% endif %}</td>
+            <td>
+            <form action="{% url 'active' %}" method="POST" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{ user.id }}">
+                <button type="submit">active</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'modifielesnifomation' %}">Modifier les informations</a>
+
+{% if user.is_authenticated %}
+<a href="{% url 'logout' %}">Déconnexion</a>
+{% else %}
+<a href="{% url 'login' %}">Connexion</a>
+{% endif %}
+
+<h1>Session is {{ session }}</h1>
   
 </body>
 </html>

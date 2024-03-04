@@ -11,7 +11,14 @@ urlpatterns = [
     path('citoyen/', views.citoyen, name='citoyen'),
      path('logout/', views.logout_view, name='logout'),
      path('int/',views.create_intervention,name='int'),
-       path('affint/',views.affint)  # Add this URL pattern for logout
+       path('affint/',views.affint) ,
+        path('profil/',views.modifielesnifomation,name="modifielesnifomation"),
+          path('refuser/', views.refuser, name='refuser'),
+           path('assigne/', views.assigne, name='assigne'),
+           path('admiin/', views.admin, name='admin'),
+           path('active/', views.activer, name='active'),
+            path('modify-intervention/<int:intervention_id>/', views.modify_intervention, name='modify_intervention')
+           # Add this URL pattern for logout
 
      
    

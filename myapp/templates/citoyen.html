@@ -4,12 +4,56 @@
     <meta charset="UTF-8">
     <title>citoyen page</title>
 </head>
+<style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    th, td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+</style>
 <body>
-    {%if  user.is_citoyen%}
+   
  <h1> hello {{ user.username }} your role is citoyen </h1>
  <a href='{% url 'int' %}'> cree inetrvention </a>
  <h1> your email is  {{ user.email }} </h1>
+ <table>
+    <thead>
+        <tr>
+            <th>Description</th>
+            <th>Date de création</th>
+            <th>Date de début</th>
+            <th>Date de fin</th>
+            <th>etat</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in i %}
+            <tr>
+                <td>{{ i.description }}</td>
+                <td>{{ i.date_creation }}</td>
+                <td>{{ i.date_debut }}</td>
+                <td>{{ i.date_fin }}</td>
+                <td>{{ i.etat }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{% url 'modifielesnifomation' %}">modifie les infromation </a>
+ 
+ {% if user.is_authenticated %}
+
  <a href="{% url 'logout' %}">Logout</a>
- {%endif %}
+{% else %}
+ <a href="{% url 'login' %}">Login</a>
+{% endif %}
+
+
 </body>
 </html>

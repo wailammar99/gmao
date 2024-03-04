@@ -26,7 +26,10 @@ SECRET_KEY = 'django-insecure-o4#yy4j-6&-8o!7dazke2k=mm4x9y9^_+2(erey&6xv$gf4z=+
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+AUTHENTICATION_BACKENDS = [
+    'myapp.backends.auth_backends.CustomRoleBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Application definition
 

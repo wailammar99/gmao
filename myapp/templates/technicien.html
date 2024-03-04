@@ -5,10 +5,40 @@
     <title>technicien page</title>
 </head>
 <body>
-    {%if  user.is_technicien%}
+   
  <h1> hello {{ user.username }} your role is technicien</h1>
  <h1> your email is  {{ user.email }} </h1>
+ <table>
+    <thead>
+        <tr>
+            <th>Description</th>
+            <th>Date de création</th>
+            <th>Date de début</th>
+            <th>Date de fin</th>
+            <th>État</th>
+            <th>ID du citoyen</th>
+            <th>Chef de Service</th>
+           
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in i %}
+        <tr>
+            <td>{{ i.description }}</td>
+            <td>{{ i.date_creation }}</td>
+            <td>{{ i.date_debut }}</td>
+            <td>{{ i.date_fin }}</td>
+            <td>{{ i.etat }}</td>
+            <td>{{ i.citoyen.email }}</td>
+         
+            
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
  <a href="{% url 'logout' %}">Logout</a>
- {%endif %}
+ <a href="{% url 'modifielesnifomation' %}">modifie les infromation </a>
+
 </body>
 </html>

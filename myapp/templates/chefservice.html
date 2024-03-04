@@ -2,13 +2,54 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>chef service page</title>
+    <title>Page du chef de service</title>
 </head>
 <body>
-    {%if  user.is_chefservice%}
- <h1> hello {{ user.username }} your role is chefservice</h1>
- <h1> your email is  {{ user.email }} </h1>
- <a href="{% url 'logout' %}">Logout</a>
- {%endif %}
+    <h1>Bonjour {{ user.username }}, vous êtes chef de service</h1>
+    <h1>Votre adresse email est {{ user.email }}</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Date de création</th>
+                <th>Date de début</th>
+                <th>Date de fin</th>
+                <th>État</th>
+                <th>Citoyen</th>
+                <th>Technicien</th>
+                <th>Actions</th> <!-- Ajout d'une colonne pour les actions -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for intervention in i %}
+            <tr>
+                <td>{{ intervention.description }}</td>
+                <td>{{ intervention.date_creation }}</td>
+                <td>{{ intervention.date_debut }}</td>
+                <td>{{ intervention.date_fin }}</td>
+                <td>{{ intervention.etat }}</td>
+                <td>{{ intervention.citoyen.username }}</td> 
+                <td>
+                    {{ intervention.technicien }}
+            
+                </td>
+                <td>
+                    <form action="{% url 'refuser' %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" value="{{ intervention.id }}">
+                        <button type="submit">Refuser</button>
+                    </form>
+                    <form action="{% url 'assigne' %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" value="{{ intervention.id }}">
+                        <button type="submit">Assigner</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'modifielesnifomation' %}">Modifier les informations</a>
+    <a href="{% url 'logout' %}">Déconnexion</a>
 </body>
 </html>

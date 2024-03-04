@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Modify Intervention</title>
+</head>
+<body>
+    <h1>Modify Intervention</h1>
+    <form method="POST">
+        {% csrf_token %}
+   
+        <label for="date_debut">Date de début:</label><br>
+        <input type="date" id="date_debut" name="date_debut" value="{{ intervention.date_debut }}"><br><br>
+        
+        <label for="date_fin">Date de fin:</label><br>
+        <input type="date" id="date_fin" name="date_fin" value="{{ intervention.date_fin }}"><br><br>
+        
+        <label for="technicians">Technician:</label><br>
+        <select id="technicians" name="technicians">
+          {% for technician in technicians %}
+            <option value="{{ technician.id }}">{{ technician.username }}</option>
+          {% endfor %}
+        </select><br><br>
+        
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
