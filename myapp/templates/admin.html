@@ -3,12 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <title>admin page</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
     <h1> hello {{ user.username }} your role is admin</h1>
     <h1> your email is  {{ user.email }} </h1>
     <a href="{% url 'logout' %}">Logout</a>
     <a href="{% url 'register' %}">cree des compte </a>
-
+    <a href="{% url 'createservice' %}">cree des compte </a>
+ 
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>nom</th>
+                <!-- Ajout d'une colonne pour les actions -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in s %}
+            <tr>
+                <td>{{ i.descrtions }}</td>
+                <td>{{ i.nom }}</td>
+                {%endfor%}
+              
+            
+                
 </body>
 </html>

@@ -3,10 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>Page du chef de service</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
-    <h1>Bonjour {{ user.username }}, vous êtes chef de service</h1>
+    <h1>Bonjour {{ user.username }}, vous êtes chef de <h1>{{user.service.nom}}</h1></h1>
     <h1>Votre adresse email est {{ user.email }}</h1>
+
     <table>
         <thead>
             <tr>

@@ -17,7 +17,14 @@ urlpatterns = [
            path('assigne/', views.assigne, name='assigne'),
            path('admiin/', views.admin, name='admin'),
            path('active/', views.activer, name='active'),
-            path('modify-intervention/<int:intervention_id>/', views.modify_intervention, name='modify_intervention')
+            path('modify-intervention/<int:intervention_id>/', views.modify_intervention, name='modify_intervention'),
+            path('listecustomer/',views.CustomerListe),
+            # path("listeservice",views.ServiceListe),
+            path("createservice",views.create_service,name="createservice"),
+             path('modify-service/', views.modify_service_page, name='modify_service_page'),
+          
+            
+
            # Add this URL pattern for logout
 
      

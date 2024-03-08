@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Modify Service</title>
+</head>
+<body>
+    <h2>Modify Service for {{ user.username }}</h2>
+    <form action="{% url 'modify_service_page' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="user_id" value="{{ user.id }}">
+        <label for="service_id">New Service:</label>
+        <select id="service_id" name="service_id">
+            <option value="">Select a service</option>
+            {% for service in s %}
+            <option id='s_id' value="{{ service.id }}">{{ service.nom }}</option>
+            {% endfor %}
+        </select><br>
+        <input type="submit" value="Modify Service">
+    </form>
+</body>
+</html>

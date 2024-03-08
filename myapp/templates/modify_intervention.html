@@ -15,11 +15,13 @@
         <label for="date_fin">Date de fin:</label><br>
         <input type="date" id="date_fin" name="date_fin" value="{{ intervention.date_fin }}"><br><br>
         
-        <label for="technicians">Technician:</label><br>
-        <select id="technicians" name="technicians">
-          {% for technician in technicians %}
-            <option value="{{ technician.id }}">{{ technician.username }}</option>
+        <label for="service">service:</label><br>
+        <select id="id_service" name="id_service">
+
+          {% for s in s %}
+            <option value="{{ s.id }}">{{ s.nom }}</option>
           {% endfor %}
+          
         </select><br><br>
         
         <button type="submit">Submit</button>

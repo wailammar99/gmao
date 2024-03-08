@@ -25,7 +25,7 @@ def login_required_technicien(view_func):
 def login_required_chef(view_func):
     @wraps(view_func)
     def wrapped_view(request, *args, **kwargs):
-        if request.user.is_authenticated and request.user.is_chef:
+        if request.user.is_authenticated and request.user.is_chefservice:
             return view_func(request, *args, **kwargs)
         else:
             return redirect('login_view')
@@ -35,6 +35,14 @@ def login_required_citoyen(view_func):
     @wraps(view_func)
     def wrapped_view(request, *args, **kwargs):
         if request.user.is_authenticated and request.user.is_citoyen:
+            return view_func(request, *args, **kwargs)
+        else:
+            return redirect('login_view')
+    return wrapped_view
+def login_required_directeur(view_func):
+    @wraps(view_func)
+    def wrapped_view(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.is_directeur:
             return view_func(request, *args, **kwargs)
         else:
             return redirect('login_view')
