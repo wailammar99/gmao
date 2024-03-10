@@ -89,13 +89,13 @@ def technicien(request):
      serialized_interventions = IntervetionSerializers(i, many=True)
      return render(request, 'technicien.html',{'i':serialized_interventions.data})
 #la page de chef de service peut modifie les infomaation personal eet ausii assigne les technicne aux intervention 
-@login_required
+@login_required_chef
 def chefservice(request):
     if request.user.is_authenticated and request.user.is_chefservice:
         # Filter interventions based on the service of the logged-in user
         interventions = interven.objects.filter(service=request.user.service)
-        serializer_intervention = IntervetionSerializers(interventions, many=True)
-        return render(request, 'chefservice.html', {'i': serializer_intervention.data})
+       
+        return render(request, 'chefservice.html', {'i': interventions})
     else:
         # Redirect or handle unauthorized access
         return HttpResponse("You are not authorized to access this page.")
@@ -218,40 +218,45 @@ def assigne(request):
 @login_required_chef
 def modify_intervention(request, intervention_id):
     intervention = get_object_or_404(interven, pk=intervention_id)
-    s=service.objects.all()
-    
-    # Check if the user is a chef and belongs to the correct service
-    if request.user.is_authenticated and request.user.is_chefservice and request.user.service.nom == "noservice":
-        chef = CustomUser.objects.filter(is_chefservice=True)
-        assign_to = 'service chef'
-    else:
-        # Assign intervention to the service chef
-        service_chef = CustomUser.objects.filter(service=request.user.service, is_technicien=True)
-        technicians = [service_chef]
-        assign_to = 'technician' 
+    s = service.objects.all()
+    t = CustomUser.objects.filter(service=intervention.service)
+
 
     if request.method == 'POST':
         intervention.date_debut = request.POST.get('date_debut')
         intervention.date_fin = request.POST.get('date_fin')
-        service_id = request.POST.get('id_service')  # Get the selected service ID from the form
-        service_instance = service.objects.get(id=service_id)  # Retrieve the service instance from the database
-    
-    
-        if assign_to == 'technician':
-            technician_id = request.POST.get('technicians')  # Assuming this is the ID of the technician
-            intervention.technicien = technician_id
-            intervention.etat = "Assigné"
-        else:
+        service_id = request.POST.get('id_service')
+        technician_id = request.POST.get('technicians')
+
+          # Get the selected service ID from the form
+        
+        
+
+        if request.user.is_authenticated and request.user.is_chefservice and request.user.service.nom == "noservice":
+            # Assign intervention to the service chef if user is a chef and belongs to the correct service
             intervention.technicien = None  # Unassign any previous technician
             intervention.etat = "Assigné"
-            intervention.service=service_instance
+            service_instance = get_object_or_404(service, pk=service_id)
+
+       
+            intervention.service = service_instance
+        
+        else:
+            # Assign intervention to the selected technician
+            technician_service = CustomUser.objects.filter(is_technicien=True, service=request.user.service).first()
+            if technician_service:
+                intervention.technicien =int(technician_id)
+                intervention.etat = "Assigné"
+                intervention.service = technician_service.service
+            else:
+                # Handle the case where no technician with the same service as the chef service is found
+                return HttpResponse('No technician found with the same service as the chef service.', status=400)
 
         intervention.save()
         messages.success(request, 'Intervention updated successfully.')
         return redirect('chefservice')
-    
-    return render(request, 'modify_intervention.html', {'intervention': intervention, 's': s})
 
+    return render(request, 'modify_intervention.html', {'intervention': intervention, 's': s, 't': t})
 def activer(request):
     if request.POST :
         if request.method == 'POST':
@@ -280,7 +285,44 @@ def CustomerListe(request):
             return JsonResponse(serializer.errors, status=400)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
+@csrf_exempt
+def CustomerListet(request):
+    if request.method == 'GET':
+        users = CustomUser.objects.filter(is_technicien=True)
+        serializer = CustomeUserSerializers(users, many=True)
+        return JsonResponse(serializer.data, safe=False)
+    elif request.method == 'PUT':
+        data = JSONParser().parse(request)
+        user_id = data.get('id')  # Assuming 'id' is provided in the request data
+        user = CustomUser.objects.get(pk=user_id)
+        serializer = CustomeUserSerializers(user, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=200)
+        else:
+            return JsonResponse(serializer.errors, status=400)
     
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+    #api to show liste of intervention 
+@csrf_exempt
+def intervention(request):
+    if request.method == 'GET':
+        interventions = interven.objects.all()
+        serializer = IntervetionSerializers(interventions, many=True)
+        return JsonResponse(serializer.data, safe=False)
+    elif request.method == 'PUT':
+        data = JSONParser().parse(request)
+        intervention_id = data.get('id')  # Assuming 'id' is provided in the request data
+        intervention = interven.objects.get(pk=intervention_id)
+        serializer = IntervetionSerializers(intervention, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=200)
+        else:
+            return JsonResponse(serializer.errors, status=400)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)    
 
 # def ServiceListe(request):
 #     if request.method == 'GET':

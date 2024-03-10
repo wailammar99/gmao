@@ -15,14 +15,22 @@
         <label for="date_fin">Date de fin:</label><br>
         <input type="date" id="date_fin" name="date_fin" value="{{ intervention.date_fin }}"><br><br>
         
-        <label for="service">service:</label><br>
-        <select id="id_service" name="id_service">
-
-          {% for s in s %}
-            <option value="{{ s.id }}">{{ s.nom }}</option>
-          {% endfor %}
-          
-        </select><br><br>
+        <label for="service">Service:</label><br>
+        {% if intervention.service.nom == "noservice" %}
+            <!-- If the service is "noservice", display all services -->
+            <select id="id_service" name="id_service">
+                {% for s in s %}
+                    <option value="{{ s.id }}" {% if intervention.service.id == s.id %} selected {% endif %}>{{ s.nom }}</option>
+                {% endfor %}
+            </select><br><br>
+        {% else %}
+            <!-- If the service is not "noservice", display only technicians -->
+            <select id="technicians" name="technicians">
+                {% for technician in t  %}
+                    <option value="{{ technician.id }}">{{ technician.username }}</option>
+                {% endfor %}
+            </select><br><br>
+        {% endif %}
         
         <button type="submit">Submit</button>
     </form>

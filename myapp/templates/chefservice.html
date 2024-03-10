@@ -3,27 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <title>Page du chef de service</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <h1>Bonjour {{ user.username }}, vous êtes chef de <h1>{{user.service.nom}}</h1></h1>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Chef de Service</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'modifielesnifomation' %}">Modifier les informations</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'logout' %}">Déconnexion</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+    <h1>Bonjour {{ user.username }}, vous êtes chef de <h1>{{ user.service.nom }}</h1></h1>
     <h1>Votre adresse email est {{ user.email }}</h1>
 
-    <table>
-        <thead>
+    <table class="table">
+        <thead class="thead-light">
             <tr>
                 <th>Description</th>
                 <th>Date de création</th>
@@ -44,27 +54,25 @@
                 <td>{{ intervention.date_fin }}</td>
                 <td>{{ intervention.etat }}</td>
                 <td>{{ intervention.citoyen.username }}</td> 
-                <td>
-                    {{ intervention.technicien }}
-            
-                </td>
+                <td>{{ intervention.technicien }}</td>
                 <td>
                     <form action="{% url 'refuser' %}" method="POST" style="display:inline;">
                         {% csrf_token %}
                         <input type="hidden" name="id" value="{{ intervention.id }}">
-                        <button type="submit">Refuser</button>
+                        <button type="submit" class="btn btn-danger">Refuser</button>
                     </form>
                     <form action="{% url 'assigne' %}" method="POST" style="display:inline;">
                         {% csrf_token %}
                         <input type="hidden" name="id" value="{{ intervention.id }}">
-                        <button type="submit">Assigner</button>
+                        <button type="submit" class="btn btn-success">Assigner</button>
                     </form>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    <a href="{% url 'modifielesnifomation' %}">Modifier les informations</a>
-    <a href="{% url 'logout' %}">Déconnexion</a>
-</body>
-</html>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/j

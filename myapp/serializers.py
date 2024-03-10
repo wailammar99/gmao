@@ -5,12 +5,13 @@ class ServiceSerializers(serializers.ModelSerializer):
         model=service
         fields='__all__'
 class CustomeUserSerializers(serializers.ModelSerializer):
-    service=ServiceSerializers()
+    service = ServiceSerializers()
     class Meta:
         model = CustomUser
         fields = '__all__'
 class IntervetionSerializers(serializers.ModelSerializer):
     citoyen = CustomeUserSerializers()
+    service = ServiceSerializers()
     class Meta :
         model=interven
         fields='__all__'

@@ -3,113 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <title>Directeur Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
+        /* Votre style personnalisé ici */
     </style>
 </head>
 <body>
-    
-<h1>Hello {{ user.username }}, your role is Directeur</h1>
-<h1>Your email is {{ user.email }}</h1>
 
-<table>
-    <thead>
-        <tr>
-            <th>Description</th>
-            <th>Date de création</th>
-            <th>Date de début</th>
-            <th>Date de fin</th>
-            <th>État</th>
-            <th>ID du citoyen</th>
-            <th>Chef de Service</th>
-            <th>Technicien</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for i in i %}
-        <tr>
-            <td>{{ i.description }}</td>
-            <td>{{ i.date_creation }}</td>
-            <td>{{ i.date_debut }}</td>
-            <td>{{ i.date_fin }}</td>
-            <td>{{ i.etat }}</td>
-            <td>{{ i.citoyen.email }}</td>
-            <td>{{ i.chef_service.username }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<table>
-    <thead>
-        <tr>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>ACTIVE</th>
-            <th>Action</th>
-            <th>Service</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for user in u %}
-        <tr>
-            <td>{{ user.username }}</td>
-            <td>{{ user.email }}</td>
-            <td>
-                {% if user.is_admin %}
-                    Admin
-                {% elif user.is_directeur %}
-                    Directeur
-                {% elif user.is_chefservice %}
-                    Chef Service
-                {% elif user.is_technicien %}
-                    Technicien
-                {% elif user.is_citoyen %}
-                    Citoyen
-                {% else %}
-                    No Role
-                {% endif %}
-            </td>
-            <td>{% if user.is_active %}Active{% else %}Inactive{% endif %}</td>
-            <td>
-                <form action="{% url 'active' %}" method="POST" style="display:inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="id" value="{{ user.id }}">
-                    <button type="submit">Activate</button>
-                </form>
-            
-            
-                <form action="{% url 'modify_service_page' %}" method="GET" style="display:inline;">
-                    <input type="hidden" name="user_id" value="{{ user.id }}">
-                    <button type="submit">Modify Service</button>
-                </form>
-            </td>
-            <td>{{ user.service.nom }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Directeur</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#users">Users</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#data">intervention</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'modifielesnifomation' %}">Modify Information</a>
+         
 
-<a href="{% url 'modifielesnifomation' %}">Modifier les informations</a>
+        </li>
+        <li class="nav-item">
+          {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="nav-link">Déconnexion</a>
+          {% else %}
+            <a href="{% url 'login' %}" class="nav-link">Connexion</a>
+          {% endif %}
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
 
-{% if user.is_authenticated %}
-<a href="{% url 'logout' %}">Déconnexion</a>
-{% else %}
-<a href="{% url 'login' %}">Connexion</a>
-{% endif %}
+<div class="container mt-5">
+  <h1>Hello, {{ user.username }}</h1>
+ 
+  <h2>Your email is {{ user.email }}</h2>
+  <div class="row">
+    <div class="col">
+      <div class="table-responsive" id="users">
+        <h2>Users</h2>
+        <!-- Table des utilisateurs -->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>ACTIVE</th>
+                    <th>Action</th>
+                    <th>Service</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in u %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        {% if user.is_admin %}
+                            Admin
+                        {% elif user.is_directeur %}
+                            Directeur
+                        {% elif user.is_chefservice %}
+                            Chef Service
+                        {% elif user.is_technicien %}
+                            Technicien
+                        {% elif user.is_citoyen %}
+                            Citoyen
+                        {% else %}
+                            No Role
+                        {% endif %}
+                    </td>
+                    <td>{% if user.is_active %}Active{% else %}Inactive{% endif %}</td>
+                    <td>
+                        <form action="{% url 'active' %}" method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="id" value="{{ user.id }}">
+                            <button type="submit" class="btn btn-primary">Activate</button>
+                        </form>
+                        <form action="{% url 'modify_service_page' %}" method="GET" style="display:inline;">
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <button type="submit" class="btn btn-secondary">Modify Service</button>
+                        </form>
+                    </td>
+                    <td>{{ user.service.nom }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="col">
+      <div class="table-responsive" id="data">
+        <h2>Data</h2>
+        <!-- Table de données -->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Date de création</th>
+                    <th>Date de début</th>
+                    <th>Date de fin</th>
+                    <th>État</th>
+                    <th>ID du citoyen</th>
+                    <th>Chef de Service</th>
+                    <th>Technicien</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in i %}
+                <tr>
+                    <td>{{ i.description }}</td>
+                    <td>{{ i.date_creation }}</td>
+                    <td>{{ i.date_debut }}</td>
+                    <td>{{ i.date_fin }}</td>
+                    <td>{{ i.etat }}</td>
+                    <td>{{ i.citoyen.email }}</td>
+                    <td>{{ i.chef_service.username }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="col">
+     
+    </div>
+  </div>
+</div>
 
-<h1>Session is {{ session }}</h1>
-  
 </body>
 </html>

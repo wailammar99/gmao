@@ -19,6 +19,8 @@ urlpatterns = [
            path('active/', views.activer, name='active'),
             path('modify-intervention/<int:intervention_id>/', views.modify_intervention, name='modify_intervention'),
             path('listecustomer/',views.CustomerListe),
+             path('listecustomer/is_technicine',views.CustomerListet),
+             path('intervention/',views.intervention),
             # path("listeservice",views.ServiceListe),
             path("createservice",views.create_service,name="createservice"),
              path('modify-service/', views.modify_service_page, name='modify_service_page'),
