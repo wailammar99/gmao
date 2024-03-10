@@ -2,57 +2,92 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>technicien page</title>
+    <title>Technician Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
+        /* Your custom styles here */
+        /* Add custom styles if needed */
     </style>
 </head>
-<body>
-   
- <h1> hello {{ user.username }} your role is technicien</h1>
- <h1> your email is  {{ user.email }} </h1>
- <table>
-    <thead>
-        <tr>
-            <th>Description</th>
-            <th>Date de création</th>
-            <th>Date de début</th>
-            <th>Date de fin</th>
-            <th>État</th>
-            <th>ID du citoyen</th>
-           
-           
-        </tr>
-    </thead>
-    <tbody>
-        {% for i in i %}
-        <tr>
-            <td>{{ i.description }}</td>
-            <td>{{ i.date_creation }}</td>
-            <td>{{ i.date_debut }}</td>
-            <td>{{ i.date_fin }}</td>
-            <td>{{ i.etat }}</td>
-            <td>{{ i.citoyen.email }}</td>
-         
-            
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">Technician Page</a>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'modifielesnifomation' %}">Modify Information</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
- <a href="{% url 'logout' %}">Logout</a>
- <a href="{% url 'modifielesnifomation' %}">modifie les infromation </a>
+    <div class="container mt-5">
+        <h1>Hello, {{ user.username }}</h1>
+        <h2>Your email is {{ user.email }}</h2>
+        <div class="row">
+            <div class="col">
+                <div class="table-responsive">
+                    <h2>Interventions Assigned to You</h2>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Date de création</th>
+                                <th>Date de début</th>
+                                <th>Date de fin</th>
+                                <th>État</th>
+                                <th>ID du citoyen</th>
+                                <th>Équipements</th>
+                                <th>action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for intervention in interventions %}
+                            <tr>
+                                <td>{{ intervention.description }}</td>
+                                <td>{{ intervention.date_creation }}</td>
+                                <td>{{ intervention.date_debut }}</td>
+                                <td>{{ intervention.date_fin }}</td>
+                                <td>{{ intervention.etat }}</td>
+                                <td>{{ intervention.citoyen.email }}</td>
+                                <td>
+                                    <ul>
+                                        {% for equipment in intervention.equipements.all %}
+                                            <li>{{ equipment.nom }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                                <td>
+                                    <form action="{% url 'start_intervention' %}" method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="id" value="{{ intervention.id }}">
+                                        <button type="submit" class="btn btn-primary">Demarer</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form action="{% url 'finish_intervention' %}" method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="id" value="{{ intervention.id }}">
+                                        <button type="submit" class="btn btn-success">Terminer</button>
+                                    </form>
+                                </td>
+                                
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

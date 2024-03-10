@@ -31,6 +31,14 @@
                 {% endfor %}
             </select><br><br>
         {% endif %}
+
+        <!-- Field for selecting equipment -->
+        <label for="equipements">Equipements:</label><br>
+        <select id="equipements" name="equipements" multiple>
+            {% for equipment in e %}
+                <option value="{{ equipment.id }}">{{ equipment.nom }}</option>
+            {% endfor %}
+        </select><br><br>
         
         <button type="submit">Submit</button>
     </form>

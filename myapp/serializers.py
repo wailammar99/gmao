@@ -15,3 +15,8 @@ class IntervetionSerializers(serializers.ModelSerializer):
     class Meta :
         model=interven
         fields='__all__'
+class EquimenentSerializers(serializers.ModelSerializer):
+
+    class Meta :
+        model=Equipement
+        fields='__all__'

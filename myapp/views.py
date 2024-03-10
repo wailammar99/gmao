@@ -2,8 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .decorators import *
 from .serializers import *
-from rest_framework.parsers import JSONParser
+from rest_framework.parsers import JSONParser,api_settings
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Equipement
 
 from .forms import *
 from django.contrib.auth import authenticate, login,logout
@@ -14,7 +18,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.timezone import *
 from .models import *
 from django.contrib.auth.decorators import login_required,permission_required
-from django.http import HttpResponse ,JsonResponse
+from django.http import HttpResponse ,JsonResponse,response
 
 def index(request):
     return render(request, 'index.html')
@@ -85,9 +89,8 @@ def technicien(request):
    
    if  CustomUser.is_authenticated and CustomUser.is_technicien: 
      
-     i = interven.objects.filter(technicien=request.user.id)
-     serialized_interventions = IntervetionSerializers(i, many=True)
-     return render(request, 'technicien.html',{'i':serialized_interventions.data})
+     interventions= interven.objects.filter(technicien=request.user.id).select_related('service').prefetch_related('equipements')
+     return render(request, 'technicien.html',{'interventions':interventions})
 #la page de chef de service peut modifie les infomaation personal eet ausii assigne les technicne aux intervention 
 @login_required_chef
 def chefservice(request):
@@ -220,6 +223,7 @@ def modify_intervention(request, intervention_id):
     intervention = get_object_or_404(interven, pk=intervention_id)
     s = service.objects.all()
     t = CustomUser.objects.filter(service=intervention.service)
+    e=Equipement.objects.all()
 
 
     if request.method == 'POST':
@@ -248,15 +252,20 @@ def modify_intervention(request, intervention_id):
                 intervention.technicien =int(technician_id)
                 intervention.etat = "Assigné"
                 intervention.service = technician_service.service
+                intervention.equipements.clear()  # Clear existing selection
+                
             else:
                 # Handle the case where no technician with the same service as the chef service is found
                 return HttpResponse('No technician found with the same service as the chef service.', status=400)
 
         intervention.save()
+        selected_equipments_ids = request.POST.getlist('equipements')  # Get the list of selected equipment IDs from the form
+        selected_equipments = Equipement.objects.filter(pk__in=selected_equipments_ids)  # Get the selected equipment objects
+        intervention.equipements.add(*selected_equipments)  # Add selected equipment to the intervention
         messages.success(request, 'Intervention updated successfully.')
         return redirect('chefservice')
 
-    return render(request, 'modify_intervention.html', {'intervention': intervention, 's': s, 't': t})
+    return render(request, 'modify_intervention.html', {'intervention': intervention, 's': s, 't': t,"e":e})
 def activer(request):
     if request.POST :
         if request.method == 'POST':
@@ -356,3 +365,56 @@ def modify_service_page(request):
         user.service_id = new_service_id
         user.save()
         return redirect('directeur')  # Redirect to the Directeur page after modifying service
+    
+#api for equiment 
+@api_view(['GET', 'POST'])
+def equipement_list(request):
+    if request.method == 'GET':
+        equipements = Equipement.objects.all()
+        serializer = EquimenentSerializers(equipements, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = EquimenentSerializers(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'PUT'])
+def equipement_detail(request, pk):
+    try:
+        equipement = Equipement.objects.get(pk=pk)
+    except Equipement.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = EquimenentSerializers(equipement)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        serializer = EquimenentSerializers(equipement, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#methode pour le button de technocne appuyie pour demarer le intervetion 
+def start_intervention(request):
+    if request.method == 'POST':
+        intervention_id = request.POST.get('id')
+        intervention = interven.objects.get(pk=intervention_id)
+        intervention.etat = "En cours"  # Update intervention status
+        intervention.save()
+        return redirect('technicien')
+    else:
+        return HttpResponse('Method Not Allowed', status=405)
+#methode pour terminer le intervention par le technicine 
+def finish_intervention(request):
+    if request.method == 'POST':
+        intervention_id = request.POST.get('id')
+        intervention = interven.objects.get(pk=intervention_id)
+        intervention.etat = "Terminé"  # Update intervention status
+        intervention.save()
+        return redirect('technicien')
+    else:
+        return HttpResponse('Method Not Allowed', status=405)

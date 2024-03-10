@@ -24,6 +24,10 @@ urlpatterns = [
             # path("listeservice",views.ServiceListe),
             path("createservice",views.create_service,name="createservice"),
              path('modify-service/', views.modify_service_page, name='modify_service_page'),
+             path('equipements/', views.equipement_list),
+              path('equipements/<int:pk>/', views.equipement_detail),
+              path("start_intervention",views.start_intervention,name="start_intervention"),
+              path("finish_intervention",views.finish_intervention,name="finish_intervention"),
           
             
 

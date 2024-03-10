@@ -7,6 +7,25 @@ from django.utils.timezone import *
 class service (models.Model):
     nom=models.CharField(max_length=150)
     descrtions=models.TextField(max_length=3000)
+    def __str__(self):
+        return self.nom
+
+
+class Equipement(models.Model):
+    nom = models.CharField(max_length=100)
+    marque = models.CharField(max_length=100)
+    prix = models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.TextField(blank=True)
+    stock = models.PositiveIntegerField(default=0)
+    date_ajout = models.DateField(auto_now_add=True)
+    statut = models.BooleanField(default=True)
+    numero_serie = models.CharField(max_length=100, blank=True)
+    date_expiration = models.DateField(blank=True, null=True)
+    caracteristiques_techniques = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.nom
+
 
 class CustomUser(AbstractUser):
     is_admin= models.BooleanField('Is admin', default=False)
@@ -24,6 +43,7 @@ class interven(models.Model):
     citoyen = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     technicien = models.IntegerField(null=True, blank=True)
     service=models.ForeignKey('service',on_delete=models.CASCADE)
+    equipements = models.ManyToManyField(Equipement, blank=True)
     
     # Define choices for the state
     ETAT_CHOICES = (
