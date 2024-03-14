@@ -4,11 +4,16 @@ from django import forms
 from django.contrib.auth.models import AbstractUser, Group,User
 from datetime import *
 from django.utils.timezone import *
+
 class service (models.Model):
     nom=models.CharField(max_length=150)
     descrtions=models.TextField(max_length=3000)
     def __str__(self):
         return self.nom
+
+class enatte (models.Model):
+    description=models.TextField()
+    date_de_creation=models.DateField(default=date.today())
 
 
 class Equipement(models.Model):
@@ -34,6 +39,12 @@ class CustomUser(AbstractUser):
     is_directeur = models.BooleanField('directeur', default=False)
     is_citoyen=  models.BooleanField('citoyen', default=False)
     service = models.ForeignKey('service', null=True, blank=True,on_delete=models.CASCADE)
+class converstation(models.Model):
+    titre=models.CharField(max_length=50)
+    message=models.TextField()
+    date_message=models.DateTimeField()
+    recevoir=models.ForeignKey(CustomUser,on_delete=models.CASCADE,null=True ,blank=True)
+    envoyer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='conversation_sends', null=True, blank=True)    
     
 class interven(models.Model):
     description = models.TextField(max_length=2048)
@@ -44,7 +55,7 @@ class interven(models.Model):
     technicien = models.IntegerField(null=True, blank=True)
     service=models.ForeignKey('service',on_delete=models.CASCADE)
     equipements = models.ManyToManyField(Equipement, blank=True)
-    
+    raison=models.ForeignKey(enatte,on_delete=models.CASCADE,null=True ,blank=True)
     # Define choices for the state
     ETAT_CHOICES = (
         ('Nouveau', 'Nouveau'),
@@ -57,18 +68,18 @@ class interven(models.Model):
         
     )
     etat = models.CharField(max_length=200, choices=ETAT_CHOICES, default='Nouveau')
-
+    # con=models.ForeignKey(converstation,on_delete=models.CASCADE,null=True ,blank=True)
+    
     def save(self, *args, **kwargs):
         # If the intervention is new (i.e., it doesn't have a primary key yet),
         # set its state to "Nouveau"
         if not self.pk:
             self.etat = 'Nouveau'
         super().save(*args, **kwargs)
-
-
-
-
-
+    
+    
+    
+    
     
 
     

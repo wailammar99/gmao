@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,6 +7,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <style>
         /* Votre style personnalisé ici */
+        .inactive {
+            background-color: #ffcccc; /* Red background for inactive accounts */
+        }
+        .active {
+            background-color: #ccffcc; /* Green background for active accounts */
+        }
     </style>
 </head>
 <body>
@@ -26,8 +33,6 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'modifielesnifomation' %}">Modify Information</a>
-         
-
         </li>
         <li class="nav-item">
           {% if user.is_authenticated %}
@@ -43,7 +48,6 @@
 
 <div class="container mt-5">
   <h1>Hello, {{ user.username }}</h1>
- 
   <h2>Your email is {{ user.email }}</h2>
   <div class="row">
     <div class="col">
@@ -63,7 +67,7 @@
             </thead>
             <tbody>
                 {% for user in u %}
-                <tr>
+                <tr {% if user.is_active %}class="active"{% else %}class="inactive"{% endif %}>
                     <td>{{ user.username }}</td>
                     <td>{{ user.email }}</td>
                     <td>
@@ -97,6 +101,8 @@
                 </tr>
                 {% endfor %}
             </tbody>
+            <tbody id="user-list"> <!-- This is where the user data will be appended -->
+            </tbody>
         </table>
       </div>
     </div>
@@ -127,6 +133,13 @@
                     <td>{{ i.etat }}</td>
                     <td>{{ i.citoyen.email }}</td>
                     <td>{{ i.chef_service.username }}</td>
+                    
+                    <td>
+                      {% for technician in technicians %}
+                      {% if technician.id == i.technicien %}
+                          {{ technician.email }}
+                      {% endif %}
+                  {% endfor %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -138,6 +151,40 @@
     </div>
   </div>
 </div>
+<script>
+  $(document).ready(function() {
+    // AJAX request to fetch updated user list
+    function updateUserList() {
+        $.ajax({
+            type: 'GET',
+            url: '{% url "cc" %}',
+            success: function(data) {
+                // Clear previous data
+                $('#user-list').empty();
 
+                // Append each user's details as a row in the table
+                data.forEach(function(user) {
+                    $('#user-list').append(
+                        '<tr>' +
+                        '<td>' + user.username + '</td>' +
+                        '<td>' + user.email + '</td>' +
+                        '<td>' + user.role + '</td>' +  // Assuming the user object contains a role field
+                        '<td>' + (user.is_active ? 'Active' : 'Inactive') + '</td>' +
+                        '</tr>'
+                    );
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+            }
+        });
+    }
+
+    // Call updateUserList() when the page loads
+    updateUserList();
+});
+
+
+</script>
 </body>
 </html>

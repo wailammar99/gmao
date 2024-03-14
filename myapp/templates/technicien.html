@@ -29,6 +29,7 @@
     <div class="container mt-5">
         <h1>Hello, {{ user.username }}</h1>
         <h2>Your email is {{ user.email }}</h2>
+        <h2>your service is :{{user.service}}</h2>
         <div class="row">
             <div class="col">
                 <div class="table-responsive">
@@ -43,7 +44,7 @@
                                 <th>État</th>
                                 <th>ID du citoyen</th>
                                 <th>Équipements</th>
-                                <th>action</th>
+                                <th colspan="3">Action</th> <!-- colspan="3" to merge three columns for actions -->
                             </tr>
                         </thead>
                         <tbody>
@@ -76,7 +77,13 @@
                                         <button type="submit" class="btn btn-success">Terminer</button>
                                     </form>
                                 </td>
-                                
+                                <td>
+                                    <form action="{% url 'en' intervention.id %}" method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="id" value="{{ intervention.id }}">
+                                        <button type="submit" class="btn btn-success">En Attente</button>
+                                    </form>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>

@@ -97,8 +97,10 @@ def chefservice(request):
     if request.user.is_authenticated and request.user.is_chefservice:
         # Filter interventions based on the service of the logged-in user
         interventions = interven.objects.filter(service=request.user.service)
-       
-        return render(request, 'chefservice.html', {'i': interventions})
+        i=interven.objects.all()
+        interventionenatte=interven.objects.filter(raison=True , service=request.user.service)
+        
+        return render(request, 'chefservice.html', {'i': interventions,'enattete':interventionenatte})
     else:
         # Redirect or handle unauthorized access
         return HttpResponse("You are not authorized to access this page.")
@@ -108,14 +110,18 @@ def chefservice(request):
 def directeur(request):
     i=interven.objects.all()
     u=CustomUser.objects.all()
+    technicians2 = CustomUser.objects.filter(id__in=i.values_list('technicien', flat=True))
+    
     
     serializer_user = CustomeUserSerializers(u, many=True)
     serializer_interv=IntervetionSerializers(i,many=True)
+    serializer_techncin=CustomeUserSerializers(technicians2,many=True)
+
     
 
    
     if  CustomUser.is_authenticated and CustomUser.is_directeur:
-     return render(request, 'directeur.html',{'i':serializer_interv.data,'session': request.session,'u': serializer_user.data})
+     return render(request, 'directeur.html',{'user': request.user,'i':serializer_interv.data,'session': request.session,'u': serializer_user.data,"technicians":serializer_techncin.data})
 #la page de citoyen    
 def citoyen(request):
     if  CustomUser.is_authenticated and CustomUser.is_citoyen:
@@ -379,7 +385,7 @@ def equipement_list(request):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)                                                                                                                                                        
 
 @api_view(['GET', 'PUT'])
 def equipement_detail(request, pk):
@@ -402,6 +408,7 @@ def equipement_detail(request, pk):
 def start_intervention(request):
     if request.method == 'POST':
         intervention_id = request.POST.get('id')
+
         intervention = interven.objects.get(pk=intervention_id)
         intervention.etat = "En cours"  # Update intervention status
         intervention.save()
@@ -413,8 +420,40 @@ def finish_intervention(request):
     if request.method == 'POST':
         intervention_id = request.POST.get('id')
         intervention = interven.objects.get(pk=intervention_id)
-        intervention.etat = "Terminé"  # Update intervention status
+        intervention.etat = "Terminé"
+          # Update intervention status
         intervention.save()
         return redirect('technicien')
     else:
         return HttpResponse('Method Not Allowed', status=405)
+#technicien put faire une une rasion pourquoi le 
+def cree_reason(request, id):
+    if request.method == 'POST':
+        intervention_id = request.POST.get('id')
+        try:
+            intervention = interven.objects.get(id=intervention_id)
+            intervention.etat = "En attente"
+            
+            description = request.POST.get('description')
+            date_de_creation = request.POST.get('date_de_creation')
+            enatte_obj = enatte.objects.create(description=description, date_de_creation=date_de_creation)
+            
+            intervention.raison = enatte_obj
+            intervention.save()
+            
+            return redirect("technicien")  # Redirect to success URL
+        except interven.DoesNotExist:
+            return render(request, 'tech.html')
+    else:
+        return render(request, 'cree_une_raison.html')
+def topagecreeraison(request, id):
+    intervention = interven.objects.get(id=id)
+    return render(request, 'cree_une_raison.html', {'intervention': intervention})
+
+
+# def cree_converstion(request):
+#     if request.method=='POST':
+#     intervention_id=request.POST.get('id')
+#     try :
+#         intervention=interven.objects.get(id=intervention_id)
+

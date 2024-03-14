@@ -23,6 +23,7 @@
         <li class="nav-item">
           <a class="nav-link" href="{% url 'logout' %}">Déconnexion</a>
         </li>
+       
       </ul>
     </div>
   </div>
@@ -31,6 +32,7 @@
 <div class="container">
     <h1>Bonjour {{ user.username }}, vous êtes chef de <h1>{{ user.service.nom }}</h1></h1>
     <h1>Votre adresse email est {{ user.email }}</h1>
+    <h1>Votre service  est {{ user.service }}</h1>
 
     <table class="table">
         <thead class="thead-light">
@@ -42,6 +44,7 @@
                 <th>État</th>
                 <th>Citoyen</th>
                 <th>Technicien</th>
+                <th>en attente </th>
                 <th>Actions</th> <!-- Ajout d'une colonne pour les actions -->
             </tr>
         </thead>
@@ -55,6 +58,7 @@
                 <td>{{ intervention.etat }}</td>
                 <td>{{ intervention.citoyen.username }}</td> 
                 <td>{{ intervention.technicien }}</td>
+                <td>{{ intervention.raison.description}}</td>
                 <td>
                     <form action="{% url 'refuser' %}" method="POST" style="display:inline;">
                         {% csrf_token %}

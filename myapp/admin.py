@@ -5,3 +5,5 @@ from .models import *
 admin.site.register(CustomUser)
 admin.site.register(Equipement)
 admin.site.register(interven)
+admin.site.register(enatte)
+admin.site.register(converstation)

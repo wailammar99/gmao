@@ -1,0 +1,10 @@
+<form method="post" action="{% url 'raison' intervention.id %}">
+    {% csrf_token %}
+    <label for="id_description">Description:</label><br>
+    <textarea id="id_description" name="description" rows="4" cols="50"></textarea><br>
+    <label for="id_date_de_creation">Date de création:</label><br>
+    <input type="hidden" name="id" value="{{ intervention.id }}">
+
+    <input type="date" id="id_date_de_creation" name="date_de_creation"><br>
+    <button type="submit">Submit</button>
+</form>

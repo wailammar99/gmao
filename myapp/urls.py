@@ -18,7 +18,7 @@ urlpatterns = [
            path('admiin/', views.admin, name='admin'),
            path('active/', views.activer, name='active'),
             path('modify-intervention/<int:intervention_id>/', views.modify_intervention, name='modify_intervention'),
-            path('listecustomer/',views.CustomerListe),
+            path('listecustomer/',views.CustomerListe,name="cc"),
              path('listecustomer/is_technicine',views.CustomerListet),
              path('intervention/',views.intervention),
             # path("listeservice",views.ServiceListe),
@@ -28,6 +28,10 @@ urlpatterns = [
               path('equipements/<int:pk>/', views.equipement_detail),
               path("start_intervention",views.start_intervention,name="start_intervention"),
               path("finish_intervention",views.finish_intervention,name="finish_intervention"),
+              path("intervention/<int:id>",views.cree_reason,name="raison"),
+             path('cree_raison/<int:id>', views.topagecreeraison, name='en'),
+
+             
           
             
 
