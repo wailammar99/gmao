@@ -15,8 +15,9 @@
         <label for="date_fin">Date de fin:</label><br>
         <input type="date" id="date_fin" name="date_fin" value="{{ intervention.date_fin }}"><br><br>
         
-        <label for="service">Service:</label><br>
+        
         {% if intervention.service.nom == "noservice" %}
+        <label for="service">Service:</label><br>
             <!-- If the service is "noservice", display all services -->
             <select id="id_service" name="id_service">
                 {% for s in s %}
@@ -25,6 +26,7 @@
             </select><br><br>
         {% else %}
             <!-- If the service is not "noservice", display only technicians -->
+            <label for="service">technician:</label><br>
             <select id="technicians" name="technicians">
                 {% for technician in t  %}
                     <option value="{{ technician.id }}">{{ technician.username }}</option>
@@ -33,11 +35,13 @@
         {% endif %}
 
         <!-- Field for selecting equipment -->
+        {% if intervention.service.nom != "noservice"%}
         <label for="equipements">Equipements:</label><br>
         <select id="equipements" name="equipements" multiple>
             {% for equipment in e %}
                 <option value="{{ equipment.id }}">{{ equipment.nom }}</option>
             {% endfor %}
+            {% endif%}
         </select><br><br>
         
         <button type="submit">Submit</button>

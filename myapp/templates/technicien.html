@@ -29,7 +29,7 @@
     <div class="container mt-5">
         <h1>Hello, {{ user.username }}</h1>
         <h2>Your email is {{ user.email }}</h2>
-        <h2>your service is :{{user.service}}</h2>
+        <h2>Your service is: {{ user.service }}</h2>
         <div class="row">
             <div class="col">
                 <div class="table-responsive">
@@ -44,6 +44,7 @@
                                 <th>État</th>
                                 <th>ID du citoyen</th>
                                 <th>Équipements</th>
+                                <th>Conversation</th> <!-- Updated the table header -->
                                 <th colspan="3">Action</th> <!-- colspan="3" to merge three columns for actions -->
                             </tr>
                         </thead>
@@ -62,6 +63,24 @@
                                             <li>{{ equipment.nom }}</li>
                                         {% endfor %}
                                     </ul>
+                                </td>
+                                <td>
+                                    <h2>Conversations:</h2>
+                                    <ul>
+                                        {% if intervention.conversation %}
+                                            <li><a href="{% url 'view_conversation' intervention.conversation.id %}">{{ intervention.conversation.title }}</a></li>
+                                        {% else %}
+                                            <li>No conversation</li>
+                                        {% endif %}
+                                    </ul>
+                                    <!-- Modified the form to conditionally show/hide the button -->
+                                    {% if not intervention.conversation %}
+                                        <form action="{% url 'start_conversation' %}" method="POST">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="intervention_id" value="{{ intervention.id }}">
+                                            <button type="submit" class="btn btn-primary">Start Conversation</button>
+                                        </form>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     <form action="{% url 'start_intervention' %}" method="post" style="display: inline;">

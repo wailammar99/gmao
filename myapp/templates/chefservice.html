@@ -23,16 +23,15 @@
         <li class="nav-item">
           <a class="nav-link" href="{% url 'logout' %}">Déconnexion</a>
         </li>
-       
       </ul>
     </div>
   </div>
 </nav>
 
 <div class="container">
-    <h1>Bonjour {{ user.username }}, vous êtes chef de <h1>{{ user.service.nom }}</h1></h1>
+    <h1>Bonjour {{ user.username }}, vous êtes chef de service : <h1>{{ user.service.nom }}</h1></h1>
     <h1>Votre adresse email est {{ user.email }}</h1>
-    <h1>Votre service  est {{ user.service }}</h1>
+    <h1>Votre service est {{ user.service }}</h1>
 
     <table class="table">
         <thead class="thead-light">
@@ -44,8 +43,9 @@
                 <th>État</th>
                 <th>Citoyen</th>
                 <th>Technicien</th>
-                <th>en attente </th>
-                <th>Actions</th> <!-- Ajout d'une colonne pour les actions -->
+                <th>en attente</th>
+                <th>Actions</th>
+                <th>conversation</th> <!-- Ajout d'une colonne pour les actions -->
             </tr>
         </thead>
         <tbody>
@@ -58,7 +58,7 @@
                 <td>{{ intervention.etat }}</td>
                 <td>{{ intervention.citoyen.username }}</td> 
                 <td>{{ intervention.technicien }}</td>
-                <td>{{ intervention.raison.description}}</td>
+                <td>{{ intervention.raison.description }}</td>
                 <td>
                     <form action="{% url 'refuser' %}" method="POST" style="display:inline;">
                         {% csrf_token %}
@@ -67,11 +67,67 @@
                     </form>
                     <form action="{% url 'assigne' %}" method="POST" style="display:inline;">
                         {% csrf_token %}
+                        {% if user.service.nom == 'noservice' %}
                         <input type="hidden" name="id" value="{{ intervention.id }}">
-                        <button type="submit" class="btn btn-success">Assigner</button>
+                        <button type="submit" class="btn btn-success">Assigner service</button>
+                        {% else %}
+                        <input type="hidden" name="id" value="{{ intervention.id }}">
+                        <button type="submit" class="btn btn-success">Assigner au technicien</button>
+                        {% endif %}
                     </form>
+                    {% if intervention.etat == 'Terminé' %}
+                    <form action="{% url 'cloture' %}" method="POST" style="display:inline;">
+                      {% csrf_token %}
+                      <input type="hidden" name="id" value="{{ intervention.id }}">
+                      <button type="submit" class="btn btn-info">Clôture</button>
+                    </form>
+                    {% endif %}
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#interventionInfoModal{{ intervention.id }}">
+                      Voir détails
+                    </button>
+                </td>
+                <td>
+                    <h2>Conversations:</h2>
+                    <ul>
+                        {% if intervention.conversation %}
+                            <li><a href="{% url 'view_conversation' intervention.conversation.id %}">{{ intervention.conversation.title }}</a></li>
+                        {% else %}
+                            <li>No conversation</li>
+                            <form action="{% url 'start_conversation' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="intervention_id" value="{{ intervention.id }}">
+                                <button type="submit" class="btn btn-primary">Start Conversation</button>
+                            </form>
+                        {% endif %}
+                    </ul>
                 </td>
             </tr>
+            <!-- Intervention Info Modal -->
+            <div class="modal fade" id="interventionInfoModal{{ intervention.id }}" tabindex="-1" role="dialog" aria-labelledby="interventionInfoModalLabel{{ intervention.id }}" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="interventionInfoModalLabel{{ intervention.id }}">Détails de l'intervention</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <p>Description: {{ intervention.description }}</p>
+                    <p>Date de création: {{ intervention.date_creation }}</p>
+                    <p>Date de début: {{ intervention.date_debut }}</p>
+                    <p>Date de fin: {{ intervention.date_fin }}</p>
+                    <p>État: {{ intervention.etat }}</p>
+                    <p>Citoyen: {{ intervention.citoyen.username }}</p>
+                    <p>Technicien: {{ intervention.technicien }}</p>
+                    <p>En attente: {{ intervention.raison.description }}</p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                  </div>
+                </div>
+              </div>
+            </div>
             {% endfor %}
         </tbody>
     </table>
@@ -79,4 +135,6 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/j
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

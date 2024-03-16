@@ -30,6 +30,10 @@ urlpatterns = [
               path("finish_intervention",views.finish_intervention,name="finish_intervention"),
               path("intervention/<int:id>",views.cree_reason,name="raison"),
              path('cree_raison/<int:id>', views.topagecreeraison, name='en'),
+             path('cloture',views.cloture,name='cloture'),
+             path('conversation/<int:conversation_id>/', views.view_conversation, name='view_conversation'),
+              path('sendmessage/<int:conversation_id>/', views.sendmessage, name='sendmessage'),
+              path('startconversation', views.start_conversation, name='start_conversation'),
 
              
           

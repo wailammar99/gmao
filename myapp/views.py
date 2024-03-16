@@ -89,8 +89,9 @@ def technicien(request):
    
    if  CustomUser.is_authenticated and CustomUser.is_technicien: 
      
-     interventions= interven.objects.filter(technicien=request.user.id).select_related('service').prefetch_related('equipements')
-     return render(request, 'technicien.html',{'interventions':interventions})
+     interventions= interven.objects.filter(technicien=request.user.id).select_related('service').prefetch_related('equipements').select_related('conversation')
+     c=converstation.objects.all()
+     return render(request, 'technicien.html',{'interventions':interventions,'c':c})
 #la page de chef de service peut modifie les infomaation personal eet ausii assigne les technicne aux intervention 
 @login_required_chef
 def chefservice(request):
@@ -99,10 +100,12 @@ def chefservice(request):
         interventions = interven.objects.filter(service=request.user.service)
         i=interven.objects.all()
         interventionenatte=interven.objects.filter(raison=True , service=request.user.service)
+        c=converstation.objects.all()
+      
         
-        return render(request, 'chefservice.html', {'i': interventions,'enattete':interventionenatte})
+        return render(request, 'chefservice.html', {'i': interventions,'enattete':interventionenatte,'c':c})
     else:
-        # Redirect or handle unauthorized access
+      
         return HttpResponse("You are not authorized to access this page.")
     
 
@@ -126,10 +129,12 @@ def directeur(request):
 def citoyen(request):
     if  CustomUser.is_authenticated and CustomUser.is_citoyen:
      i=interven.objects.filter(citoyen=request.user)
+     c=converstation.objects.all()
+     cc=ConversationSerializers(c,many=True)
      serializab_intervention=IntervetionSerializers(i,many=True)
      
      
-     return render(request, 'citoyen.html',{'session': request.session,'i':serializab_intervention.data})
+     return render(request, 'citoyen.html',{'session': request.session,'i':i,'cc':c})
 #deconacter de compte utilisateur     
 def logout_view(request):
     if request.session.get('admin_season'):
@@ -211,17 +216,28 @@ def refuser (request):
         objet_id = request.POST.get('id')
         obj = get_object_or_404(interven, pk=objet_id)
         obj.etat='Annulé'
+        obj.raison=None
         obj.save()
         return redirect('chefservice')
 #foction pour le chef service assigne une tech to technicien     
 def assigne(request):
     if request.method == 'POST':
-        print(request.POST)  # Add this line to see the contents of request.POST
+         # Add this line to see the contents of request.POST
         objet_id = request.POST.get('id')
         obj = get_object_or_404(interven, pk=objet_id)
         obj.etat='Assigné'
+        obj.raison=None
         obj.save()
         return redirect('modify_intervention', intervention_id=objet_id)
+#foction qui modifie etat from termine intoo cloture for chef service 
+def cloture(request):
+    if request.method=="POST":
+        object_id=request.POST.get('id')
+        obj=get_object_or_404(interven,pk=object_id)
+        obj.etat='Clôture'
+        obj.raison=None
+        obj.save()
+        return redirect('chefservice')
 
 #formation pour assigbne kles technicine 
 @login_required_chef
@@ -245,7 +261,7 @@ def modify_intervention(request, intervention_id):
         if request.user.is_authenticated and request.user.is_chefservice and request.user.service.nom == "noservice":
             # Assign intervention to the service chef if user is a chef and belongs to the correct service
             intervention.technicien = None  # Unassign any previous technician
-            intervention.etat = "Assigné"
+            
             service_instance = get_object_or_404(service, pk=service_id)
 
        
@@ -410,7 +426,9 @@ def start_intervention(request):
         intervention_id = request.POST.get('id')
 
         intervention = interven.objects.get(pk=intervention_id)
-        intervention.etat = "En cours"  # Update intervention status
+        intervention.etat = "En cours"
+        #intervention.conversation=None
+        #intervention.raison=None  # Update intervention status
         intervention.save()
         return redirect('technicien')
     else:
@@ -421,6 +439,8 @@ def finish_intervention(request):
         intervention_id = request.POST.get('id')
         intervention = interven.objects.get(pk=intervention_id)
         intervention.etat = "Terminé"
+        #intervention.conversation=None
+        #intervention.raison=None
           # Update intervention status
         intervention.save()
         return redirect('technicien')
@@ -451,9 +471,59 @@ def topagecreeraison(request, id):
     return render(request, 'cree_une_raison.html', {'intervention': intervention})
 
 
+def view_conversation(request, conversation_id):
+    # Retrieve the conversation object based on the conversation_id
+    conversation = get_object_or_404(converstation, pk=conversation_id)
+    
+    # Retrieve all messages associated with the conversation
+    messages = conversation.message_set.all()
+    
+    # Render the template with the conversation and messages
+    return render(request, 'conv.html', {'conversation': conversation, 'messages': messages})
+
 # def cree_converstion(request):
 #     if request.method=='POST':
 #     intervention_id=request.POST.get('id')
 #     try :
 #         intervention=interven.objects.get(id=intervention_id)
-
+#methdoe to send meeesage 
+def sendmessage(request, conversation_id):
+    # Retrieve the conversation object based on the conversation_id
+    conversation = get_object_or_404(converstation, pk=conversation_id)
+    
+    if request.method == 'POST':
+        try:
+            # Get the logged-in user
+            sender = request.user
+            # Get the message content from the POST data
+            message_content = request.POST.get('chat-window-message','')  # Ensure the key matches the form field
+            if message_content:
+                # Create and save the message object
+                new_message = message.objects.create(converstation=conversation, sender=sender, contenu=message_content)
+                return HttpResponse("Message sent successfully")
+            else:
+                return HttpResponse("Message content is empty")
+        except Exception as e:
+            return HttpResponse(f"An error occurred: {e}")
+    
+    # If the request method is not POST or the message content is empty,
+    # render the template with the conversation
+    return render(request, 'your_template.html', {'conversation': conversation})
+@login_required
+#foction de start conversation 
+def start_conversation(request):
+    if request.method == 'POST':
+        # Retrieve the intervention ID from the POST data
+        intervention_id = request.POST.get('intervention_id')
+        
+        # Create a new conversation
+        conversation = converstation.objects.create(title=f"Conversation for Intervention {intervention_id}")
+        intervention = get_object_or_404(interven, pk=intervention_id)
+        intervention.conversation = conversation
+        intervention.save()
+        
+        # Redirect to the view conversation page
+        return redirect('view_conversation', conversation_id=conversation.id)
+    
+        # Handle GET request if needed
+        

@@ -2,24 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>citoyen page</title>
+    <title>Citoyen Page</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">citoyen</a>
+    <a class="navbar-brand" href="#">Citoyen</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
       <ul class="navbar-nav">
-        <li class="nav-item">
-          
-        </li>
-        <li class="nav-item">
-       
-        </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'int' %}">Create Intervention</a>
         </li>
@@ -40,7 +34,6 @@
 
 <div class="container">
     <h1>Hello, {{ user.username }}</h1>
- 
     <h2>Your email is {{ user.email }}</h2>
     <table class="table">
         <thead class="thead-light">
@@ -50,6 +43,7 @@
                 <th>Date de début</th>
                 <th>Date de fin</th>
                 <th>État</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -60,11 +54,21 @@
                     <td>{{ i.date_debut }}</td>
                     <td>{{ i.date_fin }}</td>
                     <td>{{ i.etat }}</td>
+                    <td>
+                        <h2>Conversations:</h2>
+                        <ul>
+                            {% if i.conversation %}
+                                <li><a href="{% url 'view_conversation' i.conversation.id %}">{{ i.conversation.title }}</a></li>
+                            {% endif %}
+                        </ul>
+                        {% if not i.conversation %}
+                            <!-- Empty placeholder to maintain table structure -->
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
- 
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
