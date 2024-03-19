@@ -34,7 +34,12 @@ urlpatterns = [
              path('conversation/<int:conversation_id>/', views.view_conversation, name='view_conversation'),
               path('sendmessage/<int:conversation_id>/', views.sendmessage, name='sendmessage'),
               path('startconversation', views.start_conversation, name='start_conversation'),
-
+               path('login_react/', views.loginn ,name="login_react"),
+                path('logoot/', views.logouttt, name='logoutt'),
+                path("Serviceliste/",views.Serviceliste),
+                path("user_info/",views.user_info),
+                path("api_create_service/",views.create_service_api),
+             
              
           
             

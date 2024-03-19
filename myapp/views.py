@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .decorators import *
@@ -8,7 +9,9 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Equipement
-
+from django.http import JsonResponse, Http404
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from .forms import *
 from django.contrib.auth import authenticate, login,logout
 from django.contrib.auth import logout as django_logout
@@ -18,7 +21,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.timezone import *
 from .models import *
 from django.contrib.auth.decorators import login_required,permission_required
-from django.http import HttpResponse ,JsonResponse,response
+from django.http import Http404, HttpResponse ,JsonResponse,response
 
 def index(request):
     return render(request, 'index.html')
@@ -304,35 +307,24 @@ def activer(request):
 def CustomerListe(request):
     if request.method == 'GET':
         users = CustomUser.objects.all()
-        serializer = CustomeUserSerializers(users, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        # Serialize queryset to JSON data
+        serialized_users = serialize('json', users)
+        return HttpResponse(serialized_users, content_type='application/json')
     elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = CustomeUserSerializers(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        else:
-            return JsonResponse(serializer.errors, status=400)
+        # Your POST logic here
+        pass
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 @csrf_exempt
 def CustomerListet(request):
     if request.method == 'GET':
         users = CustomUser.objects.filter(is_technicien=True)
-        serializer = CustomeUserSerializers(users, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        # Serialize queryset to JSON data
+        serialized_users = serializers('json', users)
+        return HttpResponse(serialized_users, content_type='application/json')
     elif request.method == 'PUT':
-        data = JSONParser().parse(request)
-        user_id = data.get('id')  # Assuming 'id' is provided in the request data
-        user = CustomUser.objects.get(pk=user_id)
-        serializer = CustomeUserSerializers(user, data=data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data, status=200)
-        else:
-            return JsonResponse(serializer.errors, status=400)
-    
+        # Your PUT logic here
+        pass
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
     #api to show liste of intervention 
@@ -527,3 +519,95 @@ def start_conversation(request):
     
         # Handle GET request if needed
         
+#reactttt consume api  
+ #1.login api    
+@csrf_exempt
+def loginn(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        username = data.get('username')
+        password = data.get('password')
+        u=CustomUser.objects.filter(username=username)
+        su=CustomeUserSerializers(u,many=True)
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            # Determine the user's role
+            if user.is_admin:
+                role = 'admin'
+            elif user.is_technicien:
+                role = 'technicien'
+            elif user.is_chefservice:
+                role = 'chefservice'
+            elif user.is_directeur:
+                role = 'directeur'
+            elif user.is_citoyen:
+                role = 'citoyen'
+            else:
+                role = 'unknown'
+
+            return JsonResponse({'message': 'login success', 'role':role})
+        else:
+            return JsonResponse({'error': 'invalid password or username'}, status=400)
+    else:
+        return JsonResponse({'error': 'only post request'}, status=405)
+#2.logout api but i have peobleme 
+def logouttt (self, request):
+        if request.method =='POST' :
+         logout(request)
+         return Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
+def Serviceliste(request):
+    if request.method == 'GET':
+        s = service.objects.filter()
+        serializer = ServiceSerializers(s, many=True)
+        return JsonResponse(serializer.data, safe=False)
+    elif request.method == 'PUT':
+        data = JSONParser().parse(request)
+        s_id = data.get('id')  # Assuming 'id' is provided in the request data
+        s = service.objects.get(pk=s_id)
+        serializer = ServiceSerializers(s, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=200)
+        else:
+            return JsonResponse(serializer.errors, status=400)
+    
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+#api to get user info 
+@csrf_exempt
+@login_required
+def user_info(request):
+    if request.method == 'GET':
+        user_info = {
+            'id': request.user.id,
+            'username': request.user.username,
+            'email': request.user.email,
+            # Add other user information as needed
+        }
+
+        users = CustomUser.objects.filter(is_technicien=True)
+        serialized_users = CustomeUserSerializers(users, many=True).data
+
+        response_data = {
+            'user_info': user_info,
+            'users': serialized_users,
+        }
+        return JsonResponse(response_data)
+    elif request.method == 'PUT':
+        # Your PUT logic here
+        pass
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+@csrf_exempt
+def create_service_api(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            servicename = data.get('nom')
+            servicedes = data.get('descrtions')
+            s = service.objects.create(nom=servicename, descrtions=servicedes)
+            return JsonResponse({"message": "Creation successful"}, status=200)
+        except Exception as e:
+            print(e)
+            return JsonResponse({"error": "Creation failed"}, status=400)
