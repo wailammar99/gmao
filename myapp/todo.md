@@ -1,9 +1,9 @@
 1
 
 @1.adminpage :
- .create user 
- .create service 
- .modifie les infoamtion // jai une erooor i can get id of user in reecat 
+ .create user ,modifier user ,delete user [yes]
+ .create service [yes]
+ .modifie les infoamtion [todo now ? ]// jai une erooor i can get id of user in reecat 
 @2.directeur 
 .see all intervtion 
 .activer les compte 

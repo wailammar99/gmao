@@ -307,14 +307,21 @@ def activer(request):
 def CustomerListe(request):
     if request.method == 'GET':
         users = CustomUser.objects.all()
-        # Serialize queryset to JSON data
-        serialized_users = serialize('json', users)
-        return HttpResponse(serialized_users, content_type='application/json')
+        user_ser = CustomeUserSerializers(users, many=True)
+        return JsonResponse(user_ser.data, status=200, safe=False)  # Use safe=False to allow serializing non-dictionary objects
     elif request.method == 'POST':
-        # Your POST logic here
-        pass
-    else:
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
+        try:
+            data = json.loads(request.body)
+            # Assuming you have fields like username, password, email in your data
+            user = CustomUser.objects.create(username=data['username'], password=data['password'], email=data['email'])
+            user_ser = CustomeUserSerializers(user)
+            return JsonResponse(user_ser.data, status=201)
+        except KeyError:
+            return JsonResponse({'error': 'Missing required fields'}, status=400)
+   
+        
+    else :
+        return JsonResponse({"error":"this methode not allow " },status=404)
 @csrf_exempt
 def CustomerListet(request):
     if request.method == 'GET':
@@ -323,7 +330,7 @@ def CustomerListet(request):
         serialized_users = serializers('json', users)
         return HttpResponse(serialized_users, content_type='application/json')
     elif request.method == 'PUT':
-        # Your PUT logic here
+        
         pass
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
@@ -527,9 +534,9 @@ def loginn(request):
         data = json.loads(request.body)
         username = data.get('username')
         password = data.get('password')
-        u=CustomUser.objects.filter(username=username)
-        su=CustomeUserSerializers(u,many=True)
+
         user = authenticate(request, username=username, password=password)
+        
         if user is not None:
             login(request, user)
             # Determine the user's role
@@ -546,12 +553,11 @@ def loginn(request):
             else:
                 role = 'unknown'
 
-            return JsonResponse({'message': 'login success', 'role':role})
+            return JsonResponse({'message': 'login success', 'role': role, 'userId': user.id})
         else:
             return JsonResponse({'error': 'invalid password or username'}, status=400)
     else:
         return JsonResponse({'error': 'only post request'}, status=405)
-#2.logout api but i have peobleme 
 def logouttt (self, request):
         if request.method =='POST' :
          logout(request)
@@ -575,39 +581,153 @@ def Serviceliste(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 #api to get user info 
-@csrf_exempt
 @login_required
-def user_info(request):
+def user_info(request, id):
     if request.method == 'GET':
-        user_info = {
-            'id': request.user.id,
-            'username': request.user.username,
-            'email': request.user.email,
-            # Add other user information as needed
-        }
+        try:
+            u=request.user
+            user = CustomUser.objects.get(id=u.id)
+            
 
-        users = CustomUser.objects.filter(is_technicien=True)
-        serialized_users = CustomeUserSerializers(users, many=True).data
+            serialized_user = CustomeUserSerializers(user)
 
-        response_data = {
-            'user_info': user_info,
-            'users': serialized_users,
-        }
-        return JsonResponse(response_data)
+
+         
+            return JsonResponse(serialized_user.data)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
     elif request.method == 'PUT':
-        # Your PUT logic here
-        pass
+        # Extract the new information from the request
+        new_username = request.POST.get('username')
+        new_email = request.POST.get('email')
+        # Update the user information in the database
+        try:
+            user = CustomUser.objects.get(id=id)
+            user.username = new_username
+            user.email = new_email
+            user.save()
+            return JsonResponse({'message': 'User information updated successfully'})
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
     else:
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
+        return JsonResponse({'error': 'Method not allowed'}, status=405) 
 @csrf_exempt
 def create_service_api(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
             servicename = data.get('nom')
-            servicedes = data.get('descrtions')
+            servicedes = data.get('descriptions')
             s = service.objects.create(nom=servicename, descrtions=servicedes)
             return JsonResponse({"message": "Creation successful"}, status=200)
         except Exception as e:
             print(e)
             return JsonResponse({"error": "Creation failed"}, status=400)
+@csrf_exempt
+def api_create_user(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            username = data.get('username')
+            first_name = data.get('first_name')
+            last_name = data.get('last_name')
+            password1 = data.get('password1')
+            password2 = data.get('password2')
+            email = data.get('email')
+            is_directeur = data.get('is_directeur', False)
+            is_technicien = data.get('is_technicien', False)
+            is_chefservice = data.get('is_chefservice', False)
+            is_admin = data.get('is_admin', False)
+            is_citoyen = data.get('is_citoyen', False)
+
+            if CustomUser.objects.filter(username=username).exists():  # Vérifier si le nom d'utilisateur existe déjà
+                return JsonResponse({'error': 'Username already exists'}, status=400)
+
+            if password1 == password2:
+                if is_directeur:
+                    CustomUser.objects.create(username=username, first_name=first_name, last_name=last_name, password=password1, email=email, is_directeur=True, is_active=True)
+                    return JsonResponse({'message': 'User created successfully'}, status=201)
+                elif is_chefservice:
+                    CustomUser.objects.create(username=username, password=password1, first_name=first_name, last_name=last_name, email=email, is_chefservice=True, is_active=False)
+                    return JsonResponse({'message': 'User created successfully'}, status=201)
+                elif is_technicien:
+                    CustomUser.objects.create(username=username, first_name=first_name, last_name=last_name, password=password1, email=email, is_technicien=True, is_active=False)
+                    return JsonResponse({'message': 'User created successfully'}, status=201)
+                elif is_citoyen:
+                    CustomUser.objects.create(username=username, password=password1, first_name=first_name, last_name=last_name, email=email, is_citoyen=True, is_active=False)
+                    return JsonResponse({'message': 'User created successfully'}, status=201)
+                elif is_admin:
+                    CustomUser.objects.create(username=username, password=password1, first_name=first_name, last_name=last_name, email=email, is_admin=True, is_active=True)
+                    return JsonResponse({'message': 'User created successfully'}, status=201)
+                else:
+                    return JsonResponse({'error': 'Forgot to specify the user role'}, status=401)
+            else:
+                return JsonResponse({'error': 'Passwords do not match'}, status=402)
+        except Exception as e:
+            return JsonResponse({'error': 'Failed to create user: {}'.format(str(e))}, status=400)
+    else:
+        return JsonResponse({'error': 'Method not allowed, only POST is allowed'}, status=400)
+@csrf_exempt
+def delete_user(request,id):
+    if request.method=="DELETE":
+       
+        try :
+            CustomUser.objects.filter(id=id).delete()
+            return JsonResponse({"message":"utilistateur est bien supprimer"},status=200)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"error": "Utilisateur non trouvé"}, status=404)
+        except Exception as e :
+             return JsonResponse({"error": f"Échec de suppression de l'utilisateur: {str(e)}"}, status=405)
+    else :
+        return JsonResponse({"eroor":'methode not allowd'},status=405)            
+@csrf_exempt 
+def api_mofifie_user(request, id):
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            updated_data = data  # Assuming the entire user data is sent in the request body
+            user = CustomUser.objects.get(pk=id)
+            for key, value in updated_data.items():
+                setattr(user, key, value)
+            user.save()
+            user_ser = CustomeUserSerializers(user)
+            return JsonResponse(user_ser.data, status=200)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+#
+def api_activer_compte(request,id):
+    if request.method=='GET':
+        try:
+            
+            user=CustomUser.objects.get(pk=id)
+            user.is_active=True
+            user.save()
+            return JsonResponse({'messgae':'le utilisateur est bien activer'},status=200)
+        except Exception as e :
+            return JsonResponse({"error":"failed to create user:{}".format(str(e))},status=400)
+    else :
+        return JsonResponse({'error':'methode not allows'},status=200)
+def api_assigne_service(request,id):
+    if request.method=='POST':
+         try:
+          data = json.loads(request.body)
+          user_id = data.get('user_id')
+          new_service_id = request.POST.get('service_id')
+          user = CustomUser.objects.get(id=user_id)
+          user.service_id = new_service_id
+          user.save()
+          user=CustomUser.objects.get(pk=id)
+          return JsonResponse({"message ":"le service est bien assigne au utilistateur "}) 
+         except Exception as e :
+             return JsonResponse({"error":"failed to create user:{}".format(str(e))},status=400)
+    else :
+        return JsonResponse({"eroor:methode not alloooowd "},status=405)
+    
+             
+     
+
+          
+    
+

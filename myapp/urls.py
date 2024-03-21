@@ -21,7 +21,7 @@ urlpatterns = [
             path('listecustomer/',views.CustomerListe,name="cc"),
              path('listecustomer/is_technicine',views.CustomerListet),
              path('intervention/',views.intervention),
-            # path("listeservice",views.ServiceListe),
+             path("listeservice",views.Serviceliste),
             path("createservice",views.create_service,name="createservice"),
              path('modify-service/', views.modify_service_page, name='modify_service_page'),
              path('equipements/', views.equipement_list),
@@ -37,9 +37,13 @@ urlpatterns = [
                path('login_react/', views.loginn ,name="login_react"),
                 path('logoot/', views.logouttt, name='logoutt'),
                 path("Serviceliste/",views.Serviceliste),
-                path("user_info/",views.user_info),
+                 path('user_infoo/<int:id>/', views.user_info, name='user_info'),
                 path("api_create_service/",views.create_service_api),
-             
+                path("api_create_user/",views.api_create_user),
+                path('api_delete_user/<int:id>', views.delete_user, name='delete_user'),
+                path('api_mofifie_user/<int:id>/', views.api_mofifie_user, name='api_mofifie_user'),
+                path('api_activer_compte/<int:id>/', views.api_activer_compte, name='api_active_compte'),
+                path('api_assigne_service/<int:id>',views.api_assigne_service),
              
           
             

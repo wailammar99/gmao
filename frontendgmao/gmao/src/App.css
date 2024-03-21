@@ -1,0 +1,30 @@
+/* LoginForm.css */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.form-container {
+  max-width: 400px; /* Increase the max-width */
+  background: #fff;
+  padding: 30px; /* Increase the padding */
+  border-radius: 10px;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-control {
+  font-size: 18px; /* Increase the font size */
+  padding: 12px; /* Increase the padding */
+}
+
+.btn-primary {
+  font-size: 18px; /* Increase the font size */
+  padding: 12px; /* Increase the padding */
+}
