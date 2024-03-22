@@ -3,16 +3,17 @@
 @1.adminpage :
  .create user ,modifier user ,delete user [yes]
  .create service [yes]
- .modifie les infoamtion [todo now ? ]// jai une erooor i can get id of user in reecat 
+ .modifie les infoamtion [encour  ] je peut get id from page il me just modifie le utlistaur 
 @2.directeur 
-.see all intervtion 
-.activer les compte 
-.asssigne user to service 
+.see all intervtion [yes] 
+.activer les compte [yes]
+.asssigne user to service [encour] 
 
 @3.citoyen :
  . create intervention 
  .suivre intervetion 
  .peut discuter avec techincine et chef serrvice 
-@4.chef service ..................
+@4.chef service 
+ @1.
 
 

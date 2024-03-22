@@ -17,14 +17,18 @@ const AdminPage = () => {
 
   const fetchData = async () => {
     try {
-      const token = localStorage.getItem('token'); // Use correct token key
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.log("Token not found. Redirecting to login...");
+        return navigate('/login');
+      }
       
-      const response = await fetch(`http://127.0.0.1:8000/user_infoo/${id}/`, {
+      const response = await fetch(`http://127.0.0.1:8000/user_infoo/${localStorage.getItem('userId')}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
+  
       if (response.ok) {
         const data = await response.json();
         setUserData(data.user_info);
@@ -60,9 +64,11 @@ const AdminPage = () => {
         {!loading && userData && (
           <div>
             <h2>User Information</h2>
+            <p>id: {userData.id}</p>
             <p>Username: {userData.username}</p>
             <p>Email: {userData.email}</p>
-            {/* Add more user information as needed */}
+            <p>Email: {userData.fisrt_name}</p>
+            
           </div>
         )}
         <div>

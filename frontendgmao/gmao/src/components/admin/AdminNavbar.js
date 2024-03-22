@@ -1,6 +1,7 @@
 // AdminNavbar.js
 import React from 'react';
 import { Link } from 'react-router-dom';
+import LogoutButton from '../../logoutbutton';
 
 const AdminNavbar = () => {
   return (
@@ -22,10 +23,13 @@ const AdminNavbar = () => {
               <Link to="/create_user" className="nav-link">Create utilisateur</Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#"></a>
+            <Link to="/profil" className="nav-link">profil </Link>
             </li>
             <li className="nav-item">
             <Link to="/create_service" className="nav-link">Create service </Link>
+            </li>
+            <li className="nav-item">
+            <LogoutButton></LogoutButton>
             </li>
           </ul>
         </div>

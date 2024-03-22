@@ -88,6 +88,7 @@ function UserListPage() {
             <th>Last Name</th>
             <th>Email</th>
             <th>Poste</th>
+            <th>service</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -109,6 +110,7 @@ function UserListPage() {
                   return 'Unknown';
                 })()}
               </td>
+              <td>{user.service ? user.service.nom : 'Unknown'}</td>
               <td>
                 <button onClick={() => handleDelete(user.id)} className="btn btn-danger">Delete</button>
                 <button onClick={() => handleModifyClick(user)} className="btn btn-secondary">Modify</button>

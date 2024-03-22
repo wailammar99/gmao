@@ -13,6 +13,7 @@ from django.http import JsonResponse, Http404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from .forms import *
+
 from django.contrib.auth import authenticate, login,logout
 from django.contrib.auth import logout as django_logout
 from datetime import *
@@ -22,6 +23,7 @@ from django.utils.timezone import *
 from .models import *
 from django.contrib.auth.decorators import login_required,permission_required
 from django.http import Http404, HttpResponse ,JsonResponse,response
+from rest_framework.authtoken.models import Token
 
 def index(request):
     return render(request, 'index.html')
@@ -127,7 +129,7 @@ def directeur(request):
 
    
     if  CustomUser.is_authenticated and CustomUser.is_directeur:
-     return render(request, 'directeur.html',{'user': request.user,'i':serializer_interv.data,'session': request.session,'u': serializer_user.data,"technicians":serializer_techncin.data})
+     return render(request, 'directeur.html',{'user': request.user,'i':i,'session': request.session,'u': u,"technicians":technicians2})
 #la page de citoyen    
 def citoyen(request):
     if  CustomUser.is_authenticated and CustomUser.is_citoyen:
@@ -306,7 +308,7 @@ def activer(request):
 @csrf_exempt
 def CustomerListe(request):
     if request.method == 'GET':
-        users = CustomUser.objects.all()
+        users = CustomUser.objects.all().select_related('service')
         user_ser = CustomeUserSerializers(users, many=True)
         return JsonResponse(user_ser.data, status=200, safe=False)  # Use safe=False to allow serializing non-dictionary objects
     elif request.method == 'POST':
@@ -338,7 +340,7 @@ def CustomerListet(request):
 @csrf_exempt
 def intervention(request):
     if request.method == 'GET':
-        interventions = interven.objects.all()
+        interventions = interven.objects.all().select_related("citoyen")
         serializer = IntervetionSerializers(interventions, many=True)
         return JsonResponse(serializer.data, safe=False)
     elif request.method == 'PUT':
@@ -539,6 +541,8 @@ def loginn(request):
         
         if user is not None:
             login(request, user)
+            token, _ = Token.objects.get_or_create(user=user)
+            request.session['user_id'] = user.id
             # Determine the user's role
             if user.is_admin:
                 role = 'admin'
@@ -553,15 +557,15 @@ def loginn(request):
             else:
                 role = 'unknown'
 
-            return JsonResponse({'message': 'login success', 'role': role, 'userId': user.id})
+            return JsonResponse({'message': 'login success','role': role, 'userId': user.id,'token': token.key})
         else:
             return JsonResponse({'error': 'invalid password or username'}, status=400)
     else:
         return JsonResponse({'error': 'only post request'}, status=405)
-def logouttt (self, request):
-        if request.method =='POST' :
-         logout(request)
-         return Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
+@api_view(['POST'])
+def logout_view(request):
+    logout(request)
+    return Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
 def Serviceliste(request):
     if request.method == 'GET':
         s = service.objects.filter()
@@ -581,25 +585,20 @@ def Serviceliste(request):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 #api to get user info 
-@login_required
-def user_info(request, id):
+@csrf_exempt
+def user_infoo(request, id):
     if request.method == 'GET':
         try:
-            u=request.user
-            user = CustomUser.objects.get(id=u.id)
-            
-
+            user = CustomUser.objects.get(id=id)
             serialized_user = CustomeUserSerializers(user)
-
-
-         
-            return JsonResponse(serialized_user.data)
+            return JsonResponse({"user_info":serialized_user.data},status=200)
         except CustomUser.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=404)
     elif request.method == 'PUT':
         # Extract the new information from the request
         new_username = request.POST.get('username')
         new_email = request.POST.get('email')
+      
         # Update the user information in the database
         try:
             user = CustomUser.objects.get(id=id)
@@ -608,9 +607,9 @@ def user_info(request, id):
             user.save()
             return JsonResponse({'message': 'User information updated successfully'})
         except CustomUser.DoesNotExist:
-            return JsonResponse({'error': 'User not found'}, status=404)
+            return JsonResponse({'error': 'User not found'}, status=405)
     else:
-        return JsonResponse({'error': 'Method not allowed'}, status=405) 
+        return JsonResponse({'error': 'Method not allowed'}, status=406) 
 @csrf_exempt
 def create_service_api(request):
     if request.method == 'POST':

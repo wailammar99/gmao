@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -23,21 +22,16 @@ const Login = ({ onLogin }) => {
       });
 
       if (!response.ok) {
-        // If response is not OK, throw an error
         throw new Error('Login failed');
       }
 
-      // Extract the authentication token, user ID, and role from the response
       const { token, role, userId } = await response.json();
       
-      // Store the token and user ID in localStorage
       localStorage.setItem('token', token);
       localStorage.setItem('userId', userId);
 
-      // Call onLogin function passed from parent component
       onLogin();
 
-      // Redirect based on the user's role
       if (role === 'admin') {
         navigate(`/admin_dashboard/${userId}`);
       } else if (role === 'citoyen') {

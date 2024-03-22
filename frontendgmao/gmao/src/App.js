@@ -6,6 +6,8 @@ import Citoyenpage from './components/citoyenpage';
 import Userlistepage from './components/admin/userlistepage';
 import CreateService from './components/admin/create_service';
 import CreateUser from './components/admin/create_user';
+import UserProfile from './components/proifl';
+
 
 
 
@@ -46,6 +48,10 @@ function App() {
            <Route
             path="/create_service"
             element={isLoggedIn ? <CreateService onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+          />
+             <Route
+            path="/profil"
+            element={<UserProfile></UserProfile>}
           />
            <Route path="/create_user" element={<CreateUser />} />
            
