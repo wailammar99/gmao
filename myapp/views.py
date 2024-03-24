@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .decorators import *
 from .serializers import *
+from django.contrib.auth.hashers import make_password
 from rest_framework.parsers import JSONParser,api_settings
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
@@ -13,6 +14,7 @@ from django.http import JsonResponse, Http404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from .forms import *
+from django.utils import timezone
 
 from django.contrib.auth import authenticate, login,logout
 from django.contrib.auth import logout as django_logout
@@ -639,24 +641,26 @@ def api_create_user(request):
             is_admin = data.get('is_admin', False)
             is_citoyen = data.get('is_citoyen', False)
 
-            if CustomUser.objects.filter(username=username).exists():  # Vérifier si le nom d'utilisateur existe déjà
+            if CustomUser.objects.filter(username=username).exists():
                 return JsonResponse({'error': 'Username already exists'}, status=400)
 
             if password1 == password2:
+                hashed_password = make_password(password1)  # Hash the password
+
                 if is_directeur:
-                    CustomUser.objects.create(username=username, first_name=first_name, last_name=last_name, password=password1, email=email, is_directeur=True, is_active=True)
+                    CustomUser.objects.create(username=username, first_name=first_name, last_name=last_name, password=hashed_password, email=email, is_directeur=True, is_active=True)
                     return JsonResponse({'message': 'User created successfully'}, status=201)
                 elif is_chefservice:
-                    CustomUser.objects.create(username=username, password=password1, first_name=first_name, last_name=last_name, email=email, is_chefservice=True, is_active=False)
+                    CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_chefservice=True, is_active=False)
                     return JsonResponse({'message': 'User created successfully'}, status=201)
                 elif is_technicien:
-                    CustomUser.objects.create(username=username, first_name=first_name, last_name=last_name, password=password1, email=email, is_technicien=True, is_active=False)
+                    CustomUser.objects.create(username=username, first_name=first_name, last_name=last_name, password=hashed_password, email=email, is_technicien=True, is_active=False)
                     return JsonResponse({'message': 'User created successfully'}, status=201)
                 elif is_citoyen:
-                    CustomUser.objects.create(username=username, password=password1, first_name=first_name, last_name=last_name, email=email, is_citoyen=True, is_active=False)
+                    CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_citoyen=True, is_active=False)
                     return JsonResponse({'message': 'User created successfully'}, status=201)
                 elif is_admin:
-                    CustomUser.objects.create(username=username, password=password1, first_name=first_name, last_name=last_name, email=email, is_admin=True, is_active=True)
+                    CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_admin=True, is_active=True)
                     return JsonResponse({'message': 'User created successfully'}, status=201)
                 else:
                     return JsonResponse({'error': 'Forgot to specify the user role'}, status=401)
@@ -692,7 +696,7 @@ def api_mofifie_user(request, id):
             user_ser = CustomeUserSerializers(user)
             return JsonResponse(user_ser.data, status=200)
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({'error': str(e)}, status=406)
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
 #
@@ -708,25 +712,121 @@ def api_activer_compte(request,id):
             return JsonResponse({"error":"failed to create user:{}".format(str(e))},status=400)
     else :
         return JsonResponse({'error':'methode not allows'},status=200)
-def api_assigne_service(request,id):
-    if request.method=='POST':
-         try:
-          data = json.loads(request.body)
-          user_id = data.get('user_id')
-          new_service_id = request.POST.get('service_id')
-          user = CustomUser.objects.get(id=user_id)
-          user.service_id = new_service_id
-          user.save()
-          user=CustomUser.objects.get(pk=id)
-          return JsonResponse({"message ":"le service est bien assigne au utilistateur "}) 
-         except Exception as e :
-             return JsonResponse({"error":"failed to create user:{}".format(str(e))},status=400)
-    else :
-        return JsonResponse({"eroor:methode not alloooowd "},status=405)
-    
-             
-     
-
+@csrf_exempt
+@csrf_exempt
+# directeur peut assigne service pour une utilistaeur 
+def api_assigne_service(request, id):
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            new_service_id = data.get('service_id')
           
-    
+            # Fetch the service instance using the ID
+            ser = service.objects.get(id=new_service_id)
+          
+            user = CustomUser.objects.get(id=id)
+            user.service = ser  # Assign the service instance, not just the ID
+            user.save()
+         
+            return JsonResponse({"message": "Le service est bien assigné à l'utilisateur."}, status=200)
+        except service.DoesNotExist:
+            return JsonResponse({"error": "Service with the provided ID does not exist."}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": f"Failed to assign service: {str(e)}"}, status=400, safe=False)
+    else:
+        return JsonResponse({"error": "Méthode non autorisée."}, status=405)
 
+@csrf_exempt  # Ensure the user is authenticated
+#api ciotoyen peut voir onmy cest intervetion 
+def api_intervetion_citoyen(request, id):
+    if request.method == 'GET':
+        try:
+            user = CustomUser.objects.get(id=id)
+            interventions = interven.objects.filter(citoyen=user).select_related("service").prefetch_related("conversation")
+
+            serializer = IntervetionSerializers(interventions,many=True)
+            return JsonResponse({"interventions": serializer.data}, status=200)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"error": "User does not exist"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": f"Failed to fetch interventions: {str(e)}"}, status=400)
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+
+@csrf_exempt
+#nimport quel utiliateur peut modifie cest donne 
+def api_mofifie_profil(request, id):
+    if request.method == 'PUT':
+        # Retrieve the user object based on the provided ID
+        try:
+            user = CustomUser.objects.get(id=id)  # Use CustomUser model
+        
+
+        # Update user data based on request payload
+        # Example assuming request data is in JSON format
+            data = json.loads(request.body)
+            user.username = data.get('username', user.username)
+            user.email = data.get('email', user.email)
+            user.first_name = data.get('firstname', user.first_name) 
+            user.last_name = data.get('lastname', user.last_name) 
+        # Update other fields as needed
+        
+        # Save the updated user object
+            user.save()
+            return JsonResponse({"message": "User updated successfully"})
+        except Exception as e :
+           return JsonResponse({"error": f"Failed to assign service: {str(e)}"}, status=400, safe=False)
+   
+        
+
+    else:
+        return JsonResponse({"error": "Only PUT requests are allowed"}, status=405)
+@csrf_exempt
+def api_create_intervention(request,id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            description = data.get('description')
+            date_debut = data.get('date_debut')
+            date_fin = data.get('date_fin')
+            user_id = id
+            
+
+            # Check if required fields are present
+            if description is None or date_debut is None or date_fin is None:
+                return JsonResponse({'error': 'Description, start date, and end date are required'}, status=400)
+
+            # Create the intervention
+            user = CustomUser.objects.get(id=user_id)
+            noservice = service.objects.get(nom="noservice")
+            intervention = interven.objects.create(
+                description=description,
+                date_debut=date_debut,
+                date_fin=date_fin,
+                etat="Nouveau",
+                citoyen=user,
+                service=noservice,
+                date_creation=datetime.now()
+            )
+
+            return JsonResponse({'message': 'Intervention created successfully', 'id': intervention.id}, status=201)
+        except Exception as e:
+            return JsonResponse({'error': 'Failed to create intervention: {}'.format(str(e))}, status=400)
+    else:
+        return JsonResponse({'error': 'Method not allowed, only POST is allowed'}, status=400)
+            
+def conversationmessage(request, conversation_id):
+    if request.method == "GET":
+        try:
+            # Filter messages by conversation ID
+            messages = message.objects.filter(converstation_id=conversation_id)
+            # Serialize messages
+            serializer = MessageSerializer(messages, many=True)
+            # Return serialized messages as JSON response
+            return JsonResponse(serializer.data, status=200, safe=False)
+        except message.DoesNotExist:
+            # Handle case where conversation ID does not exist
+            return JsonResponse({"error": "Conversation not found"}, status=404)
+    else:
+        # Handle unsupported HTTP methods
+        return JsonResponse({"error": "Method not allowed"}, status=405)

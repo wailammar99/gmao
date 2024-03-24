@@ -39,10 +39,10 @@ class CustomUser(AbstractUser):
     is_directeur = models.BooleanField('directeur', default=False)
     is_citoyen=  models.BooleanField('citoyen', default=False)
     service = models.ForeignKey('service', null=True, blank=True,on_delete=models.CASCADE)
-
-
     def __str__(self):
         return self.username
+
+   
 class converstation(models.Model):
    
     title = models.CharField(max_length=100)

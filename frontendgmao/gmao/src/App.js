@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './components/login';
 import AdminPage from './components/admin/adminpage';
-import Citoyenpage from './components/citoyenpage';
+import Citoyenpage from './components/citoyen/citoyenpage';
 import Userlistepage from './components/admin/userlistepage';
 import CreateService from './components/admin/create_service';
 import CreateUser from './components/admin/create_user';
 import UserProfile from './components/proifl';
+import CreateInterventionForm from './components/citoyen/create_intervetion';
+import ConversationMessages from './components/citoyen/conversationMessages';
+
+
 
 
 
@@ -51,9 +55,13 @@ function App() {
           />
              <Route
             path="/profil"
-            element={<UserProfile></UserProfile>}
+            element={isLoggedIn ? <UserProfile /> : <Login onLogin={handleLogin} />}
+  
           />
+          <Route path="/create_intervention" element={<CreateInterventionForm onInterventionCreated={() => {}} />} />
            <Route path="/create_user" element={<CreateUser />} />
+           <Route path="/conversation/:id" element={<ConversationMessages />} />
+
            
           
          

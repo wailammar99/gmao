@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import PopupMessage from './message';
+
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
@@ -35,7 +37,7 @@ const Login = ({ onLogin }) => {
       if (role === 'admin') {
         navigate(`/admin_dashboard/${userId}`);
       } else if (role === 'citoyen') {
-        navigate('/citoyen_dashboard');
+        navigate(`/citoyen_dashboard/${userId}`);
       }
     } catch (error) {
       console.error('Login failed:', error);
@@ -50,7 +52,7 @@ const Login = ({ onLogin }) => {
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <form className="login-form" onSubmit={handleSubmit}>
         <div>
           <label htmlFor="username">Username:</label>
           <input
@@ -71,7 +73,8 @@ const Login = ({ onLogin }) => {
         </div>
         <button type="submit">Login</button>
       </form>
-      {error && <p>{error}</p>}
+      {/* Conditionally render PopupMessage if there's an error */}
+      {error && <PopupMessage message={error} color="danger" />}
     </div>
   );
 };

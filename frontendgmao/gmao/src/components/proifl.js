@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import AdminNavbar from './admin/AdminNavbar';
-
+import PopupMessage from './message';
+import Citoyennavbar from './citoyen/citoyennavbar';
 const UserProfile = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isPopupOpen, setIsPopupOpen] = useState(false); // State to control the pop-up form visibility
-  const [newUsername, setNewUsername] = useState('');
-  const [newEmail, setNewEmail] = useState('');
-  const [newFirstName, setNewFirstName] = useState('');
-  const [newLastName, setNewLastName] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [modifiedUser, setModifiedUser] = useState(null); // State to store the modified user
+  const [showModal, setShowModal] = useState(false); // State to control modal visibility
+  const [error, setError] = useState(null); // State for error handling
+  const[firstname,setfirstname]=useState('')
+  const[lastname,setlastname]=useState('')
+  const [successMessage, setSuccessMessage] = useState('');
 
 
   useEffect(() => {
@@ -22,7 +25,8 @@ const UserProfile = () => {
       const token = localStorage.getItem('token');
       if (!token) {
         console.log("Token not found. Redirecting to login...");
-        return Navigate('/login');
+        // Navigate to login page
+        return;
       }
 
       const response = await fetch(`http://127.0.0.1:8000/user_infoo/${localStorage.getItem('userId')}/`, {
@@ -34,6 +38,10 @@ const UserProfile = () => {
       if (response.ok) {
         const data = await response.json();
         setUserData(data.user_info);
+        setUsername(data.user_info.username);
+        setEmail(data.user_info.email);
+        setfirstname(data.user_info.first_name); // Corrected typo
+        setlastname(data.user_info.last_name)
       } else {
         console.error('Failed to fetch user data');
       }
@@ -45,9 +53,6 @@ const UserProfile = () => {
   };
 
   const openPopup = () => {
-    // Set initial values for username and email in the pop-up form
-    setNewUsername(userData.username);
-    setNewEmail(userData.email);
     // Open the pop-up form
     setIsPopupOpen(true);
   };
@@ -55,54 +60,67 @@ const UserProfile = () => {
   const closePopup = () => {
     // Close the pop-up form
     setIsPopupOpen(false);
+
+  };
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value);
+  };
+  const handlefirtnameChange = (e) => {
+    setfirstname(e.target.value);
+  };
+  const handlelastnameChange = (e) => {
+    setlastname(e.target.value);
   };
 
-  const handleModify = async () => {
-    // Handle the PUT request to update user information
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api_mofifie_user/${localStorage.getItem('userId')}/`, {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://127.0.0.1:8000/api_modfie_profil/${localStorage.getItem('userId')}/`, {
         method: 'PUT',
         headers: {
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: newUsername,
-          email: newEmail,
-          // Add other fields you want to update
+          username: username,
+          email: email,
+          firstname:firstname,
+          lastname:lastname
         }),
       });
 
-      if (response.ok) {
-        console.log('User information updated successfully');
-        // Close the pop-up form after successful update
-        setIsPopupOpen(false);
-        // Optionally, you can refetch user data to update the displayed information
-        fetchData();
-      } else {
-        console.error('Failed to update user information');
+      if (!response.ok) {
+        throw new Error('Failed to update user');
       }
+
+      const responseData = await response.json();
+      console.log(responseData); // Log response from the backend
     } catch (error) {
-      console.error('Error updating user information:', error);
+      console.error('Error updating user:', error);
+      setError(error.message);
     }
   };
 
+  // Render loading state if data is still loading
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  // Render error state if there's an error
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
   return (
     <>
-      <AdminNavbar />
+       {userData && userData.role === 'admin' ? <AdminNavbar /> : <Citoyennavbar />}
       <section style={{ backgroundColor: '#eee' }}>
         <div className="container py-5">
-          <div className="row">
-            <div className="col">
-              <nav aria-label="breadcrumb" className="bg-light rounded-3 p-3 mb-4">
-                <ol className="breadcrumb mb-0">
-                  <li className="breadcrumb-item"><a href="#">Home</a></li>
-                  <li className="breadcrumb-item"><a href="#">User</a></li>
-                  <li className="breadcrumb-item active" aria-current="page">User Profile</li>
-                </ol>
-              </nav>
-            </div>
-          </div>
-
+        {successMessage && <PopupMessage message={successMessage} color="success" />}
           <div className="row">
             <div className="col-lg-4">
               <div className="card mb-4">
@@ -121,25 +139,36 @@ const UserProfile = () => {
                         <div className="popup-content">
                           <span className="close" onClick={closePopup}>&times;</span>
                           <h2>Modify User Information</h2>
-                          <form>
-                            <label>Username:</label>
-                            <input
-                              type="text"
-                              value={newUsername}
-                              onChange={(e) => setNewUsername(e.target.value)}
-                            />
-                            <label>Email:</label>
-                            <input
-                              type="email"
-                              value={newEmail}
-                              onChange={(e) => setNewEmail(e.target.value)}
-                            />
-                            <button type="button" onClick={handleModify}>Save Changes</button>
-                          </form>
+                          <form onSubmit={handleFormSubmit}>
+  <label>Username:</label>
+  <input
+    type="text"
+    value={username}
+    onChange={handleUsernameChange}
+  />
+  <label>fisrt_name:</label>
+  <input
+    type="text"
+    value={firstname}
+    onChange={handlefirtnameChange}
+  />
+  <label>lastname:</label>
+  <input
+    type="text"
+    value={lastname}
+    onChange={handlelastnameChange}
+  />
+  <label>Email:</label>
+  <input
+    type="email"
+    value={email}
+    onChange={handleEmailChange}
+  />
+  <button type="submit">Save Changes</button>
+</form>
                         </div>
                       </div>
                     )}
-                  
                   </div>
                 </div>
               </div>
@@ -175,46 +204,57 @@ const UserProfile = () => {
                 <div className="card-body">
                   <div className="row">
                     <div className="col-sm-3">
-                      <p className="mb-0">Full Name</p>
+                      <p className="mb-0">nom</p>
+                 
+
+                    </div>
+                    <div className="col-sm-9">
+                    <p className="text-muted mb-0">{userData ? userData.first_name : 'Loading...'}</p>
                       </div>
-                    <div className="col-sm-9">
-                      <p className="text-muted mb-0">{userData ? userData.username : 'Loading...'}</p>
+                      <hr/>
+                    <div className="row">
+                      <div className="col-sm-3">
+                        <p className="mb-0">Email</p>
+                      </div>
+                      <div className="col-sm-9">
+                        <p className="text-muted mb-0">{userData ? userData.email : 'Loading...'}</p>
+                      </div>
                     </div>
-                  </div>
-                  <hr />
-                  <div className="row">
-                    <div className="col-sm-3">
-                      <p className="mb-0">Email</p>
+                    <hr/>
+                    <div className="row">
+                      <div className="col-sm-3">
+                        <p className="mb-0">prenom</p>
+                      </div>
+                      <div className="col-sm-9">
+                        <p className="text-muted mb-0">{userData ? userData.last_name : 'Loading...'}</p>
+                      </div>
                     </div>
-                    <div className="col-sm-9">
-                      <p className="text-muted mb-0">{userData ? userData.email : 'Loading...'}</p>
+                    <hr />
+                    <div className="row">
+                      <div className="col-sm-3">
+                        <p className="mb-0">Phone</p>
+                      </div>
+                      <div className="col-sm-9">
+                        <p className="text-muted mb-0">(097) 234-5678</p>
+                      </div>
                     </div>
-                  </div>
-                  <hr />
-                  <div className="row">
-                    <div className="col-sm-3">
-                      <p className="mb-0">Phone</p>
+                    <hr />
+                    <div className="row">
+                      <div className="col-sm-3">
+                        <p className="mb-0">Mobile</p>
+                      </div>
+                      <div className="col-sm-9">
+                        <p className="text-muted mb-0">(098) 765-4321</p>
+                      </div>
                     </div>
-                    <div className="col-sm-9">
-                      <p className="text-muted mb-0">(097) 234-5678</p>
-                    </div>
-                  </div>
-                  <hr />
-                  <div className="row">
-                    <div className="col-sm-3">
-                      <p className="mb-0">Mobile</p>
-                    </div>
-                    <div className="col-sm-9">
-                      <p className="text-muted mb-0">(098) 765-4321</p>
-                    </div>
-                  </div>
-                  <hr />
-                  <div className="row">
-                    <div className="col-sm-3">
-                      <p className="mb-0">Address</p>
-                    </div>
-                    <div className="col-sm-9">
-                      <p className="text-muted mb-0">Bay Area, San Francisco, CA</p>
+                    <hr />
+                    <div className="row">
+                      <div className="col-sm-3">
+                        <p className="mb-0">Address</p>
+                      </div>
+                      <div className="col-sm-9">
+                        <p className="text-muted mb-0">Bay Area, San Francisco, CA</p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -225,14 +265,7 @@ const UserProfile = () => {
                     {/* Left blank intentionally */}
                   </div>
                 </div>
-                <div className="col-md-6">
-                  <div className="card mb-4 mb-md-0">
-                    <div className="card-body">
-                      <p className="mb-4"><span className="text-primary font-italic me-1">Assignment</span> Project Status</p>
-                      {/* Add project status details */}
-                    </div>
-                  </div>
-                </div>
+          
               </div>
             </div>
           </div>
@@ -243,6 +276,4 @@ const UserProfile = () => {
 };
 
 export default UserProfile;
-
-                      
 

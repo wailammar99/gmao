@@ -14,7 +14,7 @@ class CustomeUserSerializers(serializers.ModelSerializer):
         model = CustomUser
         fields = '__all__'
 class ConversationSerializers(serializers.ModelSerializer):
-    user=CustomeUserSerializers()
+    participants = CustomeUserSerializers(many=True)
     class Meta:
         model=converstation
         fields="__all__"
@@ -34,9 +34,10 @@ class EquimenentSerializers(serializers.ModelSerializer):
         fields='__all__'
 
 class MessageSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = message
-        fields = ['id', 'converstation', 'contenu', 'sender', 'horodatage', 'message_type']
+        fields = '__all__'
 
         # You may want to include this line if you want to display the sender's username in the serialized data
         depth = 1
