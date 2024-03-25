@@ -9,6 +9,8 @@ import CreateUser from './components/admin/create_user';
 import UserProfile from './components/proifl';
 import CreateInterventionForm from './components/citoyen/create_intervetion';
 import ConversationMessages from './components/citoyen/conversationMessages';
+import Chefservicepage from './components/chefservice/chefservicepage';
+
 
 
 
@@ -46,6 +48,10 @@ function App() {
             element={isLoggedIn ? <AdminPage onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
           />
           <Route
+            path="/chef_service_dashboard/:id" // Corrected route path
+            element={<Chefservicepage />} // Corrected component name
+          />
+          <Route
             path="/citoyen_dashboard/:id"
             element={isLoggedIn ? <Citoyenpage onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
           />
@@ -60,7 +66,7 @@ function App() {
           />
           <Route path="/create_intervention" element={<CreateInterventionForm onInterventionCreated={() => {}} />} />
            <Route path="/create_user" element={<CreateUser />} />
-           <Route path="/conversation/:id" element={<ConversationMessages />} />
+           <Route path="/conversation/:id/citoyen/:int" element={<ConversationMessages />} />
 
            
           

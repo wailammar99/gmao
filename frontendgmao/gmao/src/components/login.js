@@ -39,6 +39,10 @@ const Login = ({ onLogin }) => {
       } else if (role === 'citoyen') {
         navigate(`/citoyen_dashboard/${userId}`);
       }
+      else if (role==='chefservice')
+       {
+        navigate(`/chef_service_dashboard/${userId}`);
+       }
     } catch (error) {
       console.error('Login failed:', error);
       setError('Login failed. Please try again.');

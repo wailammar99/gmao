@@ -47,7 +47,9 @@ urlpatterns = [
                 path('api_intervetion_citoyen/<int:id>/',views.api_intervetion_citoyen),
                 path("api_modfie_profil/<int:id>/",views.api_mofifie_profil),
                 path("api_create_intervention/<int:id>/",views.api_create_intervention),
-                path("conversation/<int:conversation_id>/messages/",views.conversationmessage)
+                path("conversation/<int:conversation_id>/messages/",views.conversationmessage),
+                 path('conversation/<int:conversation_id>/citoyen/<int:user_id>/',views.sendmessage),
+                 path("api_intervetion_chefservice/<int:user_id>/",views.api_intervetion_chefservice)
           
             
 

@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminNavbar from './admin/AdminNavbar';
 import PopupMessage from './message';
 import Citoyennavbar from './citoyen/citoyennavbar';
+import Chefservicenavbar from './chefservice/chefservicenavbar';
+
+
 const UserProfile = () => {
+ 
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isPopupOpen, setIsPopupOpen] = useState(false); // State to control the pop-up form visibility
@@ -14,6 +19,7 @@ const UserProfile = () => {
   const[firstname,setfirstname]=useState('')
   const[lastname,setlastname]=useState('')
   const [successMessage, setSuccessMessage] = useState('');
+  const navigate = useNavigate();
 
 
   useEffect(() => {
@@ -92,6 +98,12 @@ const UserProfile = () => {
           lastname:lastname
         }),
       });
+      if (response.ok)
+      {
+       setIsPopupOpen(false);
+       window.location.href = '/profil';
+
+      }
 
       if (!response.ok) {
         throw new Error('Failed to update user');
@@ -117,7 +129,10 @@ const UserProfile = () => {
 
   return (
     <>
-       {userData && userData.role === 'admin' ? <AdminNavbar /> : <Citoyennavbar />}
+        {/* Conditionally render navbar based on user role */}
+      {userData && userData.role === 'admin' ? <AdminNavbar /> : 
+       userData && userData.role === 'citoyen' ? <Citoyennavbar /> : 
+       userData && userData.role === 'chefservice' ? <Chefservicenavbar /> : null}
       <section style={{ backgroundColor: '#eee' }}>
         <div className="container py-5">
         {successMessage && <PopupMessage message={successMessage} color="success" />}
@@ -141,7 +156,7 @@ const UserProfile = () => {
                           <h2>Modify User Information</h2>
                           <form onSubmit={handleFormSubmit}>
   <label>Username:</label>
-  <input
+  <input readOnly 
     type="text"
     value={username}
     onChange={handleUsernameChange}

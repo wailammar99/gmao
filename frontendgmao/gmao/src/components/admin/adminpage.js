@@ -73,7 +73,7 @@ const AdminPage = () => {
         )}
         <div>
           <h2>Services</h2>
-          <table className="table">
+          <table className="table table-hover">
             <thead>
               <tr>
                 <th>Name</th>

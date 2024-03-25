@@ -6,6 +6,8 @@ from .serializers import *
 from django.contrib.auth.hashers import make_password
 from rest_framework.parsers import JSONParser,api_settings
 from django.views.decorators.csrf import csrf_exempt
+import jwt
+from django.conf import settings
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -814,7 +816,7 @@ def api_create_intervention(request,id):
             return JsonResponse({'error': 'Failed to create intervention: {}'.format(str(e))}, status=400)
     else:
         return JsonResponse({'error': 'Method not allowed, only POST is allowed'}, status=400)
-            
+ #api too see all conversattion            
 def conversationmessage(request, conversation_id):
     if request.method == "GET":
         try:
@@ -829,4 +831,54 @@ def conversationmessage(request, conversation_id):
             return JsonResponse({"error": "Conversation not found"}, status=404)
     else:
         # Handle unsupported HTTP methods
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+#nimport queel ustilisateur peut faire une message 
+@csrf_exempt
+def sendmessage(request, conversation_id,user_id):
+    if request.method =="POST":
+        try:
+            data = json.loads(request.body)
+            
+
+            
+            # Retrieve conversation object
+            conversation_obj = converstation.objects.get(id=conversation_id)
+            user_new=CustomUser.objects.get(id=user_id)
+
+
+            description = data.get("description")
+            contenu = data.get("contenu")
+            
+
+            # Create message
+            message_new = message.objects.create(
+                converstation=conversation_obj,
+                contenu=contenu,
+                sender=user_new,
+               
+                message_type="public",
+                horodatage=datetime.now()
+            )
+
+            return JsonResponse({"message": "Message created successfully"}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': 'Failed to create message: {}'.format(str(e))}, status=400)
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+
+def api_intervetion_chefservice(request, user_id):
+    if request.method == "GET":
+        try:
+            user = CustomUser.objects.get(id=user_id)
+            user_service = user.service
+            interventions = interven.objects.filter(service=user_service).select_related("service").prefetch_related("conversation")
+            serializer = IntervetionSerializers(interventions, many=True)
+            # Access the serialized data directly
+            
+            return JsonResponse(serializer.data, status=200, safe=False)  # Set safe=False since we're returning a list
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': 'Failed to retrieve interventions: {}'.format(str(e))}, status=400)
+    else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
