@@ -43,13 +43,14 @@ urlpatterns = [
                 path('api_delete_user/<int:id>', views.delete_user, name='delete_user'),
                 path('api_mofifie_user/<int:id>/', views.api_mofifie_user, name='api_mofifie_user'),
                 path('api_activer_compte/<int:id>/', views.api_activer_compte, name='api_active_compte'),
-                path('api_assigne_service/<int:id>',views.api_assigne_service),
+                path('api_assigne_service/<int:id>',views.assign_service_or_technician),
                 path('api_intervetion_citoyen/<int:id>/',views.api_intervetion_citoyen),
                 path("api_modfie_profil/<int:id>/",views.api_mofifie_profil),
                 path("api_create_intervention/<int:id>/",views.api_create_intervention),
                 path("conversation/<int:conversation_id>/messages/",views.conversationmessage),
                  path('conversation/<int:conversation_id>/citoyen/<int:user_id>/',views.sendmessage),
-                 path("api_intervetion_chefservice/<int:user_id>/",views.api_intervetion_chefservice)
+                 path("api_intervetion_chefservice/<int:user_id>/",views.api_intervetion_chefservice),
+                 path("liste_technicien/<int:id>/",views.liste_technicien),
           
             
 

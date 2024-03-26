@@ -344,7 +344,7 @@ def CustomerListet(request):
 @csrf_exempt
 def intervention(request):
     if request.method == 'GET':
-        interventions = interven.objects.all().select_related("citoyen")
+        interventions = interven.objects.all().select_related("citoyen").select_related("service")
         serializer = IntervetionSerializers(interventions, many=True)
         return JsonResponse(serializer.data, safe=False)
     elif request.method == 'PUT':
@@ -714,27 +714,37 @@ def api_activer_compte(request,id):
             return JsonResponse({"error":"failed to create user:{}".format(str(e))},status=400)
     else :
         return JsonResponse({'error':'methode not allows'},status=200)
+
 @csrf_exempt
-@csrf_exempt
-# directeur peut assigne service pour une utilistaeur 
-def api_assigne_service(request, id):
+#chef servvice peut assigne service a intervetion 
+def assign_service_or_technician(request, id):
     if request.method == 'PUT':
         try:
             data = json.loads(request.body)
             new_service_id = data.get('service_id')
-          
-            # Fetch the service instance using the ID
-            ser = service.objects.get(id=new_service_id)
-          
-            user = CustomUser.objects.get(id=id)
-            user.service = ser  # Assign the service instance, not just the ID
-            user.save()
-         
-            return JsonResponse({"message": "Le service est bien assigné à l'utilisateur."}, status=200)
+            
+            # Fetch the intervention instance using the ID
+            intervention = interven.objects.get(id=id)
+            
+            if intervention.service.nom == 'noservice':
+                # Assign service
+                service_instance = service.objects.get(id=new_service_id)
+                intervention.service = service_instance
+                intervention.etat="Nouveau"
+            else:
+                # Assign technician
+                intervention.technicien = new_service_id
+                intervention.etat="Assigné"
+            
+            intervention.save()
+            
+            return JsonResponse({"message": "Le service/technicien est bien assigné à l'intervention."}, status=200)
+        except interven.DoesNotExist:
+            return JsonResponse({"error": "Intervention with the provided ID does not exist."}, status=400)
         except service.DoesNotExist:
             return JsonResponse({"error": "Service with the provided ID does not exist."}, status=400)
         except Exception as e:
-            return JsonResponse({"error": f"Failed to assign service: {str(e)}"}, status=400, safe=False)
+            return JsonResponse({"error": f"Failed to assign service/technician: {str(e)}"}, status=400)
     else:
         return JsonResponse({"error": "Méthode non autorisée."}, status=405)
 
@@ -880,5 +890,23 @@ def api_intervetion_chefservice(request, user_id):
             return JsonResponse({'error': 'User not found'}, status=404)
         except Exception as e:
             return JsonResponse({'error': 'Failed to retrieve interventions: {}'.format(str(e))}, status=400)
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+def liste_technicien(request, id):
+    if request.method == "GET":
+        try:
+            intervention = interven.objects.get(id=id)
+            
+            technicians = CustomUser.objects.filter(is_technicien=True, service=intervention.service)
+            serializer = CustomeUserSerializers(technicians, many=True)
+            return JsonResponse(serializer.data, status=200,safe=False)
+        except interven.DoesNotExist:
+            return JsonResponse({"error": "Intervention with the provided ID does not exist."}, status=404)
+        except service.DoesNotExist:
+            return JsonResponse({"error": "Service with the provided name does not exist."}, status=404)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"error": "No technicians found for the specified service."}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': 'Failed to retrieve technicians: {}'.format(str(e))}, status=400)
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
