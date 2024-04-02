@@ -74,7 +74,7 @@ const ConversationMessages = () => {
 
   return (
     <div>
-      <Citoyennavbar />
+      
       <div className="container">
         <h2 className="mt-5">Conversation Messages</h2>
         <ul className="list-group">

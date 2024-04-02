@@ -24,7 +24,7 @@ const Login = ({ onLogin }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Login failed');
+        throw new Error('mot ');
       }
 
       const { token, role, userId } = await response.json();
@@ -42,6 +42,14 @@ const Login = ({ onLogin }) => {
       else if (role==='chefservice')
        {
         navigate(`/chef_service_dashboard/${userId}`);
+       }
+       else if (role==="technicien")
+       {
+        navigate(`/technicien_dashboard/${userId}`)
+       }
+       else if (role=="directeur")
+       {
+        navigate(`/directeur_dashboard`);
        }
     } catch (error) {
       console.error('Login failed:', error);

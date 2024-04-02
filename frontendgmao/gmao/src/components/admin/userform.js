@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+
+
 function UserForm({ user, onSubmit }) {
   const [formData, setFormData] = useState({
     username: '',
@@ -45,6 +47,7 @@ function UserForm({ user, onSubmit }) {
   };
 
   return (
+   
     <form onSubmit={handleSubmit}>
       <div className="mb-3">
         <label htmlFor="username" className="form-label">Username:</label>
@@ -64,6 +67,7 @@ function UserForm({ user, onSubmit }) {
       </div>
       <button type="submit" className="btn btn-primary">Submit</button>
     </form>
+   
   );
 }
 

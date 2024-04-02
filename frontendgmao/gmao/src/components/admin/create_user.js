@@ -1,7 +1,9 @@
 
 import React, { useState } from 'react';
-import AdminNavbar from './AdminNavbar';
 import PopupMessage from '../message';
+import Sidebar from './admindesign/home/sidebar/sidebar';
+import Navbar from './admindesign/home/navbar/navbar';
+
 
 const CreateUser = ({ onUserCreated }) => {
   const [username, setUsername] = useState('');
@@ -54,8 +56,11 @@ const CreateUser = ({ onUserCreated }) => {
   };
 
   return (
-    <div>
-      <AdminNavbar />
+    <div className="list">
+         <Sidebar/>
+        <div className="listContainer">
+         <Navbar/>
+     
       <h2>Create New User</h2>
       {showMessage && <PopupMessage message="User created successfully" color="success" />}
       <form onSubmit={handleCreateUser}>
@@ -105,6 +110,7 @@ const CreateUser = ({ onUserCreated }) => {
         </div>
         <button type="submit" className="btn btn-primary">Create User</button>
         </form>
+    </div>
     </div>
       );
     };

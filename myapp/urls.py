@@ -33,7 +33,7 @@ urlpatterns = [
              path('cloture',views.cloture,name='cloture'),
              path('conversation/<int:conversation_id>/', views.view_conversation, name='view_conversation'),
               path('sendmessage/<int:conversation_id>/', views.sendmessage, name='sendmessage'),
-              path('startconversation', views.start_conversation, name='start_conversation'),
+              
                path('login_react/', views.loginn ,name="login_react"),
                 path('logoot/', views.logout_view , name='logoutt'),
                 path("Serviceliste/",views.Serviceliste),
@@ -51,6 +51,17 @@ urlpatterns = [
                  path('conversation/<int:conversation_id>/citoyen/<int:user_id>/',views.sendmessage),
                  path("api_intervetion_chefservice/<int:user_id>/",views.api_intervetion_chefservice),
                  path("liste_technicien/<int:id>/",views.liste_technicien),
+                 path('liste_intervetion_technicien/<int:id>/',views.api_intervetion_techn),
+                 path('api_create_converstion/<int:id>/',views.api_create_conversationn),
+                 path("liste_equipment/",views.api_liste_equipment),
+                 path("delete_service/<int:id>/",views.api_delete_service),
+                  path('api/intervention/<int:intervention_id>/', views.intervention_detail_api),
+                  path("api_refuse_intervention/<int:intervetion_id>/",views.api_refuse_intervetion),
+                  path("api_directeur_assgige/<int:id>/",views.api_directeur_assgige),
+                  path("api_demarer_inetrvetion/<int:intervtion_id>/",views.api_demarer_inetrvetion),
+                    path("api_finish_inetrvetion/<int:intervtion_id>/",views.api_finish_inetrvetion),
+                     path("api_create_raison/<int:intervtion_id>/",views.api_create_raison),
+                
           
             
 

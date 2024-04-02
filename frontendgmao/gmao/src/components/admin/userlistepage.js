@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import UserForm from './userform';
-import AdminNavbar from './AdminNavbar';
 
-function UserListPage() {
+
+
+
+function Userliste() {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState(null);
   const [modifiedUser, setModifiedUser] = useState(null);
@@ -29,6 +31,10 @@ function UserListPage() {
     try {
       const response = await fetch(`http://127.0.0.1:8000/api_delete_user/${id}`, {
         method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+          }
+          
       });
       if (response.ok) {
         setUsers(users.filter(user => user.id !== id));
@@ -76,8 +82,11 @@ function UserListPage() {
   }
 
   return (
-    <div>
-    <AdminNavbar/>
+    <div >
+         
+       
+        
+    
       <h1>Customer List</h1>
       <table className="table table-striped">
         <thead>
@@ -135,7 +144,8 @@ function UserListPage() {
         </div>
       )}
     </div>
+   
   );
 }
 
-export default UserListPage;
+export default Userliste;

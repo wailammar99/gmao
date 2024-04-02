@@ -6,8 +6,11 @@ from .serializers import *
 from django.contrib.auth.hashers import make_password
 from rest_framework.parsers import JSONParser,api_settings
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view, permission_classes
 import jwt
+from .permissions import *
 from django.conf import settings
+from .permissions import *
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -542,8 +545,10 @@ def loginn(request):
         password = data.get('password')
 
         user = authenticate(request, username=username, password=password)
+     
+            
         
-        if user is not None:
+        if user is not None :
             login(request, user)
             token, _ = Token.objects.get_or_create(user=user)
             request.session['user_id'] = user.id
@@ -615,6 +620,7 @@ def user_infoo(request, id):
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=406) 
 @csrf_exempt
+
 def create_service_api(request):
     if request.method == 'POST':
         try:
@@ -627,8 +633,10 @@ def create_service_api(request):
             print(e)
             return JsonResponse({"error": "Creation failed"}, status=400)
 @csrf_exempt
+
 def api_create_user(request):
     if request.method == 'POST':
+        
         try:
             data = json.loads(request.body)
             username = data.get('username')
@@ -702,14 +710,18 @@ def api_mofifie_user(request, id):
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
 #
+@csrf_exempt
 def api_activer_compte(request,id):
     if request.method=='GET':
         try:
             
             user=CustomUser.objects.get(pk=id)
+            if user.service is None:
+                return JsonResponse({"eroor":"you need assigne service fisrt"},status=401)
             user.is_active=True
             user.save()
             return JsonResponse({'messgae':'le utilisateur est bien activer'},status=200)
+        
         except Exception as e :
             return JsonResponse({"error":"failed to create user:{}".format(str(e))},status=400)
     else :
@@ -722,6 +734,9 @@ def assign_service_or_technician(request, id):
         try:
             data = json.loads(request.body)
             new_service_id = data.get('service_id')
+            equipment_ids = data.get('equipment_ids')
+            start_date = data.get('start_date')  # Assuming start_date is passed in the request
+            end_date = data.get('end_date')  # Assuming equipment IDs are passed in the request
             
             # Fetch the intervention instance using the ID
             intervention = interven.objects.get(id=id)
@@ -730,23 +745,34 @@ def assign_service_or_technician(request, id):
                 # Assign service
                 service_instance = service.objects.get(id=new_service_id)
                 intervention.service = service_instance
-                intervention.etat="Nouveau"
+                intervention.etat = "Nouveau"
             else:
                 # Assign technician
                 intervention.technicien = new_service_id
-                intervention.etat="Assigné"
+                intervention.etat = "Assigné"
+                intervention.date_debut=start_date
+                intervention.date_fin=end_date
+            
+            # Add equipment to intervention
+            if equipment_ids:
+                for equipment_id in equipment_ids:
+                    equipment_instance = Equipement.objects.get(id=equipment_id)
+                    intervention.equipements.add(equipment_instance)
             
             intervention.save()
             
-            return JsonResponse({"message": "Le service/technicien est bien assigné à l'intervention."}, status=200)
+            return JsonResponse({"message": "Le service/technicien et les équipements sont bien assignés à l'intervention."}, status=200)
         except interven.DoesNotExist:
             return JsonResponse({"error": "Intervention with the provided ID does not exist."}, status=400)
         except service.DoesNotExist:
             return JsonResponse({"error": "Service with the provided ID does not exist."}, status=400)
+        except Equipement.DoesNotExist:
+            return JsonResponse({"error": "Equipment with the provided ID does not exist."}, status=400)
         except Exception as e:
-            return JsonResponse({"error": f"Failed to assign service/technician: {str(e)}"}, status=400)
+            return JsonResponse({"error": f"Failed to assign service/technician/equipment: {str(e)}"}, status=400)
     else:
         return JsonResponse({"error": "Méthode non autorisée."}, status=405)
+
 
 @csrf_exempt  # Ensure the user is authenticated
 #api ciotoyen peut voir onmy cest intervetion 
@@ -793,6 +819,7 @@ def api_mofifie_profil(request, id):
 
     else:
         return JsonResponse({"error": "Only PUT requests are allowed"}, status=405)
+
 @csrf_exempt
 def api_create_intervention(request,id):
     if request.method == 'POST':
@@ -805,7 +832,7 @@ def api_create_intervention(request,id):
             
 
             # Check if required fields are present
-            if description is None or date_debut is None or date_fin is None:
+            if description  is None:
                 return JsonResponse({'error': 'Description, start date, and end date are required'}, status=400)
 
             # Create the intervention
@@ -813,8 +840,7 @@ def api_create_intervention(request,id):
             noservice = service.objects.get(nom="noservice")
             intervention = interven.objects.create(
                 description=description,
-                date_debut=date_debut,
-                date_fin=date_fin,
+                
                 etat="Nouveau",
                 citoyen=user,
                 service=noservice,
@@ -881,7 +907,7 @@ def api_intervetion_chefservice(request, user_id):
         try:
             user = CustomUser.objects.get(id=user_id)
             user_service = user.service
-            interventions = interven.objects.filter(service=user_service).select_related("service").prefetch_related("conversation")
+            interventions = interven.objects.filter(service=user_service).select_related("service").prefetch_related("conversation").prefetch_related("equipements")
             serializer = IntervetionSerializers(interventions, many=True)
             # Access the serialized data directly
             
@@ -910,3 +936,179 @@ def liste_technicien(request, id):
             return JsonResponse({'error': 'Failed to retrieve technicians: {}'.format(str(e))}, status=400)
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
+@csrf_exempt  
+def api_intervetion_techn(request, id):
+    if request.method == "GET":
+        try:
+            user=CustomUser.objects.get(id=id)
+ 
+            
+            
+            interventions = interven.objects.filter(technicien=user.id).select_related("service").prefetch_related("conversation").prefetch_related("equipements").select_related("raison")
+            serialize = IntervetionSerializers(interventions, many=True)
+            # Access the serialized data directly
+           
+            return JsonResponse(serialize.data, status=200,safe=False)  # Set safe=False since we're returning a list
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': 'Failed to retrieve interventions: {}'.format(str(e))}, status=400)
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+@csrf_exempt
+#api start conversation 
+def api_create_conversationn(request, id):
+    if request.method == 'PUT':
+        try:
+            intervention_cible = interven.objects.get(id=id)
+            data = json.loads(request.body)
+            titre = data.get('title')
+            
+            # Create the conversation
+            conversation = converstation.objects.create(title=titre)
+            
+            # Assign the conversation to the intervention
+            intervention_cible.conversation = conversation
+            intervention_cible.save()
+            
+            # Response message
+            response_data = {'message': "Conversation bien créée"}
+            
+            return JsonResponse(response_data)
+        except interven.DoesNotExist:
+            return JsonResponse({"error": "L'intervention n'existe pas"}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': 'Échec de la création de la conversation: {}'.format(str(e))}, status=400)
+    else:
+        return JsonResponse({"error": "La méthode n'est pas autorisée"}, status=405)
+def api_liste_equipment(request):
+    if request.method == "GET":
+        eq = Equipement.objects.all()
+        serializer = EquimenentSerializers(eq, many=True)  # Use correct serializer and remove 'safe' argument
+        return JsonResponse(serializer.data, status=200, safe=False)  # Specify safe=False here
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=405) 
+#api to delete service 
+@csrf_exempt 
+def api_delete_service(request,id):
+    if request.method=="DELETE":
+     try :
+         
+         if service.objects.filter(id=id).delete() :
+          return JsonResponse({"message":"le service est bien supprimer "},status=200)
+     except service.DoesNotExist :
+         return JsonResponse({"eroor:le service est intorvable "},status=400)
+     except Exception as e :
+        return JsonResponse({'error': 'Échec de la création de la conversation: {}'.format(str(e))}, status=400)
+    else :
+        return JsonResponse({"eroor:methode not allow"},status=405)
+def intervention_detail_api(request, intervention_id):
+    # Retrieve intervention from database or return 404 if not found
+    intervention = get_object_or_404(interven, pk=intervention_id)
+
+    # Serialize intervention data
+    intervention_data = {
+        'id': intervention.id,
+        'description': intervention.description,
+        'date_creation': intervention.date_creation,
+        'date_debut': intervention.date_debut,
+        'date_fin': intervention.date_fin,
+        'etat': intervention.etat,
+        # Add other fields as needed
+    }
+
+    # Return JSON response
+    return JsonResponse(intervention_data)
+#api to chaange etat de intervetion into annuler 
+@csrf_exempt
+def api_refuse_intervetion(request,intervetion_id):
+    if request.method=="GET" :
+      try:
+        intervention=interven.objects.get(id=intervetion_id)
+        intervention.etat="Annulé"
+        intervention.save()
+        return JsonResponse({"message":"le intervztion est bien modifie "})
+      except interven.DoesNotExist :
+          return JsonResponse({"eroor:le intervtion not found "},status=404)
+      except Exception as e :
+          return JsonResponse({'error': 'Échec de la création de la conversation: {}'.format(str(e))}, status=403)
+    else :
+        return JsonResponse({"eroor:le methode not allow"},status=400)
+@csrf_exempt
+def api_directeur_assgige(request, id):
+    if request.method == "PUT":
+        try:
+            data = json.loads(request.body)
+            service_id = data.get("service_id")
+            service_cible = service.objects.get(id=service_id)
+            user_cible = CustomUser.objects.get(id=id)
+            user_cible.service = service_cible
+            user_cible.save()
+            return JsonResponse({"message": "L'utilisateur a été assigné avec succès."})
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"error": "L'utilisateur n'est pas valide."}, status=404)
+        except service.DoesNotExist:
+            return JsonResponse({"error": "Le service n'est pas valide."}, status=405)
+        except Exception as e:
+            return JsonResponse({'error': 'Échec de l\'assignation de l\'utilisateur: {}'.format(str(e))}, status=403)
+    else:
+        return JsonResponse({"error": "La méthode n'est pas autorisée."}, status=405)
+
+
+#************api of techrcchncine #
+#api turn etat de inetrvetion into "en cour "
+@csrf_exempt
+def api_demarer_inetrvetion(request,intervtion_id):
+    if request.method=="PUT":
+     try :
+        interveton_cible=interven.objects.get(id=intervtion_id)
+        interveton_cible.etat="En cours"
+        interveton_cible.save()
+        return JsonResponse({"message":"le inetrvetion est encour "},status=200)
+     except interven.DoesNotExist :
+         return JsonResponse({"eroor:inetrvtion do not existe "},status=404)
+     except Exception as e :
+         return JsonResponse({'error': 'i cant start inetrvetion beacause : {}'.format(str(e))}, status=403)
+    else :
+        return JsonResponse({"eroor:methdoe not allow "},status=405)
+@csrf_exempt
+#api to turn etat into "terminer "
+def api_finish_inetrvetion(request,intervtion_id):
+    if request.method=="PUT":
+     try :
+        interveton_cible=interven.objects.get(id=intervtion_id)
+        interveton_cible.etat="Terminé"
+        interveton_cible.save()
+        return JsonResponse({"message":"le inetrvetion est Terminé "},status=200)
+     except interven.DoesNotExist :
+         return JsonResponse({"eroor:inetrvtion do not existe "},status=404)
+     except Exception as e :
+         return JsonResponse({'error': 'i cant start inetrvetion beacause : {}'.format(str(e))}, status=403)
+    else :
+        return JsonResponse({"eroor:methdoe not allow "},status=405)
+#api modfie interveztion and create raiosn 
+@csrf_exempt 
+def api_create_raison(request,intervtion_id):
+    if request.method == "PUT":
+        try:
+            intervention_cible = interven.objects.get(id=intervtion_id)
+            data = json.loads(request.body)
+            description = data.get("description")
+            if description is None:
+                return JsonResponse({"message": "La description est obligatoire pour un état en attente"}, status=404)
+            
+            raison_cible = enatte.objects.create(description=description)
+            intervention_cible.raison = raison_cible
+            intervention_cible.etat="En attente"
+            intervention_cible.save()
+            
+            return JsonResponse({"message": "La raison de l'attente a été ajoutée avec succès à l'intervention"}, status=200)
+        
+        except interven.DoesNotExist:
+            return JsonResponse({"error": "L'intervention n'existe pas"}, status=404)
+        
+        except Exception as e:
+            return JsonResponse({'error': 'Impossible de démarrer l\'intervention à cause de : {}'.format(str(e))}, status=403)
+    
+    else:
+        return JsonResponse({"error": "Méthode non autorisée"}, status=403)

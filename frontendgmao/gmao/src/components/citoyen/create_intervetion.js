@@ -23,9 +23,15 @@ const CreateInterventionForm = ({ onInterventionCreated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     try {
       const token = localStorage.getItem('token');
       const userId = localStorage.getItem('userId');
+      if (!token || !userId) {
+        // Redirect to login page or show an error message indicating authentication is required
+        console.error('User not authenticated');
+        return;
+      }
       const response = await fetch(` http://127.0.0.1:8000/api_create_intervention/${userId}/`, {
         method: 'POST',
         headers: {
@@ -70,14 +76,7 @@ const CreateInterventionForm = ({ onInterventionCreated }) => {
           <label>Description:</label>
           <textarea value={description} onChange={handleDescriptionChange} style={{ width: '100%', padding: '8px', marginBottom: '10px' }} required />
         </div>
-        <div>
-          <label>Start Date:</label>
-          <input type="date" value={startDate} onChange={handleStartDateChange} style={{ width: '100%', padding: '8px', marginBottom: '10px' }} required />
-        </div>
-        <div>
-          <label>End Date:</label>
-          <input type="date" value={endDate} onChange={handleEndDateChange} style={{ width: '100%', padding: '8px', marginBottom: '10px' }} required />
-        </div>
+        
         <button type="submit" style={{ backgroundColor: '#007bff', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Create Intervention</button>
       </form>
       {showPopup && <PopupMessage message={popupMessage} color={popupColor} />}

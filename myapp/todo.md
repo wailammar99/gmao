@@ -6,6 +6,8 @@
 @conversation
   +mesage_add_navbar_of_utlistateur [yes]
 @probleme with routing when i am chef service and go to compeent profil he go to citoyen page [yes #depanage when he go to profil all navabr move ]
+@probleme dans les #field_de_service le utilisateur peut cree une service null and le message de succes show up [] 
+@probleme when we assigne technicne i need to assigne all fields for the intervetion assigne []
 
 
 
@@ -35,17 +37,9 @@
    .creee une conversation 
    .see liste of intevrtion [yes]
 @technicine 
- 1.demarer intervetion (change etat de intervetion =encour )
- 2.modifie leur infomation 
- 3.finire intervetion (changer etat de intervetion == terminer )
- 4.voir la liste de intervetion (liste -calendirie )
- 5.peut faire intevertion en attendre est dire le raison (enatttend )
+ 1.demarer intervetion (change etat de intervetion =encour ) [YES]
+ 2.modifie leur infomation  [pas_encour_intergtie]
+ 3.finire intervetion (changer etat de intervetion == terminer )[yes]
+ 4.voir la liste de intervetion (liste -calendirie ) [just liste pas encour do clandeiier ]
+ 5.peut faire intevertion en attendre est dire le raison (enatttend ) [yes]
  
-test 
-# Example of TODO.md
-
-This is an example of TODO.md
-
-View the raw content of this file to understand the format.
-
-

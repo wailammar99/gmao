@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AdminNavbar from './admin/AdminNavbar';
+
 import PopupMessage from './message';
 import Citoyennavbar from './citoyen/citoyennavbar';
 import Chefservicenavbar from './chefservice/chefservicenavbar';
@@ -130,7 +130,7 @@ const UserProfile = () => {
   return (
     <>
         {/* Conditionally render navbar based on user role */}
-      {userData && userData.role === 'admin' ? <AdminNavbar /> : 
+      {
        userData && userData.role === 'citoyen' ? <Citoyennavbar /> : 
        userData && userData.role === 'chefservice' ? <Chefservicenavbar /> : null}
       <section style={{ backgroundColor: '#eee' }}>

@@ -60,3 +60,10 @@ body {
 .intervention-form button:hover {
   background-color: #0056b3;
 }
+.en-attente-form {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  /* Add additional styles as needed */
+}
