@@ -8,6 +8,8 @@ from rest_framework.parsers import JSONParser,api_settings
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 import jwt
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 from .permissions import *
 from django.conf import settings
 from .permissions import *
@@ -633,13 +635,12 @@ def create_service_api(request):
             print(e)
             return JsonResponse({"error": "Creation failed"}, status=400)
 @csrf_exempt
-
 def api_create_user(request):
-    if request.method == 'POST':
-        
+    if request.method == "POST":
         try:
             data = json.loads(request.body)
             username = data.get('username')
+            directeur = CustomUser.objects.filter(is_directeur=True)
             first_name = data.get('first_name')
             last_name = data.get('last_name')
             password1 = data.get('password1')
@@ -677,7 +678,7 @@ def api_create_user(request):
             else:
                 return JsonResponse({'error': 'Passwords do not match'}, status=402)
         except Exception as e:
-            return JsonResponse({'error': 'Failed to create user: {}'.format(str(e))}, status=400)
+            return JsonResponse({'error': 'Failed to create user: {}'.format(str(e))}, status=406)
     else:
         return JsonResponse({'error': 'Method not allowed, only POST is allowed'}, status=400)
 @csrf_exempt
@@ -747,11 +748,21 @@ def assign_service_or_technician(request, id):
                 intervention.service = service_instance
                 intervention.etat = "Nouveau"
             else:
+                technicien=CustomUser.objects.get(id=new_service_id)
+                
                 # Assign technician
                 intervention.technicien = new_service_id
                 intervention.etat = "Assigné"
+                intervention.raison=None
                 intervention.date_debut=start_date
                 intervention.date_fin=end_date
+               
+                    
+
+                 
+                  # Assuming you have the intervention object available
+               
+               
             
             # Add equipment to intervention
             if equipment_ids:
@@ -760,6 +771,8 @@ def assign_service_or_technician(request, id):
                     intervention.equipements.add(equipment_instance)
             
             intervention.save()
+            message = "New intervention has been assigned to you"
+            Notification.objects.create(recipient=technicien, message=message, is_read=False)
             
             return JsonResponse({"message": "Le service/technicien et les équipements sont bien assignés à l'intervention."}, status=200)
         except interven.DoesNotExist:
@@ -847,7 +860,7 @@ def api_create_intervention(request,id):
                 date_creation=datetime.now()
             )
 
-            return JsonResponse({'message': 'Intervention created successfully', 'id': intervention.id}, status=201)
+            return JsonResponse({'message': 'Intervention created successfully', 'id': intervention.id}, status=200)
         except Exception as e:
             return JsonResponse({'error': 'Failed to create intervention: {}'.format(str(e))}, status=400)
     else:
@@ -1112,3 +1125,98 @@ def api_create_raison(request,intervtion_id):
     
     else:
         return JsonResponse({"error": "Méthode non autorisée"}, status=403)
+@csrf_exempt
+def api_assigne_service_user (request,user_id):
+    if request.method=="PUT" :
+      try: 
+        data=json.loads(request.body)
+        service_id=data.get("service_id")
+        service_cible=service.objects.get(id=service_id)
+        user=CustomUser.objects.get(id=user_id)
+        user.service=service_cible
+        user.save()
+        return JsonResponse({"message":"le service est bien assigne "},status=200)
+      except CustomUser.DoesNotExist :
+          return JsonResponse({"eroor":"le utilistaeur not found "},status=404)
+      except Exception  as e :
+       return JsonResponse({'error': 'Impossible de démarrer l\'intervention à cause de : {}'.format(str(e))}, status=403)
+    else :
+        return JsonResponse({"eroor:methode not allow "},status=405)
+def api_notification_liste(request,user_id):
+    if request.method=="GET":
+        try :
+            user=CustomUser.objects.get(id=user_id)
+            notification=Notification.objects.filter(recipient=user)
+            serializer=NotificationSerialize(notification,many=True)
+            return response(serializer.data)
+        except CustomUser.DoesNotExist :
+            return JsonResponse({"eroor":"user do not exite"},status=404)
+        except Notification.DoesNotExist :
+            return JsonResponse({"eroor":"notification do not exttse "},status=404)
+        except Exception as e :
+               return JsonResponse({'error': 'Impossible de démarrer l\'intervention à cause de : {}'.format(str(e))}, status=403)
+    else :
+        return JsonResponse({"eooor":"methode not allow "},statut=405)
+def api_liste_technicien_par_service(request,user_id):
+    if request.method=="GET":
+      try:
+        user=CustomUser.objects.get(id=user_id)
+        service=user.service
+        technicien=CustomUser.objects.filter(service=service ,is_technicien=True)
+        serializer=CustomeUserSerializers(technicien,many=True).data
+        return JsonResponse(serializer,status=200,safe=False)
+      except CustomUser.DoesNotExist :
+          return JsonResponse({"eroor":"Customer user do not exite"},status=404)
+      except Exception as e :
+               return JsonResponse({'error': 'Impossible de démarrer l\'intervention à cause de : {}'.format(str(e))}, status=403)
+    else :
+       return JsonResponse({"eroor":"Customer user do not exite"},status=405)
+@csrf_exempt
+def api_liste_notification_unread(request, user_id):
+    if request.method == "GET":
+        try:
+            user = CustomUser.objects.get(id=user_id)
+            notif_cible = Notification.objects.filter(recipient=user,is_read=False )
+            serializer = NotificationSerialize(notif_cible, many=True)
+            return JsonResponse(serializer.data, status=200,safe=False)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"error": "User does not exist"}, status=404)
+        except Notification.DoesNotExist:
+            return JsonResponse({"error": "Notifications do not exist"}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': 'Error retrieving notifications: {}'.format(str(e))}, status=403)
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=401)
+@csrf_exempt
+def api_change_statu_notification(request,user_id):
+    if request.method=="PUT" :
+        try :
+            user=CustomUser.objects.get(id=user_id)
+            notificationn=Notification.objects.filter(recipient=user)
+            for n in notificationn :
+                n.is_read=True 
+                n.save()
+            
+            
+            return JsonResponse({'message':"all your ntofication is now readeere"},status=200)
+        except Notification.DoesNotExist :
+            return JsonResponse({"eooor":"notification do not existe "},status=404)
+        except Exception as e:
+            return JsonResponse({'error': 'Error retrieving notifications: {}'.format(str(e))}, status=403)
+    else :
+        return JsonResponse({"eoor":"methode do not allow"},status=405)
+                 
+def api_all_nofication(request,user_id):
+    if request.method=="GET" :
+        try :
+            user=CustomUser.objects.get(id=user_id)
+            notif=Notification.objects.filter(recipient=user).order_by('created_at')
+            serializer=NotificationSerialize(notif,many=True)
+            return JsonResponse(serializer.data,status=200,safe=False)
+        except CustomUser.DoesNotExist :
+            return JsonResponse({"eroor":"user do not existe "},status=404)
+        except Exception as e:
+            return JsonResponse({'error': 'Error retrieving notifications: {}'.format(str(e))}, status=403)
+    else :
+        return JsonResponse({"eroor":"le method do not existe "},status=405)
+

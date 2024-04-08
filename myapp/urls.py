@@ -33,6 +33,7 @@ urlpatterns = [
              path('cloture',views.cloture,name='cloture'),
              path('conversation/<int:conversation_id>/', views.view_conversation, name='view_conversation'),
               path('sendmessage/<int:conversation_id>/', views.sendmessage, name='sendmessage'),
+              path("",views.api_create_conversationn),
               
                path('login_react/', views.loginn ,name="login_react"),
                 path('logoot/', views.logout_view , name='logoutt'),
@@ -61,6 +62,11 @@ urlpatterns = [
                   path("api_demarer_inetrvetion/<int:intervtion_id>/",views.api_demarer_inetrvetion),
                     path("api_finish_inetrvetion/<int:intervtion_id>/",views.api_finish_inetrvetion),
                      path("api_create_raison/<int:intervtion_id>/",views.api_create_raison),
+                     path("api_assigne_service_user/<int:user_id>/",views.api_assigne_service_user),
+                     path("api_liste_technicien_par_service/<int:user_id>/",views.api_liste_technicien_par_service),
+                     path("api_liste_notification_unread/<int:user_id>/",views.api_liste_notification_unread),
+                     path("api_notification_change/<int:user_id>/",views.api_change_statu_notification),
+                     path("api_liste_notifcation/<int:user_id>/",views.api_all_nofication),
                 
           
             

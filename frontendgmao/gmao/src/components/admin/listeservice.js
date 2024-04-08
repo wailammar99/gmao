@@ -1,8 +1,13 @@
 import React, { useState, useEffect ,useRef } from 'react';
 import Sidebar from './admindesign/home/sidebar/sidebar';
 import Navbar from './admindesign/home/navbar/navbar';
-
-
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
 
 const ListService = () => {
   const [userData, setUserData] = useState([]);
@@ -32,8 +37,8 @@ const ListService = () => {
 
   const handleDeleteService = async (id) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/delete_service/${id}/`, {
-        method: 'DELETE',
+      const response = await fetch(`http://127.0.0.1:8000/api_delete_service/${id}/`, {
+       
       });
       if (response.ok) {
         setServiceData(prevServices => {
@@ -55,34 +60,39 @@ const ListService = () => {
          <Sidebar/>
         <div className="listContainer">
          <Navbar/>
-    <div className="container mt-5">
+         <div className="top">
       <h1>Liste des services</h1>
-      <div>
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Nom</th>
-              <th>Description</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
+      </div>
+      <div className="botom">
+      <TableContainer component={Paper} className="table">
+      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+           
+          <TableCell className="tableCell">Nom</TableCell>
+          <TableCell className="tableCell">Description</TableCell>
+          <TableCell className="tableCell">Action</TableCell>
+            
+          </TableRow>
+          </TableHead>
+          <TableBody>
             {userData.map((service) => (
-              <tr key={service.id}>
-                <td>{service.nom}</td>
-                <td>{service.descrtions}</td>
-                <td>
+              <TableRow key={service.id}>
+                <TableCell className="tableCell">{service.nom}</TableCell>
+                <TableCell className="tableCell">{service.descrtions}</TableCell>
+                <TableCell className="tableCell">
                   <button onClick={() => handleDeleteService(service.id)} className="btn btn-danger">Supprimer</button>
-                </td>
+                  </TableCell>
 
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  </TableRow>
+          ))}
+        </TableBody>
+         </Table>
+      </TableContainer>
       </div>
     </div>
     </div>
-    </div>
+   
   );
 };
 

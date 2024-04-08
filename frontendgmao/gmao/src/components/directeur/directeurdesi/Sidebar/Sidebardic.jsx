@@ -1,4 +1,3 @@
-
 import "./Sidebardic.scss";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
@@ -63,28 +62,37 @@ const Sidebar = () => {
 
           <p className="title">USER</p>
             
-          <Link to="http://localhost:3000/listecostumer" style={{ textDecoration: "none" }}>
+          <Link to="http://localhost:3000/Listchefservice" style={{ textDecoration: "none" }}>
             <li>
               <PersonOutlineIcon className="icon" />
-              <span>Users</span>
+              <span>Chef service</span>
             </li>
             </Link>
 
-         
+            <Link to="http://localhost:3000/Listtechnicien" style={{ textDecoration: "none" }}>
             <li>
-            <AddIcon className="icon" />
-              <span>Creat User</span>
+            <PersonOutlineIcon className="icon" />
+              <span> Technicien</span>
             </li>
-           
+           </Link>
+           <Link to="http://localhost:3000/comptenouveux" style={{ textDecoration: "none" }}>
+            <li>
+            <PersonOutlineIcon className="icon" />
+              <span> les nouveux compte </span>
+            </li>
+           </Link>
 
+
+           <p className="title">INTERVENTION</p>
+
+           <Link to="http://localhost:3000/intervention" style={{ textDecoration: "none" }}>
           <li>
             <CreditCardIcon className="icon" />
-            <span>Orders</span>
+            <span>intervention</span>
           </li>
-          <li>
-            <LocalShippingIcon className="icon" />
-            <span>Delivery</span>
-          </li>
+          </Link>
+
+          
           <p className="title">USEFUL</p>
           <li>
             <InsertChartIcon className="icon" />
@@ -94,19 +102,6 @@ const Sidebar = () => {
           <li>
             <NotificationsNoneIcon className="icon" />
             <span>Notifications</span>
-          </li>
-          <p className="title">SERVICE</p>
-          <li>
-         
-            <li>
-            <AddIcon className="icon" />
-            <span>Create System </span>
-            </li>
-          </li>
-         
-          <li>
-            <ListIcon className="icon" />
-            <span>Liste Service</span>
           </li>
           
           <li>

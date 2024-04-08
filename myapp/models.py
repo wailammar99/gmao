@@ -68,7 +68,7 @@ class interven(models.Model):
         ('Assigné', 'Assigné'),
 
         ('Terminé', 'Terminé'),
-        ('Annulé', 'Annulé'),
+        ('Annulé', 'Annulé'),   
         ('Clôture','Clôture'),
         
     )
@@ -100,8 +100,11 @@ class message (models.Model):
     def __str__(self):
         return f"Message in {self.converstation}"
     
-    
-    
+class Notification(models.Model):
+ recipient = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+ message = models.CharField(max_length=255)
+ is_read = models.BooleanField(default=False)
+ created_at = models.DateTimeField(auto_now_add=True)
 
     
     

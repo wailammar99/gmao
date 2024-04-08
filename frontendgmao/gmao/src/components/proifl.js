@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import PopupMessage from './message';
-import Citoyennavbar from './citoyen/citoyennavbar';
-import Chefservicenavbar from './chefservice/chefservicenavbar';
+
+
 
 
 const UserProfile = () => {
@@ -130,9 +130,7 @@ const UserProfile = () => {
   return (
     <>
         {/* Conditionally render navbar based on user role */}
-      {
-       userData && userData.role === 'citoyen' ? <Citoyennavbar /> : 
-       userData && userData.role === 'chefservice' ? <Chefservicenavbar /> : null}
+     
       <section style={{ backgroundColor: '#eee' }}>
         <div className="container py-5">
         {successMessage && <PopupMessage message={successMessage} color="success" />}

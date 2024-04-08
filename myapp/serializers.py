@@ -41,3 +41,8 @@ class MessageSerializer(serializers.ModelSerializer):
 
         # You may want to include this line if you want to display the sender's username in the serialized data
         depth = 1
+class NotificationSerialize(serializers.ModelSerializer):
+    recipient=CustomeUserSerializers()
+    class Meta :
+     model=Notification
+     fields='__all__'

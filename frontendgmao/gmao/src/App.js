@@ -3,21 +3,44 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './components/Login';
 import { Navigate } from 'react-router-dom';
 
-import Citoyenpage from './components/citoyen/citoyenpage';
-import CreateService from './components/admin/CreateService';
-import CreateUser from './components/admin/create_user';
+
+import CreateService from './components/admin/createservice/CreateService';
+import CreateUser from './components/admin/admindesign/createusser/create_user';
 import UserProfile from './components/proifl';
-import CreateInterventionForm from './components/citoyen/create_intervetion';
-import ConversationMessages from './components/citoyen/conversationMessages';
-import Chefservicepage from './components/chefservice/chefservicepage';
-import Intervention from './components/directeur/Listcostumer';
-import Technicienpage from './components/technicine/technicien';
+
+import ConversationForm from './components/citoyen/ConversationForm';
+
+import Intervention from './components/directeur/intervention';
+
+import Pagetechnicien from './components/technicien/techniciendesign/hometechnicien';
+import Technicienpage from './components/technicien/technicienpage';
+
 import AdminPage from './components/admin/admindesign/adminpage';
 
 import Link from './components/admin/admindesign/link';
 import ListService from './components/admin/listeservice';
+
 import Pagedirecteur from './components/directeur/directeurdesi/pagedirecteur';
 import Listcostumer from './components/directeur/Listcostumer';
+import Listtechnicien from './components/directeur/listetechnicien';
+import Listchefservice from './components/directeur/listechefservice';
+import CompteNoActive from './components/directeur/noucompte';
+
+
+import Chefservice from './components/chefservice/chefservicedesign/pagechefservice/pagechefservice';
+import Chefservicepage from './components/chefservice/chefservicedesign/Chefservicepage';
+import Listtechnicienparservice from './components/chefservice/chefservicedesign/Listtechnicienparservice';
+import Citoyenpage from './components/citoyen/cityoenpage';
+import Pagecityoen from './components/citoyen/cityoendesign/homecitoyen';
+import ConversationMessages from './components/citoyen/conversationmessage';
+import CreateInterventionForm from './components/citoyen/createintervention';
+import Calendertechncien from './components/technicien/Calendertechncien';
+
+
+
+
+
+
 
 
 
@@ -47,6 +70,10 @@ function App() {
             path="/"
             element={isLoggedIn ? <AdminPage onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
           />
+            <Route
+            path="/login"
+            element=<Login onLogin={handleLogin} />
+          />
        
             
           <Route
@@ -74,22 +101,33 @@ function App() {
           path="/listecostumer"
           element={isLoggedIn ? <Listcostumer /> : <Navigate to="/directeur_dashboard" />}
           /> 
+           <Route
+          path="/comptenouveux"
+          element={isLoggedIn ? <CompteNoActive /> : <Navigate to="/directeur_dashboard" />}
+          /> 
         
          
           
 
-          <Route
-            path="/chef_service_dashboard/:id" // Corrected route path
-            element={<Chefservicepage />} // Corrected component name
-          />
+         
           <Route
             path="/citoyen_dashboard/:id"
             element={isLoggedIn ? <Citoyenpage onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
           />
-           <Route
-            path="/technicien_dashboard/:id" // Corrected route path
-            element={<Technicienpage />} // Corrected component name
+        
+        <Route
+            path="/technicien_dashboard/:Id"
+            element={isLoggedIn ? <Pagetechnicien onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
           />
+        
+           <Route
+          path="/technicienpage"
+          element={isLoggedIn ? <Technicienpage /> : <Navigate to="/technicien_dashboard/:Id" />}
+          />
+          <Route path="/calender/technien" element={isLoggedIn ? <Calendertechncien/> : <Navigate to="/technicien_dashboard/:Id" />}>
+
+          </Route>
+
        
            <Route
             path="/create-service"
@@ -100,7 +138,7 @@ function App() {
             element={isLoggedIn ? <UserProfile /> : <Login onLogin={handleLogin} />}
   
           />
-          <Route path="/create_intervention" element={<CreateInterventionForm onInterventionCreated={() => {}} />} />
+         
            <Route path="/create_user" element={<CreateUser />} />
            <Route path="/conversation/:id/citoyen/:int" element={<ConversationMessages />} />
            <Route
@@ -108,7 +146,47 @@ function App() {
           element={<Intervention />}
 
           />
+           <Route
+          path="/Listtechnicien"
+          element={isLoggedIn ? <Listtechnicien /> : <Navigate to="/directeur_dashboard" />}
+          />
+          <Route
+          path="/Listtechnicienparservice"
+          element={isLoggedIn ? <Listtechnicienparservice /> : <Navigate to="/technicien_dashboard" />}
+          />
 
+          <Route
+          path="/Listchefservice"
+          element={isLoggedIn ? <Listchefservice /> : <Navigate to="/directeur_dashboard" />}
+          />
+
+        <Route
+          path="/intervention"
+          element={isLoggedIn ? <Intervention /> : <Navigate to="/directeur_dashboard" />}
+          />  
+            <Route
+            path="/chef_service_dashboard/:Id"
+            element={isLoggedIn ? <Chefservice onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+          />
+           <Route
+          path="/Chefservicepage"
+          element={isLoggedIn ? <Chefservicepage /> : <Navigate to="/chef_service_dashboard/:Id" />}
+          />
+           <Route
+            path="/citoyen_dashboard/:Id"
+            element={isLoggedIn ? <Pagecityoen onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+          /> 
+           <Route
+          path="/Citoyenpage"
+          element={isLoggedIn ? <Citoyenpage /> : <Navigate to="/citoyen_dashboard/:Id" />}
+          />
+          <Route
+          path="/create_intervention"
+          element={isLoggedIn ? <CreateInterventionForm /> : <Navigate to="/citoyen_dashboard/:Id" />}
+          />
+          
+          
+        
            
           
          

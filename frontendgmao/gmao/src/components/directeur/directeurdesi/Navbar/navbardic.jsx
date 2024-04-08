@@ -6,6 +6,8 @@ import FullscreenExitOutlinedIcon from "@mui/icons-material/FullscreenExitOutlin
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 import ListOutlinedIcon from "@mui/icons-material/ListOutlined";
+import NotificationPopup from "../../NotificationPopup";
+
 
 
 const Navbar = () => {
@@ -24,26 +26,19 @@ const Navbar = () => {
             English
           </div>
           <div className="item">
-            <DarkModeOutlinedIcon
-              className="icon"
-             
-            />
+            <DarkModeOutlinedIcon className="icon" />
           </div>
           <div className="item">
             <FullscreenExitOutlinedIcon className="icon" />
           </div>
-          <div className="item">
-            <NotificationsNoneOutlinedIcon className="icon" />
-            <div className="counter">1</div>
-          </div>
+          <NotificationPopup /> {/* Include the NotificationPopup component */}
           <div className="item">
             <ChatBubbleOutlineOutlinedIcon className="icon" />
-            <div className="counter">2</div>
+            <div className="counter">3</div>
           </div>
           <div className="item">
             <ListOutlinedIcon className="icon" />
           </div>
-          
         </div>
       </div>
     </div>

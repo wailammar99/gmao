@@ -18,6 +18,9 @@ body {
 .form-group {
   margin-bottom: 20px;
 }
+.search input[type="text"] {
+  color: green; /* Set the color to green */
+}
 
 .form-control {
   font-size: 18px; /* Increase the font size */

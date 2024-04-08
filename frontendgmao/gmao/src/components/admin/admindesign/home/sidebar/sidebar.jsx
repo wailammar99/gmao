@@ -75,8 +75,7 @@ const Sidebar = () => {
             </li>
           </Link> 
 
-          
-        
+         
           <p className="title">USEFUL</p>
           <li>
             <InsertChartIcon className="icon" />
@@ -91,7 +90,7 @@ const Sidebar = () => {
           <Link to="http://localhost:3000/create-service" style={{ textDecoration: "none" }}>
             <li>
             <AddIcon className="icon" />
-            <span>Create System </span>
+            <span>Create Service </span>
             </li>
           </Link>
            

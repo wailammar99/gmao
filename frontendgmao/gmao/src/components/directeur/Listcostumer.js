@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Userform from './userform';
+import UserformA from './directeurdesi/UserformA';
 import Sidebar from './directeurdesi/Sidebar/Sidebardic';
 import Navbar from './directeurdesi/Navbar/navbardic';
 import PopupMessage from '../message';
@@ -113,7 +113,7 @@ const Listcostumer = () => {
                   </button>
                 </div>
                 <div className="modal-body">
-                  <Userform userId={user} onSubmit={handleFormSubmit} />
+                  <UserformA userId={user} onSubmit={handleFormSubmit} />
                 </div>
               </div>
             </div>
