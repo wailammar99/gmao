@@ -100,12 +100,14 @@ const [selectedStatus, setSelectedStatus] = useState('');
 if (response.ok) {
   setShowPopup(true);
   setPopupMessage({ message: 'Intervention finish  successfully', color: 'success' });
+  fetchData();
 }
 
       if (response.ok)
       {
         setShowPopup(true);
         setPopupMessage({ message: 'Intervention finish  successfully', color: 'success' });
+        fetchData();
       }
       if (!response.ok) {
         throw new Error('Failed to finish intervention');

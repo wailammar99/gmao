@@ -9,6 +9,7 @@ import CreateUser from './components/admin/admindesign/createusser/create_user';
 import UserProfile from './components/proifl';
 
 import ConversationForm from './components/citoyen/ConversationForm';
+import technicineprofil from './components/technicien/technicineprofil';
 
 import Intervention from './components/directeur/intervention';
 
@@ -35,6 +36,8 @@ import Pagecityoen from './components/citoyen/cityoendesign/homecitoyen';
 import ConversationMessages from './components/citoyen/conversationmessage';
 import CreateInterventionForm from './components/citoyen/createintervention';
 import Calendertechncien from './components/technicien/Calendertechncien';
+import NotificationPageTechnicine from './components/technicien/notificationtechnicine';
+import Technicineprofil from './components/technicien/technicineprofil';
 
 
 
@@ -127,6 +130,13 @@ function App() {
           <Route path="/calender/technien" element={isLoggedIn ? <Calendertechncien/> : <Navigate to="/technicien_dashboard/:Id" />}>
 
           </Route>
+          <Route path="/technicinenotificationpage" element={isLoggedIn ? <NotificationPageTechnicine/> : <Navigate to="/technicien_dashboard/:Id" />}>
+
+          </Route>
+          <Route path="/technicienprofil" element={isLoggedIn ? <Technicineprofil/> : <Navigate to="/technicien_dashboard/:Id" />}>
+
+             </Route>
+          
 
        
            <Route

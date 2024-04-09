@@ -1219,4 +1219,19 @@ def api_all_nofication(request,user_id):
             return JsonResponse({'error': 'Error retrieving notifications: {}'.format(str(e))}, status=403)
     else :
         return JsonResponse({"eroor":"le method do not existe "},status=405)
-
+@csrf_exempt
+def api_delete_notification_one(request,notification_id):
+ if request.method=="DELETE" :
+  try :
+      Notification.objects.filter(id=notification_id).delete()
+      return JsonResponse({'message':"notiifcation delete with succces"},status=200)
+  except Notification.DoesNotExist :
+      return JsonResponse({"eooor":"notiifcation do not exite "},status=404)
+  except Exception as e :
+      return JsonResponse({'error': 'Error retrieving notifications: {}'.format(str(e))}, status=403)
+ else :
+     return JsonResponse({"eroor":"method not allow "},status=405)
+      
+      
+      
+        

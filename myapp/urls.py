@@ -67,6 +67,7 @@ urlpatterns = [
                      path("api_liste_notification_unread/<int:user_id>/",views.api_liste_notification_unread),
                      path("api_notification_change/<int:user_id>/",views.api_change_statu_notification),
                      path("api_liste_notifcation/<int:user_id>/",views.api_all_nofication),
+                     path("api_delete_one_notification/<int:notification_id>/",views.api_delete_notification_one)
                 
           
             
