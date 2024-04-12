@@ -60,14 +60,16 @@ urlpatterns = [
                   path("api_refuse_intervention/<int:intervetion_id>/",views.api_refuse_intervetion),
                   path("api_directeur_assgige/<int:id>/",views.api_directeur_assgige),
                   path("api_demarer_inetrvetion/<int:intervtion_id>/",views.api_demarer_inetrvetion),
-                    path("api_finish_inetrvetion/<int:intervtion_id>/",views.api_finish_inetrvetion),
-                     path("api_create_raison/<int:intervtion_id>/",views.api_create_raison),
-                     path("api_assigne_service_user/<int:user_id>/",views.api_assigne_service_user),
-                     path("api_liste_technicien_par_service/<int:user_id>/",views.api_liste_technicien_par_service),
-                     path("api_liste_notification_unread/<int:user_id>/",views.api_liste_notification_unread),
-                     path("api_notification_change/<int:user_id>/",views.api_change_statu_notification),
-                     path("api_liste_notifcation/<int:user_id>/",views.api_all_nofication),
-                     path("api_delete_one_notification/<int:notification_id>/",views.api_delete_notification_one)
+                  path("api_finish_inetrvetion/<int:intervtion_id>/",views.api_finish_inetrvetion),
+                  path("api_create_raison/<int:intervtion_id>/",views.api_create_raison),
+                  path("api_assigne_service_user/<int:user_id>/",views.api_assigne_service_user),
+                  path("api_liste_technicien_par_service/<int:user_id>/",views.api_liste_technicien_par_service),
+                  path("api_liste_notification_unread/<int:user_id>/",views.api_liste_notification_unread),
+                  path("api_notification_change/<int:user_id>/",views.api_change_statu_notification),
+                  path("api_liste_notifcation/<int:user_id>/",views.api_all_nofication),
+                  path("api_delete_one_notification/<int:notification_id>/",views.api_delete_notification_one),
+                  path("api_cloture_inetrvetion/<int:intervtion_id>/",views.api_cloture_inetrvetion),
+                  path("api_change_password/<int:user_id>/",views.api_change_password)
                 
           
             

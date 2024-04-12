@@ -820,6 +820,7 @@ def api_mofifie_profil(request, id):
             user.email = data.get('email', user.email)
             user.first_name = data.get('firstname', user.first_name) 
             user.last_name = data.get('lastname', user.last_name) 
+          
         # Update other fields as needed
         
         # Save the updated user object
@@ -1070,13 +1071,19 @@ def api_directeur_assgige(request, id):
 
 #************api of techrcchncine #
 #api turn etat de inetrvetion into "en cour "
+
 @csrf_exempt
 def api_demarer_inetrvetion(request,intervtion_id):
     if request.method=="PUT":
+     
      try :
         interveton_cible=interven.objects.get(id=intervtion_id)
+        chefservice=CustomUser.objects.filter(service=interveton_cible.service)
         interveton_cible.etat="En cours"
         interveton_cible.save()
+        message = f"Intervention has been started for {interveton_cible.technicien}."
+        for user in chefservice:
+                Notification.objects.create(recipient=user, message=message, is_read=False)
         return JsonResponse({"message":"le inetrvetion est encour "},status=200)
      except interven.DoesNotExist :
          return JsonResponse({"eroor:inetrvtion do not existe "},status=404)
@@ -1089,9 +1096,14 @@ def api_demarer_inetrvetion(request,intervtion_id):
 def api_finish_inetrvetion(request,intervtion_id):
     if request.method=="PUT":
      try :
+        
         interveton_cible=interven.objects.get(id=intervtion_id)
+        chefservice=CustomUser.objects.filter(service=interveton_cible.service)
         interveton_cible.etat="Terminé"
         interveton_cible.save()
+        message = f"Intervention has been finish for {interveton_cible.technicien}."
+        for user in chefservice:
+                Notification.objects.create(recipient=user, message=message, is_read=False)
         return JsonResponse({"message":"le inetrvetion est Terminé "},status=200)
      except interven.DoesNotExist :
          return JsonResponse({"eroor:inetrvtion do not existe "},status=404)
@@ -1105,6 +1117,7 @@ def api_create_raison(request,intervtion_id):
     if request.method == "PUT":
         try:
             intervention_cible = interven.objects.get(id=intervtion_id)
+            chefservice=CustomUser.objects.filter(service=intervention_cible.service)
             data = json.loads(request.body)
             description = data.get("description")
             if description is None:
@@ -1114,6 +1127,10 @@ def api_create_raison(request,intervtion_id):
             intervention_cible.raison = raison_cible
             intervention_cible.etat="En attente"
             intervention_cible.save()
+            message = f"Intervention has been pause  for {intervention_cible.technicien}."
+            for user in chefservice:
+                Notification.objects.create(recipient=user, message=message, is_read=False)
+
             
             return JsonResponse({"message": "La raison de l'attente a été ajoutée avec succès à l'intervention"}, status=200)
         
@@ -1171,6 +1188,7 @@ def api_liste_technicien_par_service(request,user_id):
                return JsonResponse({'error': 'Impossible de démarrer l\'intervention à cause de : {}'.format(str(e))}, status=403)
     else :
        return JsonResponse({"eroor":"Customer user do not exite"},status=405)
+#systeme de notifacion 
 @csrf_exempt
 def api_liste_notification_unread(request, user_id):
     if request.method == "GET":
@@ -1231,7 +1249,48 @@ def api_delete_notification_one(request,notification_id):
       return JsonResponse({'error': 'Error retrieving notifications: {}'.format(str(e))}, status=403)
  else :
      return JsonResponse({"eroor":"method not allow "},status=405)
-      
-      
-      
-        
+#api cloture le intervetion 
+@csrf_exempt
+def api_cloture_inetrvetion (request,intervtion_id):
+ if request.method=="PUT" :
+   try:
+       intervetion_cible=interven.objects.get(id=intervtion_id)
+       intervetion_cible.etat="Clôture"
+       intervetion_cible.save()
+       return JsonResponse({"message":"le intervetion est bien cloture "},status=200)
+   except interven.DoesNotExist :
+       return JsonResponse({"eoor":"cat find id of intervetion  "},status=404)
+   except Exception as e :
+       return JsonResponse({'error': 'Error retrieving notifications: {}'.format(str(e))}, status=403)
+ else :
+     return JsonResponse({"eoor":"methode not alllow "},status=405)
+@csrf_exempt
+def api_change_password(request, user_id):
+    if request.method =='PUT':
+        try:
+            user = CustomUser.objects.get(id=user_id)
+            data = json.loads(request.body.decode('utf-8'))  # Decode request body
+            old_password = data.get("old_password")
+            password1 = data.get("password1")
+            password2 = data.get("password2")
+            
+            # Check if old password matches
+            if not user.check_password(old_password):
+                return JsonResponse({"error": "Old password does not match"}, status=400)
+
+            # Check if new passwords match
+            if password1 != password2:
+                return JsonResponse({"error": "Passwords do not match"}, status=400)
+
+            # Set new password
+            user.set_password(password1)
+            user.save()
+            return JsonResponse({"message": "Password changed successfully"}, status=200)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"error": "User does not exist"}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON data"}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": "An error occurred: {}".format(str(e))}, status=500)
+    else:
+        return JsonResponse({"message": "Method not allowed"}, status=405)

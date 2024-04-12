@@ -16,6 +16,10 @@ const Technicineprofil = () => {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false); // State to control the dialog visibility
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [old_password, setOldpassword] = useState('');
+  const [password1, setPassword1] = useState('');
+  const [password2, setPassword2] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -70,6 +74,18 @@ const Technicineprofil = () => {
     setEmail(e.target.value);
   };
 
+  const handleOldpasswordChange = (e) => {
+    setOldpassword(e.target.value);
+  };
+
+  const handlePassword1Change = (e) => {
+    setPassword1(e.target.value);
+  };
+
+  const handlePassword2Change = (e) => {
+    setPassword2(e.target.value);
+  };
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -100,6 +116,35 @@ const Technicineprofil = () => {
     }
   };
 
+  const handlePasswordFormSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://127.0.0.1:8000/api_change_password/${localStorage.getItem('userId')}/`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          old_password: old_password,
+          password1: password1,
+          password2: password2
+        }),
+      });
+      if (response.ok) {
+        setSuccessMessage('Password updated successfully.');
+        setShowPasswordForm(false);
+        fetchData();
+      } else {
+        throw new Error('Failed to update password');
+      }
+    } catch (error) {
+      console.error('Error updating password:', error);
+      setError(error.message);
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -114,6 +159,10 @@ const Technicineprofil = () => {
 
   const closeDialog = () => {
     setIsDialogOpen(false);
+  };
+
+  const handleTogglePasswordForm = () => {
+    setShowPasswordForm(!showPasswordForm);
   };
 
   return (
@@ -134,9 +183,14 @@ const Technicineprofil = () => {
                       <p className="text-muted mb-1">{userData ? userData.role : 'Loading...'}</p>
                       <p className="text-muted mb-4">{userData ? userData.location : 'Loading...'}</p>
                       <div className="d-flex justify-content-center mb-2">
-                        <button type="button" className="btn btn-primary" onClick={openDialog}>
+                        <Button variant="contained" color="primary" onClick={openDialog}>
                           Modify User Information
-                        </button>
+                        </Button>
+                      </div>
+                      <div className="d-flex justify-content-center mb-2">
+                        <Button variant="contained" color="secondary" onClick={handleTogglePasswordForm}>
+                          Modify Password
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -225,6 +279,51 @@ const Technicineprofil = () => {
             />
             <DialogActions>
               <Button onClick={closeDialog}>Cancel</Button>
+              <Button type="submit" variant="contained" color="primary">
+                Save Changes
+              </Button>
+            </DialogActions>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for password form */}
+      <Dialog open={showPasswordForm} onClose={handleTogglePasswordForm}>
+        <DialogTitle>Modify Password</DialogTitle>
+        <DialogContent>
+          <form onSubmit={handlePasswordFormSubmit}>
+            <TextField
+              label="Old Password"
+              value={old_password}
+              onChange={handleOldpasswordChange}
+              fullWidth
+              required
+              variant="outlined"
+              margin="normal"
+              type='password'
+            />
+            <TextField
+              label="New Password"
+              value={password1}
+              onChange={handlePassword1Change}
+              fullWidth
+              required
+              variant="outlined"
+              margin="normal"
+              type='password'
+            />
+            <TextField
+              label="Confirm Password"
+              value={password2}
+              onChange={handlePassword2Change}
+              fullWidth
+              required
+              variant="outlined"
+              margin="normal"
+              type='password'
+            />
+            <DialogActions>
+              <Button onClick={handleTogglePasswordForm}>Cancel</Button>
               <Button type="submit" variant="contained" color="primary">
                 Save Changes
               </Button>

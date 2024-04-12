@@ -63,10 +63,7 @@ const Sidebar = () => {
 
           <p className="title">USER</p>
           
-            <li>
-              <PersonOutlineIcon className="icon" />
-              <span>Users</span>
-            </li>
+           
             <li>
              
           <Link  to="http://localhost:3000/ListtechnicienParservice" style={{ textDecoration: "none" }}>
@@ -88,11 +85,12 @@ const Sidebar = () => {
             <span>tout les intervetion </span>
           </li>
           </Link> 
+          <Link to={"/chefservicenotificationpage"}  style={{ textDecoration: "none" }}>
           <li>
             <NotificationsNoneIcon className="icon" />
             <span>Notifications</span>
           </li>
-          
+          </Link>
            
 
        
@@ -104,10 +102,13 @@ const Sidebar = () => {
             <span>Settings</span>
           </li>
           <p className="title">USER</p>
+          <Link to={"/chefservice/profil"} style={{ textDecoration: "none" }}>
           <li>
             <AccountCircleOutlinedIcon className="icon" />
             <span>Profile</span>
           </li>
+          </Link>
+          
           
           <Link to="/" style={{ textDecoration: "none" }} onClick={handleLogout}>
            <li>

@@ -1,9 +1,11 @@
 // ConversationForm.js
 import React, { useState } from 'react';
+import PopupMessage from '../message';
 
-const ConversationForm = ({ interventionId, onClose }) => {
+const ConversationForm = ({ interventionId, onClose ,onSuccess }) => {
   const [title, setTitle] = useState('');
-
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState({ message: '', color: 'success' });
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
@@ -25,8 +27,13 @@ const ConversationForm = ({ interventionId, onClose }) => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data.message); // Log success message
-        onClose(); // Close the form after successful submission
+        console.log(data.message);
+        setShowPopup(true);
+        setPopupMessage({ message: 'conversation est bien cree ', color: 'success' });
+        onSuccess(); // Call the onSuccess callback
+        
+         // Log success message
+       // Close the form after successful submission
       } else {
         console.error('Failed to start conversation');
       }
@@ -36,7 +43,9 @@ const ConversationForm = ({ interventionId, onClose }) => {
   };
 
   return (
+    
     <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+     {showPopup && <PopupMessage message={popupMessage.message} color={popupMessage.color} />}
       <div className="modal-dialog" role="document">
         <div className="modal-content">
           <div className="modal-header">

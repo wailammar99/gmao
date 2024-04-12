@@ -68,6 +68,7 @@ const InterventionFormTechnician = ({ interventionId, onSubmit }) => {
           selectedOption: '',
           selectedEquipment: [],
           inputField: '',
+          
         });
         onSubmit(formData);
       } else {

@@ -30,6 +30,7 @@ import CompteNoActive from './components/directeur/noucompte';
 
 import Chefservice from './components/chefservice/chefservicedesign/pagechefservice/pagechefservice';
 import Chefservicepage from './components/chefservice/chefservicedesign/Chefservicepage';
+import Chefserviceprofil from './components/chefservice/chefserviceprofil';
 import Listtechnicienparservice from './components/chefservice/chefservicedesign/Listtechnicienparservice';
 import Citoyenpage from './components/citoyen/cityoenpage';
 import Pagecityoen from './components/citoyen/cityoendesign/homecitoyen';
@@ -38,6 +39,7 @@ import CreateInterventionForm from './components/citoyen/createintervention';
 import Calendertechncien from './components/technicien/Calendertechncien';
 import NotificationPageTechnicine from './components/technicien/notificationtechnicine';
 import Technicineprofil from './components/technicien/technicineprofil';
+import NotificationPagechefservice from './components/chefservice/notifationchefservice';
 
 
 
@@ -182,6 +184,16 @@ function App() {
           path="/Chefservicepage"
           element={isLoggedIn ? <Chefservicepage /> : <Navigate to="/chef_service_dashboard/:Id" />}
           />
+             <Route
+          path="/chefservice/profil"
+          element={isLoggedIn ? <Chefserviceprofil /> : <Navigate to="/chef_service_dashboard/:Id" />}
+          />
+              <Route
+          path="/chefservicenotificationpage"
+          element={isLoggedIn ? <NotificationPagechefservice /> : <Navigate to="/chef_service_dashboard/:Id" />}
+          />
+          
+
            <Route
             path="/citoyen_dashboard/:Id"
             element={isLoggedIn ? <Pagecityoen onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}

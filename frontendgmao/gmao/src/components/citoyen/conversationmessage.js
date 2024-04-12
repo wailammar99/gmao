@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import { TextField, Button, List, ListItem, ListItemText, Card } from '@mui/material'; // Importing components from Material-UI
 
 const ConversationMessages = () => {
   const { id } = useParams(); // Extracting conversationId from URL parameter
   const [messages, setMessages] = useState([]);
   const [content, setContent] = useState('');
   const userId = localStorage.getItem('userId'); // Retrieve userId from localStorage
+  const messagesEndRef = useRef(null); // Ref for scrolling to bottom
 
   const fetchMessages = async () => {
     try {
@@ -71,27 +73,47 @@ const ConversationMessages = () => {
     }
   };
 
+  const scrollToBottom = () => {
+    if (messagesEndRef && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const onSubmitMessage = (message) => {
+    handleMessageSubmit(message);
+    scrollToBottom();
+  };
+
   return (
     <div>
-      
       <div className="container">
         <h2 className="mt-5">Conversation Messages</h2>
-        <ul className="list-group">
-          {messages.map((message, index) => (
-            <li key={index} className="list-group-item my-3"> {/* Added margin-y class */}
-              <p>Sender: {message.sender.username}</p>
-              <p>Content: {message.contenu}</p>
-              <p>Timestamp: {message.horodatage}</p>
-              <p>Type de message : {message.message_type}</p>
-            </li>
-          ))}
-        </ul>
+        <Card variant="outlined" className="p-2 h-96 overflow-auto">
+          <List>
+            {messages.map((message, index) => (
+              <ListItem key={index} className="my-3">
+                <ListItemText
+                  primary={`Sender: ${message.sender.username}`}
+                  secondary={`Content: ${message.contenu}`}
+                />
+                <ListItemText secondary={`Timestamp: ${message.horodatage}`} />
+                <ListItemText secondary={`Type de message : ${message.message_type}`} />
+              </ListItem>
+            ))}
+          </List>
+          <div ref={messagesEndRef} />
+        </Card>
         <form onSubmit={handleMessageSubmit} className="mt-3">
-          <div className="form-group">
-            <label htmlFor="content">Message content:</label>
-            <input id="content" className="form-control" value={content} onChange={(e) => setContent(e.target.value)} />
-          </div>
-          <button type="submit" className="btn btn-primary">Send Message</button>
+          <TextField
+            label="Message content"
+            variant="outlined"
+            fullWidth
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+          <Button type="submit" variant="contained" color="primary" className="mt-3">
+            Send Message
+          </Button>
         </form>
       </div>
     </div>
