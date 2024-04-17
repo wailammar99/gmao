@@ -5,6 +5,8 @@ import "./homecityoen.scss";
 import Sidebar from './sidebar/sidebar';
 import Navbar from './navbar/navbar';
 import Widget from './widget/widget';
+import Featured from '../citoyenprogres/citoyenprogres';
+
 
 
 
@@ -20,6 +22,7 @@ const Pagecityoen = () => {
           <Widget type="earning" />
           <Widget type="balance" />
         </div>
+        <div className='figure'><Featured></Featured></div>
       </div>
     </div>
   );

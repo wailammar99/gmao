@@ -53,28 +53,16 @@ const Sidebar = () => {
       <div className="center">
         <ul>
           <p className="title">MAIN</p>
-          <Link to="/citoyen_dashboard/:Id" style={{ textDecoration: "none" }}>
+          
           <li>
+          <Link to="/citoyen_dashboard" style={{ textDecoration: "none" }}>
             <DashboardIcon className="icon" />
             <span>Dashboard</span>
+            </Link>
           </li>
-          </Link>
+         
 
-          <p className="title">USER</p>
-            
-          
-            <li>
-              <PersonOutlineIcon className="icon" />
-              <span>Chef service</span>
-            </li>
-           
-
-           
-            <li>
-            <PersonOutlineIcon className="icon" />
-              <span> Technicien</span>
-            </li>
-          
+       
 
            <p className="title">INTERVENTION</p>
 
@@ -96,26 +84,28 @@ const Sidebar = () => {
           
           <p className="title">USEFUL</p>
          
-          <li>
-            <InsertChartIcon className="icon" />
-            <span>Stats</span>
-          </li>
-          
-
-          <li>
+        
+        <Link to={"/Notificationcitoyen"} style={{ textDecoration: "none" }}>
+        <li>
             <NotificationsNoneIcon className="icon" />
             <span>Notifications</span>
           </li>
+
+        </Link>
+          
         
           <li>
             <SettingsApplicationsIcon className="icon" />
             <span>Settings</span>
           </li>
-
+         
           <p className="title">USER</p>
           <li>
-            <AccountCircleOutlinedIcon className="icon" />
+          <Link to={"/citoyenprofil"} style={{ textDecoration: "none" }}>
+          <AccountCircleOutlinedIcon className="icon" />
             <span>Profile</span>
+            </Link>
+          
           </li>
           
           <Link to="/" style={{ textDecoration: "none" }} onClick={handleLogout}>

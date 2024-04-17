@@ -40,6 +40,10 @@ import Calendertechncien from './components/technicien/Calendertechncien';
 import NotificationPageTechnicine from './components/technicien/notificationtechnicine';
 import Technicineprofil from './components/technicien/technicineprofil';
 import NotificationPagechefservice from './components/chefservice/notifationchefservice';
+import Citoyenprofil from './components/citoyen/citoyenprofil';
+import Notificationcitoyen from './components/citoyen/citoyennotification';
+
+
 
 
 
@@ -116,10 +120,18 @@ function App() {
 
          
           <Route
-            path="/citoyen_dashboard/:id"
-            element={isLoggedIn ? <Citoyenpage onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+            path="/citoyen_dashboard"
+            element={isLoggedIn ? <Pagecityoen onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
           />
-        
+         <Route
+        path='/citoyenprofil'
+        element={isLoggedIn ? <Citoyenprofil onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}>
+
+         </Route>
+         <Route path='/Notificationcitoyen'
+          element={isLoggedIn ? <Notificationcitoyen onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}>
+
+         </Route>
         <Route
             path="/technicien_dashboard/:Id"
             element={isLoggedIn ? <Pagetechnicien onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}

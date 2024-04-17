@@ -741,7 +741,7 @@ def assign_service_or_technician(request, id):
             
             # Fetch the intervention instance using the ID
             intervention = interven.objects.get(id=id)
-            
+            citoyen=intervention.citoyen
             if intervention.service.nom == 'noservice':
                 # Assign service
                 service_instance = service.objects.get(id=new_service_id)
@@ -773,7 +773,7 @@ def assign_service_or_technician(request, id):
             intervention.save()
             message = "New intervention has been assigned to you"
             Notification.objects.create(recipient=technicien, message=message, is_read=False)
-            
+            Notification.objects.create(recipient=citoyen,message="intervetion est bien assigne  ",is_read=False)
             return JsonResponse({"message": "Le service/technicien et les équipements sont bien assignés à l'intervention."}, status=200)
         except interven.DoesNotExist:
             return JsonResponse({"error": "Intervention with the provided ID does not exist."}, status=400)
@@ -1011,9 +1011,9 @@ def api_delete_service(request,id):
          if service.objects.filter(id=id).delete() :
           return JsonResponse({"message":"le service est bien supprimer "},status=200)
      except service.DoesNotExist :
-         return JsonResponse({"eroor:le service est intorvable "},status=400)
+         return JsonResponse({"eroor:le service est intorvable "},status=404)
      except Exception as e :
-        return JsonResponse({'error': 'Échec de la création de la conversation: {}'.format(str(e))}, status=400)
+        return JsonResponse({'error': 'Échec de la création de la conversation: {}'.format(str(e))}, status=500)
     else :
         return JsonResponse({"eroor:methode not allow"},status=405)
 def intervention_detail_api(request, intervention_id):
@@ -1079,11 +1079,13 @@ def api_demarer_inetrvetion(request,intervtion_id):
      try :
         interveton_cible=interven.objects.get(id=intervtion_id)
         chefservice=CustomUser.objects.filter(service=interveton_cible.service)
+        citoyen=CustomUser.objects.get(id=interveton_cible.citoyen.id)
         interveton_cible.etat="En cours"
         interveton_cible.save()
         message = f"Intervention has been started for {interveton_cible.technicien}."
         for user in chefservice:
                 Notification.objects.create(recipient=user, message=message, is_read=False)
+        Notification.objects.create(recipient=citoyen,message="intervetion est demarer ",is_read=False)
         return JsonResponse({"message":"le inetrvetion est encour "},status=200)
      except interven.DoesNotExist :
          return JsonResponse({"eroor:inetrvtion do not existe "},status=404)
@@ -1099,11 +1101,14 @@ def api_finish_inetrvetion(request,intervtion_id):
         
         interveton_cible=interven.objects.get(id=intervtion_id)
         chefservice=CustomUser.objects.filter(service=interveton_cible.service)
+        citoyen=CustomUser.objects.get(id=interveton_cible.citoyen.id)
+
         interveton_cible.etat="Terminé"
         interveton_cible.save()
         message = f"Intervention has been finish for {interveton_cible.technicien}."
         for user in chefservice:
                 Notification.objects.create(recipient=user, message=message, is_read=False)
+        Notification.objects.create(recipient=citoyen,message="intervetion est finish ",is_read=False)
         return JsonResponse({"message":"le inetrvetion est Terminé "},status=200)
      except interven.DoesNotExist :
          return JsonResponse({"eroor:inetrvtion do not existe "},status=404)
@@ -1124,12 +1129,14 @@ def api_create_raison(request,intervtion_id):
                 return JsonResponse({"message": "La description est obligatoire pour un état en attente"}, status=404)
             
             raison_cible = enatte.objects.create(description=description)
+            citoyen=CustomUser.objects.get(id=intervention_cible.citoyen.id)
             intervention_cible.raison = raison_cible
             intervention_cible.etat="En attente"
             intervention_cible.save()
             message = f"Intervention has been pause  for {intervention_cible.technicien}."
             for user in chefservice:
                 Notification.objects.create(recipient=user, message=message, is_read=False)
+            Notification.objects.create(recipient=citoyen,message="intervetion est en attente  ",is_read=False)
 
             
             return JsonResponse({"message": "La raison de l'attente a été ajoutée avec succès à l'intervention"}, status=200)
@@ -1256,7 +1263,9 @@ def api_cloture_inetrvetion (request,intervtion_id):
    try:
        intervetion_cible=interven.objects.get(id=intervtion_id)
        intervetion_cible.etat="Clôture"
+       citoyen=intervetion_cible.citoyen
        intervetion_cible.save()
+       Notification.objects.create(recipient=citoyen,message="intervetion est cloture ",is_read=False)
        return JsonResponse({"message":"le intervetion est bien cloture "},status=200)
    except interven.DoesNotExist :
        return JsonResponse({"eoor":"cat find id of intervetion  "},status=404)

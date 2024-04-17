@@ -1,98 +1,103 @@
-import "./widget.scss";
+import React, { useEffect, useState } from "react";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
-import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
-import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 
 const Widget = ({ type }) => {
-  let data;
+  const [interventionData, setInterventionData] = useState([]);
 
-  //temporary
-  const amount = 100;
-  const diff = 20;
+  useEffect(() => {
+    fetchInterventionData();
+  }, []); // Fetch data only once when the component mounts
 
+  const fetchInterventionData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      if (!token || !userId) {
+        console.log("Token or userId not found. Redirecting to login...");
+        return;
+      }
+
+      const response = await fetch(
+        `http://127.0.0.1:8000/api_intervetion_chefservice/${userId}/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setInterventionData(data);
+      } else {
+        console.error(
+          "Failed to fetch intervention data:",
+          response.statusText
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching intervention data:", error);
+    }
+  };
+
+  // Calculate counts for different statuses
+  const getCountByStatus = (status) => {
+    return interventionData.filter(intervention => intervention.etat === status).length;
+  };
+
+  // Define counts for each status
+  const countInProgress = getCountByStatus("En cours");
+  const countCompleted = getCountByStatus("Terminé");
+  const countenatte=getCountByStatus("En attente");
+  const countassigne=getCountByStatus("Assigné");
+
+  let title;
+  let count;
+
+  // Set title and count based on the type
   switch (type) {
-    case "user":
-      data = {
-        title: "USERS",
-        isMoney: false,
-        link: "See all users",
-        icon: (
-          <PersonOutlinedIcon
-            className="icon"
-            style={{
-              color: "crimson",
-              backgroundColor: "rgba(255, 0, 0, 0.2)",
-            }}
-          />
-        ),
-      };
+    case "encour":
+      title = "Interventions en cours";
+      count = countInProgress;
       break;
-    case "order":
-      data = {
-        title: "ORDERS",
-        isMoney: false,
-        link: "View all orders",
-        icon: (
-          <ShoppingCartOutlinedIcon
-            className="icon"
-            style={{
-              backgroundColor: "rgba(218, 165, 32, 0.2)",
-              color: "goldenrod",
-            }}
-          />
-        ),
-      };
+    case "termine":
+      title = "Interventions terminées";
+      count = countCompleted;
       break;
-    case "earning":
-      data = {
-        title: "EARNINGS",
-        isMoney: true,
-        link: "View net earnings",
-        icon: (
-          <MonetizationOnOutlinedIcon
-            className="icon"
-            style={{ backgroundColor: "rgba(0, 128, 0, 0.2)", color: "green" }}
-          />
-        ),
-      };
+    case "enattend":
+      title = "enattend";
+      count = countenatte;
       break;
-    case "balance":
-      data = {
-        title: "BALANCE",
-        isMoney: true,
-        link: "See details",
-        icon: (
-          <AccountBalanceWalletOutlinedIcon
-            className="icon"
-            style={{
-              backgroundColor: "rgba(128, 0, 128, 0.2)",
-              color: "purple",
-            }}
-          />
-        ),
-      };
-      break;
-    default:
+      case "Assigné":
+      title = "Assigné";
+      count = countassigne;
       break;
   }
 
   return (
     <div className="widget">
       <div className="left">
-        <span className="title">{data.title}</span>
-        <span className="counter">
-          {data.isMoney && "$"} {amount}
-        </span>
-        <span className="link">{data.link}</span>
+        <span className="title">{title}</span>
+        <span className="counter">{count}</span>
+        <span className="link">See all interventions</span>
       </div>
       <div className="right">
+        <h1>{count}</h1>
         <div className="percentage positive">
           <KeyboardArrowUpIcon />
-          {diff} %
+          20 %
         </div>
-        {data.icon}
+        <PersonOutlinedIcon
+          className="icon"
+          style={{
+            color: "crimson",
+            backgroundColor: "rgba(255, 0, 0, 0.2)",
+          }}
+        />
       </div>
     </div>
   );
