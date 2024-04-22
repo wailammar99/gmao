@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import LinearProgress from '@mui/material/LinearProgress';
+import { CircularProgressbar } from "react-circular-progressbar";
+import 'react-circular-progressbar/dist/styles.css';
 import { format, differenceInDays } from 'date-fns';
+
+import './progressbar.css'; 
 
 const NavigationBar = () => {
   const [interventionData, setInterventionData] = useState([]);
@@ -41,48 +44,80 @@ const NavigationBar = () => {
     }
   };
 
+  const calculateDurationProgress = (startDate, endDate) => {
+    const start = new Date(startDate).getTime();
+    const end = new Date(endDate).getTime();
+    const now = Date.now();
+
+    const totalDuration = end - start;
+    const elapsedDuration = now - start;
+
+    return Math.min(100, (elapsedDuration / totalDuration) * 100);
+  };
+
+  const calculateRemainingDays = endDate => {
+    const end = new Date(endDate);
+    const today = new Date();
+    const remainingDays = differenceInDays(end, today);
+
+    return remainingDays > 0 ? remainingDays : 0;
+  };
+
+  const calculateInterventionDuration = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const durationInDays = differenceInDays(end, start);
+
+    return durationInDays > 0 ? durationInDays : 0;
+  };
+
   return (
-    <nav>
-      {interventionData.map(intervention => (
-        <div key={intervention.id} style={{ marginBottom: '10px' }}>
-          <p>Intervention ID: {intervention.id}</p>
-          <p>Start Date: {format(new Date(intervention.date_debut), 'MM/dd/yyyy')}</p>
-          <p>End Date: {format(new Date(intervention.date_fin), 'MM/dd/yyyy')}</p>
-          <p style={{ color: calculateRemainingDays(intervention.date_fin) <= 2 ? 'red' : 'inherit' }}>
-            Remaining Days: {calculateRemainingDays(intervention.date_fin)}
-          </p>
-          <LinearProgress
-            variant="determinate"
-            value={calculateProgress(intervention.date_debut, intervention.date_fin)}
-            sx={{
-              '& .MuiLinearProgress-bar': {
-                backgroundColor: calculateRemainingDays(intervention.date_fin) <= 2 ? 'red' : 'rgba(0, 0, 0, 0.54)'
-              }
-            }}
-          />
+    <div className='intervention-container'>
+      {interventionData.map((intervention) => (
+        <div className="featured" key={intervention.id}>
+          <div className="top">
+            <h1 className="title">{intervention.id}</h1>
+          </div>
+          <div className="bottom">
+            <div className="featuredChart">
+              <CircularProgressbar value={intervention.etat} text={`${calculateInterventionDuration(intervention.date_debut, intervention.date_fin)} days`} strokeWidth={5} />
+            </div>
+            <div className="summary">
+              <div className="item">
+                <div className="itemTitle">etat</div>
+                <div className="itemResult negative">
+                  <div className="resultAmount">{intervention.etat}</div>
+                </div>
+              </div>
+              <div className="item">
+                <div className="itemTitle">date de debut</div>
+                <div className="itemResult positive">
+                  <div className="resultAmount">{intervention.date_debut}</div>
+                </div>
+              </div>
+              <div className="item">
+                <div className="itemTitle">date de fin</div>
+                <div className="itemResult positive">
+                 
+                  <div className="resultAmount">{intervention.date_fin}</div>
+                </div>
+              </div>
+              <div className="item">
+             
+                <div className="itemResult positive">
+                
+                  <div className="resultAmount">
+                    
+                  </div>
+               
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       ))}
-    </nav>
+    </div>
   );
-};
-
-const calculateProgress = (startDate, endDate) => {
-  const start = new Date(startDate).getTime();
-  const end = new Date(endDate).getTime();
-  const now = Date.now();
-
-  const totalDuration = end - start;
-  const elapsedDuration = now - start;
-
-  return Math.min(100, (elapsedDuration / totalDuration) * 100);
-};
-
-const calculateRemainingDays = endDate => {
-  const end = new Date(endDate);
-  const today = new Date();
-  const remainingDays = differenceInDays(end, today);
-
-  return remainingDays > 0 ? remainingDays : 0;
 };
 
 export default NavigationBar;

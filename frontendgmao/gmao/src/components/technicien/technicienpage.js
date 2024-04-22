@@ -152,14 +152,8 @@ if (response.ok) {
 
   // Add similar functions for other actions like starting conversation, creating reasons, etc.
   const handleStartConversation = async (interventionId) => {
-    try {
-      // Open the ConversationForm popup
-     
-      // Set the conversation intervention ID
-      setConversationInterventionId(interventionId);
-    } catch (error) {
-      console.error('Error starting conversation:', error);
-    }
+    setConversationInterventionId(interventionId);
+    setShowModalConversation(true);
   };
   const filterInterventionsByStatus = (status) => {
     setSelectedStatus(status);
@@ -232,7 +226,15 @@ if (response.ok) {
           }}
           interventionId={interventionId} // Pass the intervention_id as a prop
         />
+        
       )}
+      {showModalConversation && (
+          <ConversationForm
+            show={showModalConversation}
+            onClose={() => setShowModalConversation(false)}
+            interventionId={conversationInterventionId}
+          />
+        )}
                   </TableCell>
                   <TableCell>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

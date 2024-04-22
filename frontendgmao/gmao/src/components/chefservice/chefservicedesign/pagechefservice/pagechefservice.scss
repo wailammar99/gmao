@@ -1,15 +1,31 @@
-
 .chefservice-page {
+  display: flex;
+
+  .chefservice-content {
+    flex: 6;
+    .widgets{
     display: flex;
-  
-    .chefservice-content {
-      flex: 6;
-      .widgets{
-      display: flex;
-      padding: 20px;
-      gap: 20px;
-    }
-  
-      
-    }
+    padding: 20px;
+    gap: 20px;
   }
+  .chart {
+    padding: 5px 10px; /* Réduire l'espace intérieur */
+    display: flex;
+    align-items: center; /* Aligner les éléments verticalement au centre */
+    gap: 10px; /* Espacement entre les éléments enfants */
+  }
+  .enattende{
+    padding: 5px 10px; 
+    display: flex;
+  }
+  .bar{
+    padding: 5px 20px;
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+  }
+ 
+
+   
+  }
+}

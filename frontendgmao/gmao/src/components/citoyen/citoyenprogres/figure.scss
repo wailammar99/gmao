@@ -1,79 +1,103 @@
+.ff {
+  display: flex;
+  flex-wrap: wrap; // Permet aux éléments de passer à la ligne si nécessaire
+}
+
 .featured {
-    flex: 1;
-    -webkit-box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
-    box-shadow: 2px 4px 10px 1px rgba(201, 201, 201, 0.47);
-    padding: 5px;
- 
-    .top {
+  width: calc(25% - 20px); // Calculer la largeur de chaque élément pour permettre quatre éléments par ligne avec un espace de 20px entre eux
+  margin-right: 20px;
+  margin-bottom: 20px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.featured:nth-child(4n), /* Appliquer les marges à chaque quatrième élément */
+.featured:nth-child(4n-1) {
+  margin-right: 0;
+}
+
+.featured:nth-last-child(-n+4) { /* Derniers quatre éléments de chaque ligne */
+  margin-bottom: 0;
+}
+
+.featured {
+  -webkit-box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+  box-shadow: 2px 4px 10px 1px rgba(201, 201, 201, 0.47);
+  padding: 5px;
+  display: block;
+  flex: 1;
+  margin-bottom: 20px;
+
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: gray;
+
+    .title {
+      font-size: 16px;
+      font-weight: 500;
+    }
+  }
+
+  .bottom {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+
+    .featuredChart {
+      width: 100px;
+      height: 100px;
+    }
+
+    .title {
+      font-weight: 500;
+      color: gray;
+    }
+
+    .amount {
+      font-size: 30px;
+    }
+
+    .desc {
+      font-weight: 300;
+      font-size: 12px;
+      color: gray;
+      text-align: center;
+    }
+
+    .summary {
+      width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      color: gray;
- 
-      .title {
-        font-size: 16px;
-        font-weight: 500;
-      }
-    }
- 
-    .bottom {
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 15px;
- 
-      .featuredChart {
-        width: 100px;
-        height: 100px;
-      }
- 
-      .title {
-        font-weight: 500;
-        color: gray;
-      }
- 
-      .amount {
-        font-size: 30px;
-      }
- 
-      .desc {
-        font-weight: 300;
-        font-size: 12px;
-        color: gray;
+
+      .item {
         text-align: center;
-      }
- 
-      .summary {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
- 
-        .item {
-          text-align: center;
- 
-          .itemTitle {
-            font-size: 14px;
-            color: gray;
+
+        .itemTitle {
+          font-size: 14px;
+          color: gray;
+        }
+
+        .itemResult {
+          display: flex;
+          align-items: center;
+          margin-top: 10px;
+          font-size: 14px;
+
+          &.positive {
+            color: green;
           }
- 
-          .itemResult {
-            display: flex;
-            align-items: center;
-            margin-top: 10px;
-            font-size: 14px;
- 
-            &.positive {
-              color: green;
-            }
- 
-            &.negative {
-              color: red;
-            }
+
+          &.negative {
+            color: red;
           }
         }
       }
     }
   }
+}

@@ -74,7 +74,7 @@ const Sidebar = () => {
          
          
           
-          <Link  to={"/calender/technien" }>
+          <Link  to={"/calender/technien" } style={{ textDecoration: "none" }}>
           <li>
           <CalendarMonthIcon className="icon" />
             <span>calender </span>

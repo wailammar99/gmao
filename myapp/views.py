@@ -898,6 +898,7 @@ def sendmessage(request, conversation_id,user_id):
 
             description = data.get("description")
             contenu = data.get("contenu")
+            type_message=data.get("type_message")
             
 
             # Create message
@@ -906,7 +907,9 @@ def sendmessage(request, conversation_id,user_id):
                 contenu=contenu,
                 sender=user_new,
                
-                message_type="public",
+
+               
+                message_type=type_message,
                 horodatage=datetime.now()
             )
 

@@ -3,8 +3,9 @@ import "./pagechefservice.scss";
 import Navbar from '../navbar/navbar';
 import Sidebar from '../sidebar/sidebar';
 import Widget from '../widget/widget';
-import PieChartComponent from '../../Cicrule';
+import PieChartComponent from '../circule/Cicrule';
 import BarsDataset from '../bar/bar';
+import Enattendecom from '../enattendedashbord/enattende';
 
 
 const Chefservice = () => {
@@ -21,11 +22,15 @@ const Chefservice = () => {
           <Widget type="Assigné" />
           
         </div>
-        <div ></div>
-        <div className='chart'> <PieChartComponent></PieChartComponent></div>
+       
+        <div className='chart'> <PieChartComponent></PieChartComponent>
+        <div className='enatte'><Enattendecom></Enattendecom></div>
+        </div>
         <div className='bar'>
         <BarsDataset></BarsDataset>
+       
         </div>
+        
         {/* Donut Chart */}
        
       </div>

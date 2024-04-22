@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart } from '@mui/x-charts';
+import "./circule.scss" ;
 
 const PieChartComponent = () => {
   const [loading, setLoading] = useState(true);
@@ -10,6 +11,7 @@ const PieChartComponent = () => {
   const[assige,setassigne]=useState(0);
   const[nouveux,setnouveux]=useState(0);
   const[enattend,setattend]=useState(0);
+ 
 
   useEffect(() => {
     fetchData();
@@ -77,12 +79,12 @@ const PieChartComponent = () => {
   if (error) return <div>Error: {error.message}</div>;
 
   const data = [
-    { id: 0, value: encour},
-    { id: 1, value: termine },
-    { id: 2, value: assige},
-    { id: 3, value: Cloture },
-    { id: 4, value: nouveux },
-    { id: 5, value: enattend },
+    { id: 0, value: encour,label:"En cour"},
+    { id: 1, value: termine ,label:"Termine"},
+    { id: 2, value: assige,label:"Assigné"},
+    { id: 3, value: Cloture ,label:"Clorute"},
+    { id: 4, value: nouveux ,label:"Nouveux"},
+    { id: 5, value: enattend ,label:"En attend "},
     
 
     
@@ -90,6 +92,10 @@ const PieChartComponent = () => {
   ];
 
   return (
+    <div className='chart'>
+
+    <div className='top'>
+    <h1 className='title'>porcentage de intervetion </h1>
     <PieChart
       series={[
         {
@@ -100,6 +106,8 @@ const PieChartComponent = () => {
       ]}
       height={200}
     />
+    </div>
+    </div>
   );
 }
 
