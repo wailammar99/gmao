@@ -76,15 +76,9 @@ const Sidebar = () => {
           </Link> 
 
          
-          <p className="title">USEFUL</p>
-          <li>
-            <InsertChartIcon className="icon" />
-            <span>Stats</span>
-          </li>
-          <li>
-            <NotificationsNoneIcon className="icon" />
-            <span>Notifications</span>
-          </li>
+        
+        
+         
           <p className="title">SERVICE</p>
           <li>
           <Link to="http://localhost:3000/create-service" style={{ textDecoration: "none" }}>
@@ -107,10 +101,13 @@ const Sidebar = () => {
             <span>Settings</span>
           </li>
           <p className="title">USER</p>
+          <Link to={"/adminprofil"} style={{ textDecoration: "none" }}>
           <li>
             <AccountCircleOutlinedIcon className="icon" />
             <span>Profile</span>
           </li>
+            </Link>
+          
           
           <Link to="/" style={{ textDecoration: "none" }} onClick={handleLogout}>
            <li>

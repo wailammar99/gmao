@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { axisClasses } from '@mui/x-charts';
-import "./BarsDirecteur.scss"
+import "./barsDirecteur.scss"
 
 const chartSetting = {
   yAxis: [
@@ -67,8 +67,11 @@ const BarsDirecteur = () => {
   const valueFormatter = (value) => `${value}`;
 
   return (
+   
+  
     <BarChart
       dataset={dataset}
+     
       xAxis={[{ scaleType: 'band', dataKey: 'month' }]}
       series={[
         { dataKey: 'encour', valueFormatter, label: 'En cours' },
@@ -80,6 +83,8 @@ const BarsDirecteur = () => {
       ]}
       {...chartSetting}
     />
+    
+     
   );
 };
 

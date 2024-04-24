@@ -64,15 +64,15 @@ const Widget = ({ type }) => {
   // Set title and count based on the type
   switch (type) {
     case "encour":
-      title = "Interventions en cours";
+      title = " En cours";
       count = countInProgress;
       break;
     case "termine":
-      title = "Interventions terminées";
+      title = " Terminées";
       count = countCompleted;
       break;
     case "enattend":
-      title = "enattend";
+      title = "En attend";
       count = countenatte;
       break;
       case "Assigné":
@@ -98,17 +98,8 @@ const Widget = ({ type }) => {
       </div>
       <div className="right">
         <h1>{count}</h1>
-        <div className="percentage positive">
-          <KeyboardArrowUpIcon />
-          20 %
-        </div>
-        <PersonOutlinedIcon
-          className="icon"
-          style={{
-            color: "crimson",
-            backgroundColor: "rgba(255, 0, 0, 0.2)",
-          }}
-        />
+      
+       
       </div>
     </div>
   );

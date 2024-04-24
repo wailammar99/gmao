@@ -8,8 +8,22 @@
       padding: 20px;
       gap: 20px;
     }
+    .bar{
+      padding: 5px 20px;
+      display: flex;
+      padding: 20px;
+      gap: 20px;
+    }
+    .chart {
+      padding: 5px 10px; /* Réduire l'espace intérieur */
+      display: flex;
+      align-items: center; /* Aligner les éléments verticalement au centre */
+      gap: 10px; /* Espacement entre les éléments enfants */
+    }
+    
   
       
     }
+    
   }
   

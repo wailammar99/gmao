@@ -7,6 +7,8 @@ import Navbar from './Navbar/navbardic';
 import Widget from './Widget/widgetdic';
 import "./pagedirecteur.scss"
 import BarsDirecteur from './bar/bar';
+import Circlecompte from './circle/circlecompte';
+import Circleactivenoactive from './circle/circleactiveetpasactive';
 
 
 
@@ -26,8 +28,14 @@ const Pagedirecteur = () => {
           <Widget type="Nouveau" />
           
         </div>
-        <div ><BarsDirecteur></BarsDirecteur></div>
+        <div className='bar'>
+        <BarsDirecteur/>
        
+        </div>
+       <div className='chart'>
+        <Circlecompte></Circlecompte>
+        <Circleactivenoactive></Circleactivenoactive>
+       </div>
           
       </div>
     </div>

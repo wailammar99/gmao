@@ -94,15 +94,16 @@ const Sidebar = () => {
 
           
           <p className="title">USEFUL</p>
-          <li>
-            <InsertChartIcon className="icon" />
-            <span>Stats</span>
-          </li>
+         
 
+          
+          <Link to={"/notificationdiracteur"}  style={{ textDecoration: "none" }} >
           <li>
-            <NotificationsNoneIcon className="icon" />
+          <NotificationsNoneIcon className="icon" />
             <span>Notifications</span>
           </li>
+          </Link>
+           
           
           <li>
             <SettingsApplicationsIcon className="icon" />
@@ -110,10 +111,14 @@ const Sidebar = () => {
           </li>
 
           <p className="title">USER</p>
+          <Link to={"/profildirecteur"} style={{ textDecoration: "none" }} >
+
           <li>
             <AccountCircleOutlinedIcon className="icon" />
             <span>Profile</span>
           </li>
+          </Link>
+        
           
           <Link to="/" style={{ textDecoration: "none" }} onClick={handleLogout}>
            <li>

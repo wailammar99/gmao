@@ -42,6 +42,9 @@ import Technicineprofil from './components/technicien/technicineprofil';
 import NotificationPagechefservice from './components/chefservice/notifationchefservice';
 import Citoyenprofil from './components/citoyen/citoyenprofil';
 import Notificationcitoyen from './components/citoyen/citoyennotification';
+import Notificationdirecteur from './components/directeur/notificationdirecteur';
+import Directeurprofil from './components/directeur/directeurprofil';
+import Adminprofil from './components/admin/admindesign/adminprofil';
 
 
 
@@ -83,7 +86,10 @@ function App() {
             path="/login"
             element=<Login onLogin={handleLogin} />
           />
-       
+          <Route
+            path="/adminprofil"
+            element={isLoggedIn ? <Adminprofil onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+          />
             
           <Route
             path="/admin_dashboard/:id"
@@ -105,7 +111,16 @@ function App() {
             path="/directeur_dashboard"
             element={isLoggedIn ? <Pagedirecteur onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
           />
+          <Route
+            path="/profildirecteur"
+            element={isLoggedIn ? <Directeurprofil onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+          />
 
+             <Route
+            path="/notificationdiracteur"
+            element={isLoggedIn ? <Notificationdirecteur onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+          />
+         
          <Route
           path="/listecostumer"
           element={isLoggedIn ? <Listcostumer /> : <Navigate to="/directeur_dashboard" />}

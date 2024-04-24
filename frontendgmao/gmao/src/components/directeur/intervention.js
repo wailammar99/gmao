@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -12,6 +13,9 @@ import { Link } from 'react-router-dom';
 
 const Intervention = () => {
   const [interventionData, setInterventionData] = useState([]);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedIntervention, setSelectedIntervention] = useState(null);
+  const [filterByState, setFilterByState] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -31,6 +35,24 @@ const Intervention = () => {
     }
   };
 
+  const handleOpenDialog = (intervention) => {
+    setSelectedIntervention(intervention);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setSelectedIntervention(null);
+    setOpenDialog(false);
+  };
+
+  const filterInterventionsByState = (state) => {
+    setFilterByState(state);
+  };
+
+  const filteredInterventions = filterByState
+    ? interventionData.filter(intervention => intervention.etat === filterByState)
+    : interventionData;
+
   return (
     <div className="list">
       <Sidebar/>
@@ -38,6 +60,12 @@ const Intervention = () => {
         <Navbar/>
         <div className="top">
           <h1>Les interventions</h1>
+          <div>
+            {/* Boutons pour filtrer par état */}
+            {['Nouveau', 'En attente', 'En cours', 'Assigné', 'Terminé', 'Annulé', 'Clôture'].map(state => (
+              <Button key={state} onClick={() => filterInterventionsByState(state)}>{state}</Button>
+            ))}
+          </div>
         </div>
         <div className="botom">
           <TableContainer component={Paper} className="table">
@@ -48,32 +76,27 @@ const Intervention = () => {
                   <TableCell className="tableCell">Date de début</TableCell>
                   <TableCell className="tableCell">Date de fin</TableCell>
                   <TableCell className="tableCell">État</TableCell>
-                  <TableCell className="tableCell">Citoyen</TableCell>
-                  <TableCell className="tableCell">Service</TableCell>
-                  <TableCell className="tableCell">Technicien</TableCell>
-                  <TableCell className="tableCell">Conversation</TableCell>
+                  <TableCell className="tableCell">conversation</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {interventionData.map((intervention) => (
+                {filteredInterventions.map((intervention) => (
                   <TableRow key={intervention.id}>
                     <TableCell className="tableCell">{intervention.date_creation}</TableCell>
                     <TableCell className="tableCell">{intervention.date_debut}</TableCell>
                     <TableCell className="tableCell">{intervention.date_fin}</TableCell>
                     <TableCell className="tableCell">{intervention.etat}</TableCell>
-                    <TableCell className="tableCell">{intervention.citoyen ? intervention.citoyen.email : 'unknow'}</TableCell>
-                    <TableCell className="tableCell">{intervention.service ? intervention.service.nom : 'unknow'}</TableCell>
-                    <TableCell className="tableCell">{intervention.technicien}</TableCell>
                     <TableCell className="tableCell">
-                      {/* Render a link to ConversationMessages component */}
                       {intervention.conversation && intervention.conversation.id ? (
                         <Link to={`/conversation/${intervention.conversation.id}/citoyen/${localStorage.getItem('userId')}`}>
-                    {intervention.conversation.title}
-                  </Link>
-                        
+                          {intervention.conversation.title}
+                        </Link>
                       ) : (
                         'no conversation'
                       )}
+                    </TableCell>
+                    <TableCell className="tableCell">
+                      <Button className='btn btn-info' onClick={() => handleOpenDialog(intervention)} variant="outlined">Voir Plus</Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -82,6 +105,29 @@ const Intervention = () => {
           </TableContainer>
         </div>
       </div>
+      
+      {/* Dialog to display more information */}
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Intervention Details</DialogTitle>
+        <DialogContent>
+          {selectedIntervention && (
+            <>
+              <p>description:{selectedIntervention.description} </p>
+              <p>Date de création: {selectedIntervention.date_creation}</p>
+              <p>Date de début: {selectedIntervention.date_debut}</p>
+              <p>Date de fin: {selectedIntervention.date_fin}</p>
+              <p>etat :{selectedIntervention.etat}</p>
+              <p>service :{selectedIntervention.service.nom}</p>
+              <p>technicien :{selectedIntervention.technicien? selectedIntervention.technicien :"le intervetion est pas assigne "}</p>
+              <p>En attend :{selectedIntervention.raison ?selectedIntervention.raison.description:"le inetrvetion est pas en atteande "}</p>
+              <p>citoyen: {selectedIntervention.citoyen?selectedIntervention.citoyen.email :"ya pas citoyen "}</p>
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Fermer</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

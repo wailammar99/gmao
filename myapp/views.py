@@ -638,6 +638,7 @@ def create_service_api(request):
 def api_create_user(request):
     if request.method == "POST":
         try:
+            
             data = json.loads(request.body)
             username = data.get('username')
             directeur = CustomUser.objects.filter(is_directeur=True)
@@ -663,12 +664,20 @@ def api_create_user(request):
                     return JsonResponse({'message': 'User created successfully'}, status=201)
                 elif is_chefservice:
                     CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_chefservice=True, is_active=False)
+                    for d in directeur :
+                     Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type chefservice",is_read=False)
+
                     return JsonResponse({'message': 'User created successfully'}, status=201)
                 elif is_technicien:
                     CustomUser.objects.create(username=username, first_name=first_name, last_name=last_name, password=hashed_password, email=email, is_technicien=True, is_active=False)
+                    for d in directeur :
+                     Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type technicien",is_read=False)
+
                     return JsonResponse({'message': 'User created successfully'}, status=201)
                 elif is_citoyen:
                     CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_citoyen=True, is_active=False)
+                    for d in directeur :
+                     Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type citoyen",is_read=False)
                     return JsonResponse({'message': 'User created successfully'}, status=201)
                 elif is_admin:
                     CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_admin=True, is_active=True)
@@ -772,7 +781,7 @@ def assign_service_or_technician(request, id):
             
             intervention.save()
             message = "New intervention has been assigned to you"
-            Notification.objects.create(recipient=technicien, message=message, is_read=False)
+           
             Notification.objects.create(recipient=citoyen,message="intervetion est bien assigne  ",is_read=False)
             return JsonResponse({"message": "Le service/technicien et les équipements sont bien assignés à l'intervention."}, status=200)
         except interven.DoesNotExist:
@@ -1162,7 +1171,7 @@ def api_assigne_service_user (request,user_id):
         user=CustomUser.objects.get(id=user_id)
         user.service=service_cible
         user.save()
-        return JsonResponse({"message":"le service est bien assigne "},status=200)
+        return JsonResponse({"message":"le service est bien assigne "},status.HTTP_200_OK)
       except CustomUser.DoesNotExist :
           return JsonResponse({"eroor":"le utilistaeur not found "},status=404)
       except Exception  as e :

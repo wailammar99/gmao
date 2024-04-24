@@ -102,7 +102,7 @@ const Listtechnicien = () => {
                       {!user.is_active && (
                         <button onClick={() => handleActivate(user.id)} className="btn btn-success">Activer</button>
                       )}
-                      <button type="button" className="btn btn-outline-warning" onClick={() => handleClick(user)}>Warning</button>
+                      <button type="button" className="btn btn-outline-warning" onClick={() => handleClick(user)}>Assigné Service</button>
                       {showUserForm && selectedUser && selectedUser.id === user.id && (
                         <UserformA userId={user.id} />
                       )}

@@ -9,11 +9,13 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import UserformA from './directeurdesi/UserformA';
+import PopupMessage from '../message';
 
 const CompteNoActive = () => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserForm, setShowUserForm] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -50,7 +52,10 @@ const CompteNoActive = () => {
           });
           return updatedUsers;
         });
+        setShowMessage(true); // Show message for successful activation
         console.log('Compte utilisateur activé avec succès');
+      } else if (response.status === 401) {
+        setShowMessage(true); // Show message for unauthorized access
       } else {
         throw new Error('Failed to activate user account');
       }
@@ -64,6 +69,13 @@ const CompteNoActive = () => {
     setShowUserForm(true);
   };
 
+  // Define messages for each case
+  const messages = {
+    success: "Compte utilisateur activé avec succès",
+    unauthorized: "Il faut assigner un service",
+    error: "Erreur lors de l'activation du compte utilisateur"
+  };
+
   return (
     <div className="list">
       <Sidebar />
@@ -71,6 +83,7 @@ const CompteNoActive = () => {
         <Navbar />
         <div className="top">
           <h1>Comptes Inactifs</h1>
+          {showMessage && <PopupMessage message={messages.unauthorized} color="success" />}
         </div>
         <div className="bottom">
           <div>
