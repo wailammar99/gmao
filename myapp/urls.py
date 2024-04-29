@@ -34,6 +34,7 @@ urlpatterns = [
              path('conversation/<int:conversation_id>/', views.view_conversation, name='view_conversation'),
               path('sendmessage/<int:conversation_id>/', views.sendmessage, name='sendmessage'),
               path("",views.api_create_conversationn),
+
               
                path('login_react/', views.loginn ,name="login_react"),
                 path('logoot/', views.logout_view , name='logoutt'),
@@ -69,7 +70,11 @@ urlpatterns = [
                   path("api_liste_notifcation/<int:user_id>/",views.api_all_nofication),
                   path("api_delete_one_notification/<int:notification_id>/",views.api_delete_notification_one),
                   path("api_cloture_inetrvetion/<int:intervtion_id>/",views.api_cloture_inetrvetion),
-                  path("api_change_password/<int:user_id>/",views.api_change_password)
+                  path("api_change_password/<int:user_id>/",views.api_change_password),
+                   path("allconversation/",views.api_allconversation),
+                   path("test_particement/<int:conversation>/citoyen/<int:user_id>/",views.test_perticement),
+                   path("modifie_service/<int:service_id>/",views.api_put_service)
+
                 
           
             

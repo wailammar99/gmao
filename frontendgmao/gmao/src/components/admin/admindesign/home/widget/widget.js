@@ -1,98 +1,92 @@
-import "./widget.scss";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
-import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
-import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
-const Widget = ({ type }) => {
-  let data;
+const Widget = ({ type, userData }) => {
+  const [Data, setData] = useState([]);
 
-  //temporary
-  const amount = 100;
-  const diff = 20;
+  useEffect(() => {
+    fetchInterventionData();
+  }, []); // Fetch data only once when the component mounts
 
-  switch (type) {
-    case "user":
-      data = {
-        title: "USERS",
-        isMoney: false,
-        link: "See all users",
-        icon: (
-          <PersonOutlinedIcon
-            className="icon"
-            style={{
-              color: "crimson",
-              backgroundColor: "rgba(255, 0, 0, 0.2)",
-            }}
-          />
-        ),
-      };
+  const fetchInterventionData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      if (!token || !userId) {
+        console.log("Token or userId not found. Redirecting to login...");
+        return;
+      }
+
+      const response = await fetch(
+        'http://127.0.0.1:8000/listecustomer/',
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setData(data);
+      } else {
+        console.error(
+          "Failed to fetch intervention data:",
+          response.statusText
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching intervention data:", error);
+    }
+  };
+
+  // Calculate counts for different user types based on Data state
+  const countTechnicien = Data ? Data.filter(user => user.is_technicien).length : 0;
+  const countChefService = Data ? Data.filter(user => user.is_chefservice).length : 0;
+  const countDirecteur = Data ? Data.filter(user => user.is_directeur).length : 0;
+  const countCitoyen = Data ? Data.filter(user => user.is_citoyen).length : 0;
+
+  let title;
+  let count;
+
+  // Set title and count based on the type
+  switch (type) {  
+    case "technicien":
+      title = "Technicien";
+      count = countTechnicien;
       break;
-    case "order":
-      data = {
-        title: "ORDERS",
-        isMoney: false,
-        link: "View all orders",
-        icon: (
-          <ShoppingCartOutlinedIcon
-            className="icon"
-            style={{
-              backgroundColor: "rgba(218, 165, 32, 0.2)",
-              color: "goldenrod",
-            }}
-          />
-        ),
-      };
+    case "chefservice":
+      title = "Chef de service";
+      count = countChefService;
       break;
-    case "earning":
-      data = {
-        title: "EARNINGS",
-        isMoney: true,
-        link: "View net earnings",
-        icon: (
-          <MonetizationOnOutlinedIcon
-            className="icon"
-            style={{ backgroundColor: "rgba(0, 128, 0, 0.2)", color: "green" }}
-          />
-        ),
-      };
+    case "directeur":
+      title = "Directeur";
+      count = countDirecteur;
       break;
-    case "balance":
-      data = {
-        title: "BALANCE",
-        isMoney: true,
-        link: "See details",
-        icon: (
-          <AccountBalanceWalletOutlinedIcon
-            className="icon"
-            style={{
-              backgroundColor: "rgba(128, 0, 128, 0.2)",
-              color: "purple",
-            }}
-          />
-        ),
-      };
+    case "citoyen":
+      title = "Citoyen";
+      count = countCitoyen;
       break;
     default:
-      break;
+      title = "";
+      count = 0;
   }
 
+  // Render your widget with appropriate title and count
   return (
     <div className="widget">
       <div className="left">
-        <span className="title">{data.title}</span>
-        <span className="counter">
-          {data.isMoney && "$"} {amount}
-        </span>
-        <span className="link">{data.link}</span>
+      <span className={`title ${title.toLowerCase()}`}>{title}</span>
+        <span className="counter">{count}</span>
+        <Link to="/UserListPage" style={{ textDecoration: "none" , color: "black" }} >
+          <span className="link">Voir tous les service</span> 
+        </Link>
       </div>
       <div className="right">
-        <div className="percentage positive">
-          <KeyboardArrowUpIcon />
-          {diff} %
-        </div>
-        {data.icon}
+        <h1>{count}</h1>
       </div>
     </div>
   );

@@ -1,0 +1,20 @@
+h1 {
+    text-align: center; /* Pour aligner le texte au centre */
+    color: blue; /* Couleur bleue */
+    font-size: 1.2em; /* Taille de police plus petite */
+  }
+.viewButton {
+    padding: 2px 5px;
+    border-radius: 5px;
+    color: darkblue;
+    border: 2px dotted rgba(0, 0, 139, 0.596);
+    cursor: pointer;
+  }
+  
+  .deleteButton {
+    padding: 2px 5px;
+    border-radius: 5px;
+    color: crimson;
+    border: 2px dotted rgba(220, 20, 60, 0.6);
+    cursor: pointer;
+  }

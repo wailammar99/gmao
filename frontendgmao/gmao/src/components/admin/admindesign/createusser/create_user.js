@@ -1,9 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import "./creatuser.scss"
 import Sidebar from '../home/sidebar/sidebar';
 import Navbar from '../home/navbar/navbar';
 import PopupMessage from '../../../message';
+import { Link, NavLink, Navigate, useHref, useNavigate,useLocation } from 'react-router-dom';
+
+import UserListPage from '../../userlistepage';
 
 
 
@@ -21,11 +24,18 @@ const CreateUser = ({ onUserCreated }) => {
   const [last_name, setlast_name] = useState('');
   const [phone, setPhone] = useState('');
   const [showMessage, setShowMessage] = useState(false);
+  const[messagee,setmessage]=useState("");
+  const[success,setsucee]=useState("");
+  const navigate = useNavigate();
+  const locate=useLocation();
+
+ 
   
 
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
+
     try {
       const response = await fetch('http://127.0.0.1:8000/api_create_user/', {
         method:"POST",
@@ -48,17 +58,80 @@ const CreateUser = ({ onUserCreated }) => {
           phone: phone,
         }),
       });
+     
       if (response.ok) {
         console.log('User created successfully');
+        setmessage("utlisateur est bien cree");
+        setsucee("success");
         setShowMessage(true);
-        onUserCreated();
-      } else {
-        console.error('Failed to create user');
+        setTimeout(() => {
+          navigate("/UserListPage");
+        }, 3000);
+
+
+
+       
+        
+        
+
+        
+       
+// in case somthing goes wornd uncomment this ligne 
+        // onUserCreated();
+        console.log('Navigating to UserListPage...')
+        //navigate("/UserListPage");
+        console.log('Navigating to UserListPage 2...')
+
+      } 
+      
+      else if (response.status===401){
+        console.error('need to chose role please ');
+        setmessage("vous devez choisie le role si vous plais ");
+        setsucee("warning");
+        setShowMessage(true);
+       
+       
+        
+
+      }
+      else if (response.status===400)
+      {
+        console.error('username is ready existe  ');
+        setmessage("username is ready existe  ");
+        setsucee("warning");
+        setShowMessage(true);
+      }
+      else if (response.status===402)
+      {
+        console.error('password not macth ');
+        setmessage("password not match  ");
+        setsucee("warning");
+        setShowMessage(true);
+
+      }
+      else if (response.status===403)
+      {
+        console.error('password not macth ');
+        setmessage("email deja existe devez utiliser auttre email  ");
+        setsucee("warning");
+        setShowMessage(true);
+
       }
     } catch (error) {
       console.error('Error creating user:', error);
     }
   };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowMessage(false);
+
+    
+      
+    }, 5000);
+     
+    
+    return () => clearTimeout(timer);
+  }, [showMessage]);
 
   return (
     <div className="list">
@@ -67,7 +140,7 @@ const CreateUser = ({ onUserCreated }) => {
          <Navbar/>
      
       <h2>Create New User</h2>
-      {showMessage && <PopupMessage message="User created successfully" color="success" />}
+      {showMessage && <PopupMessage message={messagee}color={success} />}
       <form onSubmit={handleCreateUser} method="post">
 
         <div className="formInput">
@@ -135,7 +208,7 @@ const CreateUser = ({ onUserCreated }) => {
 
 </div>
 
-        <button type="submit" className="btn btn-primary">Create User</button>
+        <button type="submit" className="btn btn-primary" >Create User</button>
         </form>
     </div>
     </div>

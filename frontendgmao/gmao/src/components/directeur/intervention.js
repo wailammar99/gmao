@@ -76,7 +76,7 @@ const Intervention = () => {
                   <TableCell className="tableCell">Date de début</TableCell>
                   <TableCell className="tableCell">Date de fin</TableCell>
                   <TableCell className="tableCell">État</TableCell>
-                  <TableCell className="tableCell">conversation</TableCell>
+               
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -86,15 +86,7 @@ const Intervention = () => {
                     <TableCell className="tableCell">{intervention.date_debut}</TableCell>
                     <TableCell className="tableCell">{intervention.date_fin}</TableCell>
                     <TableCell className="tableCell">{intervention.etat}</TableCell>
-                    <TableCell className="tableCell">
-                      {intervention.conversation && intervention.conversation.id ? (
-                        <Link to={`/conversation/${intervention.conversation.id}/citoyen/${localStorage.getItem('userId')}`}>
-                          {intervention.conversation.title}
-                        </Link>
-                      ) : (
-                        'no conversation'
-                      )}
-                    </TableCell>
+                    
                     <TableCell className="tableCell">
                       <Button className='btn btn-info' onClick={() => handleOpenDialog(intervention)} variant="outlined">Voir Plus</Button>
                     </TableCell>

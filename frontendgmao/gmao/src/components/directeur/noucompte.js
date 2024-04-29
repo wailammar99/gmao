@@ -16,10 +16,20 @@ const CompteNoActive = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserForm, setShowUserForm] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
+  const [message, setMessage] = useState("");
+  const [color, setColor] = useState("");
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowMessage(false); // Reset showMessage after 5 seconds
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [showMessage]);
 
   const fetchData = async () => {
     try {
@@ -46,16 +56,21 @@ const CompteNoActive = () => {
         setUsers(prevUsers => {
           const updatedUsers = prevUsers.map(user => {
             if (user.id === id) {
-              return {...user, is_active: true };
+              return { ...user, is_active: true };
             }
             return user;
           });
+          setShowMessage(true); // Show message for successful activation
+          setMessage("Compte utilisateur activé avec succès");
+          setColor("success");
+          fetchData();
+          
           return updatedUsers;
         });
-        setShowMessage(true); // Show message for successful activation
-        console.log('Compte utilisateur activé avec succès');
       } else if (response.status === 401) {
         setShowMessage(true); // Show message for unauthorized access
+        setMessage("Il faut assigner un service s'il vous plaît");
+        setColor("warning");
       } else {
         throw new Error('Failed to activate user account');
       }
@@ -69,11 +84,12 @@ const CompteNoActive = () => {
     setShowUserForm(true);
   };
 
-  // Define messages for each case
-  const messages = {
-    success: "Compte utilisateur activé avec succès",
-    unauthorized: "Il faut assigner un service",
-    error: "Erreur lors de l'activation du compte utilisateur"
+  const handleFormSubmit = () => {
+    setShowMessage(false);
+    setMessage("Utilisateur est bien assigné");
+    setColor("success");
+    setShowUserForm(false);
+    fetchData();
   };
 
   return (
@@ -83,7 +99,7 @@ const CompteNoActive = () => {
         <Navbar />
         <div className="top">
           <h1>Comptes Inactifs</h1>
-          {showMessage && <PopupMessage message={messages.unauthorized} color="success" />}
+          {showMessage && <PopupMessage message={message} color={color} />}
         </div>
         <div className="bottom">
           <div>
@@ -95,7 +111,7 @@ const CompteNoActive = () => {
                   <TableCell>Email</TableCell>
                   <TableCell>First Name</TableCell>
                   <TableCell>Last Name</TableCell>
-                  <TableCell> activation </TableCell>
+                  <TableCell>Service</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -107,12 +123,12 @@ const CompteNoActive = () => {
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.first_name}</TableCell>
                     <TableCell>{user.last_name}</TableCell>
-                    <TableCell>{user.is_active ? 'is activate ' :'no activate '}</TableCell>
+                    <TableCell>{user.service ? user.service.nom : "Utilisateur pas de service"}</TableCell>
                     <TableCell>
                       <button onClick={() => handleActivate(user.id)} className="btn btn-success">Activer</button>
                       <button onClick={() => handleAssignServiceClick(user)} className="btn btn-outline-warning">Assign Service</button>
                       {showUserForm && selectedUser && selectedUser.id === user.id && (
-                        <UserformA userId={user.id} onSubmit={() => setShowUserForm(false)} />
+                        <UserformA userId={user.id} onSubmit={handleFormSubmit} />
                       )}
                     </TableCell>
                   </TableRow>

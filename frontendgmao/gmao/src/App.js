@@ -92,7 +92,7 @@ function App() {
           />
             
           <Route
-            path="/admin_dashboard/:id"
+            path="/admin_dashboard"
             element={isLoggedIn ? <AdminPage onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
           />
           <Route

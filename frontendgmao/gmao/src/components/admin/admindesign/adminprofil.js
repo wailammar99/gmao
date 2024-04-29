@@ -20,6 +20,7 @@ const Adminprofil = () => {
   const [old_password, setOldpassword] = useState('');
   const [password1, setPassword1] = useState('');
   const [password2, setPassword2] = useState('');
+  const[color,setcolor]=useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -106,6 +107,7 @@ const Adminprofil = () => {
       if (response.ok) {
         setSuccessMessage('User information updated successfully.');
         setIsDialogOpen(false);
+        setcolor("success");
         fetchData();
       } else {
         throw new Error('Failed to update user');
@@ -133,11 +135,22 @@ const Adminprofil = () => {
         }),
       });
       if (response.ok) {
-        setSuccessMessage('Password updated successfully.');
-        setShowPasswordForm(false);
+        setSuccessMessage('Le mot passe est bien modifié.');
+        setShowPasswordForm(0);
+        setcolor("success");
         fetchData();
-      } else {
-        throw new Error('Failed to update password');
+      } else if (response.state===400){
+        setSuccessMessage("le ancien mot passe est pas correct")
+        setShowPasswordForm(0);
+        setcolor("warning");
+        fetchData();
+      }
+      else if (response===401)
+      {
+        setSuccessMessage("le mot passe 1 et mot passe 2  pas les meme ");
+        setShowPasswordForm(0);
+        setcolor("warning");
+        fetchData();
       }
     } catch (error) {
       console.error('Error updating password:', error);
@@ -173,7 +186,7 @@ const Adminprofil = () => {
           <Navbar />
           <section style={{ backgroundColor: '#fff' }}>
             <div className="container py-5">
-              {successMessage && <PopupMessage message={successMessage} color="success" />}
+              {successMessage && <PopupMessage message={successMessage} color={color} />}
               <div className="row">
                 <div className="col-lg-4">
                   <div className="card mb-4">

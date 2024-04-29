@@ -627,13 +627,21 @@ def create_service_api(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
+            
+            
             servicename = data.get('nom')
             servicedes = data.get('descriptions')
+            if service.objects.filter(nom=servicename).exists():
+               return JsonResponse({"error": "Le service existe déjà"}, status=409)
+
+            if servicename == "" or servicedes =="" :
+                return JsonResponse({"eroor":"remplire le form si vous plais "},status=402)
             s = service.objects.create(nom=servicename, descrtions=servicedes)
             return JsonResponse({"message": "Creation successful"}, status=200)
-        except Exception as e:
-            print(e)
-            return JsonResponse({"error": "Creation failed"}, status=400)
+        except Exception as e :
+            return JsonResponse({'error': 'Failed to create user: {}'.format(str(e))}, status=406)
+    else :
+        return JsonResponse({"eroor":"le metthode not allow"},status=405)
 @csrf_exempt
 def api_create_user(request):
     if request.method == "POST":
@@ -655,9 +663,13 @@ def api_create_user(request):
 
             if CustomUser.objects.filter(username=username).exists():
                 return JsonResponse({'error': 'Username already exists'}, status=400)
-
+            if CustomUser.objects.filter(email=email).exists():
+                return JsonResponse({'error': 'email   already exists'}, status=403)
+                
             if password1 == password2:
-                hashed_password = make_password(password1)  # Hash the password
+                hashed_password = make_password(password1)
+            
+                  # Hash the password
 
                 if is_directeur:
                     CustomUser.objects.create(username=username, first_name=first_name, last_name=last_name, password=hashed_password, email=email, is_directeur=True, is_active=True)
@@ -759,8 +771,13 @@ def assign_service_or_technician(request, id):
             else:
                 technicien=CustomUser.objects.get(id=new_service_id)
                 
-                # Assign technician
+                Convers=converstation.objects.get(id=intervention.conversation.id)
                 intervention.technicien = new_service_id
+                Convers.add_participant(technicien)
+                Convers.save()
+
+               
+                
                 intervention.etat = "Assigné"
                 intervention.raison=None
                 intervention.date_debut=start_date
@@ -915,9 +932,6 @@ def sendmessage(request, conversation_id,user_id):
                 converstation=conversation_obj,
                 contenu=contenu,
                 sender=user_new,
-               
-
-               
                 message_type=type_message,
                 horodatage=datetime.now()
             )
@@ -987,12 +1001,14 @@ def api_create_conversationn(request, id):
     if request.method == 'PUT':
         try:
             intervention_cible = interven.objects.get(id=id)
+            user=CustomUser.objects.get(service=intervention_cible.service,is_chefservice=True)
             data = json.loads(request.body)
             titre = data.get('title')
             
             # Create the conversation
             conversation = converstation.objects.create(title=titre)
-            
+            conversation.add_participant(intervention_cible.citoyen)
+            conversation.add_participant(user)
             # Assign the conversation to the intervention
             intervention_cible.conversation = conversation
             intervention_cible.save()
@@ -1162,22 +1178,24 @@ def api_create_raison(request,intervtion_id):
     else:
         return JsonResponse({"error": "Méthode non autorisée"}, status=403)
 @csrf_exempt
-def api_assigne_service_user (request,user_id):
-    if request.method=="PUT" :
-      try: 
-        data=json.loads(request.body)
-        service_id=data.get("service_id")
-        service_cible=service.objects.get(id=service_id)
-        user=CustomUser.objects.get(id=user_id)
-        user.service=service_cible
-        user.save()
-        return JsonResponse({"message":"le service est bien assigne "},status.HTTP_200_OK)
-      except CustomUser.DoesNotExist :
-          return JsonResponse({"eroor":"le utilistaeur not found "},status=404)
-      except Exception  as e :
-       return JsonResponse({'error': 'Impossible de démarrer l\'intervention à cause de : {}'.format(str(e))}, status=403)
-    else :
-        return JsonResponse({"eroor:methode not allow "},status=405)
+def api_assigne_service_user(request, user_id):
+    if request.method == "PUT":
+        try:
+            data = json.loads(request.body)
+            service_id = data.get("service_id")
+            service_cible = service.objects.get(id=service_id)
+            user = CustomUser.objects.get(id=user_id)
+            user.service = service_cible
+            user.save()
+            return JsonResponse({"message": "Le service est bien assigné"}, status=200)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"error": "Utilisateur non trouvé"}, status=404)
+        except service.DoesNotExist:
+            return JsonResponse({"error": "Service non trouvé"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": "Impossible d'assigner le service : {}".format(str(e))}, status=403)
+    else:
+        return JsonResponse({"error": "Méthode non autorisée"}, status=405)
 def api_notification_liste(request,user_id):
     if request.method=="GET":
         try :
@@ -1301,7 +1319,7 @@ def api_change_password(request, user_id):
 
             # Check if new passwords match
             if password1 != password2:
-                return JsonResponse({"error": "Passwords do not match"}, status=400)
+                return JsonResponse({"error": "Passwords do not match"}, status=401)
 
             # Set new password
             user.set_password(password1)
@@ -1315,3 +1333,51 @@ def api_change_password(request, user_id):
             return JsonResponse({"error": "An error occurred: {}".format(str(e))}, status=500)
     else:
         return JsonResponse({"message": "Method not allowed"}, status=405)
+def api_allconversation(request):
+    if request.method == "GET":
+        conversations = converstation.objects.all()
+        serializer = ConversationSerializers(conversations, many=True)
+        return JsonResponse(serializer.data, status=200, safe=False)
+def test_perticement(request,user_id,conversation):
+    if request.method=="GET" :
+     try:  
+         utilisateur=CustomUser.objects.get(id=user_id)
+         conversation_cible=converstation.objects.get(id=conversation)
+     except CustomUser.DoesNotExist :
+            return JsonResponse({"eroor":"utlistaeu do not existe "},status=404)
+     except converstation.DoesNotExist :
+            return JsonResponse({"eroor":"le converstaion do not existe "},status=404)
+     except Exception as e :
+         return JsonResponse({"error": "An error occurred: {}".format(str(e))}, status=500)
+         
+     if conversation_cible.test_particepemnt(utilisateur) :
+         return JsonResponse({"message":"utilistaeur existe dans partimenet "},status=200)
+     else :
+         return JsonResponse({"message":"utilistaeur existe pas dans partimenet "},status=404)
+         
+    
+    else :
+        return JsonResponse({"eroor":"method not alllow"},status=405)
+@csrf_exempt
+def api_put_service(request,service_id):
+    if request.method=="PUT" :
+        try :
+            service_cible=service.objects.get(id=service_id)
+            data = json.loads(request.body)
+            nom=data.get("nom")
+            desciption=data.get("description")
+            if nom is None :
+                nom=service_cible.nom
+            if desciption is None :
+                desciption=service_cible.descrtions
+
+            service_cible.nom=nom 
+            service_cible.descrtions=desciption
+            service_cible.save()
+            return JsonResponse({"message":"le service est bien modifie "},status=200)
+        except service.DoesNotExist :
+            return JsonResponse({"eroor":"le service est introuvabele "},status=404)
+    else :
+        return JsonResponse({"eroor":"le method not allow"},status=405)
+
+        

@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import PopupMessage from '../../message';
 import "./createservice.scss"
 import Navbar from '../admindesign/home/navbar/navbar';
 import Sidebar from '../admindesign/home/sidebar/sidebar';
+import ListService from '../listeservice';
+
+
 
 const CreateService = ({ onServiceCreated }) => {
   const [serviceName, setServiceName] = useState('');
   const [serviceDescription, setServiceDescription] = useState('');
   const [successMessage, setSuccessMessage] = useState(false);
+  const[messageee,setmessageee]=useState("");
+  const[color,setcolor]=useState("");
   const navigate = useNavigate();
 
   const handleCreateService = async (e) => {
@@ -32,20 +37,40 @@ const CreateService = ({ onServiceCreated }) => {
       });
       if (response.ok) {
         setSuccessMessage(true);
+        setcolor("success")
         console.log('Service created successfully');
-        // Invoke the callback function to notify the parent component
-        onServiceCreated();
+        setmessageee("service est bien creaté")
+        setTimeout(() => {
+          navigate("/listeservice");
+        }, 3000);
+
+        
       
         // Navigate back to the admin dashboard
-        navigate('/admin_dashboard');
         
-      } else {
+        
+      } else if (response.status===409) {
         console.error('Failed to create service');
+        setSuccessMessage(true);
+        setmessageee("le service ready existe");
+        setcolor("warning");
+      }
+      else if (response.status===402)
+      {
+        setSuccessMessage(true);
+        setmessageee("remplire le formelaire si vous plais ");
+        setcolor("warning");
       }
     } catch (error) {
       console.error('Error creating service:', error);
     }
   };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSuccessMessage(false);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [successMessage]);
  
   return (
 
@@ -54,19 +79,33 @@ const CreateService = ({ onServiceCreated }) => {
         <div className="listContainer">
          <Navbar/>
       <h2>Create New Service</h2>
-      <form onSubmit={handleCreateService}>
+      <form onSubmit={handleCreateService} required>
         <div className="formInput">
           <label htmlFor="serviceName" className="form-label">Service Name</label>
-          <input type="text" className="form-control" id="serviceName" value={serviceName} onChange={(e) => setServiceName(e.target.value)} required />
+          <input type="text" className="form-control" id="serviceName" value={serviceName} onChange={(e) => setServiceName(e.target.value)}  required/>
         </div>
         <div className="formInput">
           <label htmlFor="serviceDescription" className="form-label">Service Description</label>
           <textarea className="form-control" id="serviceDescription" rows="3" value={serviceDescription} onChange={(e) => setServiceDescription(e.target.value)} required></textarea>
         </div>
-        <button type="submit"  className="btn btn-primary" onClick={handleCreateService}>Create Service</button>
+        <div className='formInput'>
+        <button
+  type="submit"
+  className="btn btn-primary custom-button"
+  onClick={handleCreateService}
+  required
+>
+  Create Service
+</button>
+
+        </div>
+       
+
+
+
         {successMessage && (
-        <div className="d-flex justify-content-center align-items-center" style={{ height: '200px' }}>
-          <PopupMessage message='Service créé avec succès'  color="success"/>
+        <div >
+          {successMessage && <PopupMessage message={messageee}  color={color} />}
         </div>
       )}
       </form>

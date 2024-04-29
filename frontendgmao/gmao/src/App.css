@@ -72,4 +72,38 @@ body {
 }
 
 
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem; /* Add margin bottom for spacing between form groups */
+}
+
+.form-group label {
+  margin-bottom: 0.5rem;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"] {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid #ced4da;
+  margin-bottom: 0.5rem;
+}
+
+.form-group button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+  align-self: flex-start; /* Align button to the start of the form group */
+}
+.form-group {
+  margin-bottom: 20px; /* Adjust the space between form groups */
+}
+
+.form-label {
+  margin-bottom: 10px; /* Adjust the space between label and input */
+}
 

@@ -96,10 +96,7 @@ const Sidebar = () => {
             <span>Liste Service</span>
           </li>
            </Link>
-          <li>
-            <SettingsApplicationsIcon className="icon" />
-            <span>Settings</span>
-          </li>
+        
           <p className="title">USER</p>
           <Link to={"/adminprofil"} style={{ textDecoration: "none" }}>
           <li>

@@ -1,9 +1,26 @@
 .admin-page {
+  display: flex;
+
+  .admin-content {
+    flex: 6;
+    .widgets{
     display: flex;
-  
-    .admin-content {
-      flex: 6;
-      
-      
-    }
+    padding: 20px;
+    gap: 20px;
   }
+  .chart{
+    display: flex;
+    padding: 5px 10px;
+    align-items: center;
+    gap: 10px;
+  }
+  .navi{
+    display: flex;
+    padding: 5px 10px;
+    align-items: center;
+    gap: 10px;
+  }
+    
+    
+  }
+}

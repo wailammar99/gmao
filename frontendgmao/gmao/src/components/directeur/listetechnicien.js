@@ -66,6 +66,7 @@ const Listtechnicien = () => {
   const handleAssignServiceClick = (user) => {
     setSelectedUser(user);
     setShowUserForm(true);
+    fetchData();
   };
 
   return (

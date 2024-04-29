@@ -34,11 +34,13 @@ const Login = ({ onLogin }) => {
       
       localStorage.setItem('token', token);
       localStorage.setItem('userId', userId);
+      
+
 
       onLogin();
 
       if (role === 'admin') {
-        navigate(`/admin_dashboard/${userId}`);
+        navigate(`/admin_dashboard`);
       } else if (role === 'citoyen') {
         navigate(`/citoyen_dashboard/${userId}`);
       }

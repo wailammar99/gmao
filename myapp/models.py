@@ -47,7 +47,13 @@ class converstation(models.Model):
    
     title = models.CharField(max_length=100)
     participants = models.ManyToManyField(CustomUser, related_name='conversations')
-    
+    def add_participant(self, user):
+        """
+        Ajoute un utilisateur à la conversation.
+        """
+        self.participants.add(user)
+    def test_particepemnt(self,user):
+        return self.participants.filter(pk=user.pk).exists()
 class interven(models.Model):
     description = models.TextField(max_length=2048)
     date_creation = models.DateField(default=date.today)
