@@ -33,7 +33,7 @@ urlpatterns = [
              path('cloture',views.cloture,name='cloture'),
              path('conversation/<int:conversation_id>/', views.view_conversation, name='view_conversation'),
               path('sendmessage/<int:conversation_id>/', views.sendmessage, name='sendmessage'),
-              path("",views.api_create_conversationn),
+              path("api_create_converstion/<int:id>/",views.api_create_conversationn),
 
               
                path('login_react/', views.loginn ,name="login_react"),
@@ -54,7 +54,7 @@ urlpatterns = [
                  path("api_intervetion_chefservice/<int:user_id>/",views.api_intervetion_chefservice),
                  path("liste_technicien/<int:id>/",views.liste_technicien),
                  path('liste_intervetion_technicien/<int:id>/',views.api_intervetion_techn),
-                 path('api_create_converstion/<int:id>/',views.api_create_conversationn),
+                
                  path("liste_equipment/",views.api_liste_equipment),
                  path("delete_service/<int:id>/",views.api_delete_service),
                   path('api/intervention/<int:intervention_id>/', views.intervention_detail_api),

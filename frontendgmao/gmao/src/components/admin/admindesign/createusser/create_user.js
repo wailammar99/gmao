@@ -6,6 +6,7 @@ import Navbar from '../home/navbar/navbar';
 import PopupMessage from '../../../message';
 import { Link, NavLink, Navigate, useHref, useNavigate,useLocation } from 'react-router-dom';
 
+
 import UserListPage from '../../userlistepage';
 
 
@@ -86,7 +87,7 @@ const CreateUser = ({ onUserCreated }) => {
       
       else if (response.status===401){
         console.error('need to chose role please ');
-        setmessage("vous devez choisie le role si vous plais ");
+        setmessage("Veuillez choisir un rôle s'il vous plaît ");
         setsucee("warning");
         setShowMessage(true);
        
@@ -97,14 +98,14 @@ const CreateUser = ({ onUserCreated }) => {
       else if (response.status===400)
       {
         console.error('username is ready existe  ');
-        setmessage("username is ready existe  ");
+        setmessage("Le nom d'utilisateur existe déjà ");
         setsucee("warning");
         setShowMessage(true);
       }
       else if (response.status===402)
       {
         console.error('password not macth ');
-        setmessage("password not match  ");
+        setmessage("Les mots de passe ne correspondent pas  ");
         setsucee("warning");
         setShowMessage(true);
 
@@ -112,7 +113,7 @@ const CreateUser = ({ onUserCreated }) => {
       else if (response.status===403)
       {
         console.error('password not macth ');
-        setmessage("email deja existe devez utiliser auttre email  ");
+        setmessage("L\'adresse e-mail existe déjà, veuillez utiliser une autre adresse e-mail ");
         setsucee("warning");
         setShowMessage(true);
 
@@ -138,8 +139,8 @@ const CreateUser = ({ onUserCreated }) => {
          <Sidebar/>
         <div className="listContainer">
          <Navbar/>
-     
-      <h2>Create New User</h2>
+        
+      <h2 className='card-title'>creation du nouveux utlistaeur</h2>
       {showMessage && <PopupMessage message={messagee}color={success} />}
       <form onSubmit={handleCreateUser} method="post">
 
@@ -172,7 +173,7 @@ const CreateUser = ({ onUserCreated }) => {
 
   <input type="radio" className="form-check-input" id="isDirecteur" name="role" checked={isDirecteur} onChange={(e) => setIsDirecteur(true)} />
 
-  <label className="form-check-label" htmlFor="isDirecteur">Is Directeur</label>
+  <label className="form-check-label" htmlFor="isDirecteur"> Directeur</label>
 
 </div>
 
@@ -180,7 +181,7 @@ const CreateUser = ({ onUserCreated }) => {
 
   <input type="radio" className="form-check-input" id="isTechnicien" name="role" checked={isTechnicien} onChange={(e) => setIsTechnicien(true)} />
 
-  <label className="form-check-label" htmlFor="isTechnicien">Is Technicien</label>
+  <label className="form-check-label" htmlFor="isTechnicien"> Technicien</label>
 
 </div>
 
@@ -188,7 +189,7 @@ const CreateUser = ({ onUserCreated }) => {
 
   <input type="radio" className="form-check-input" id="is_citoyen" name="role" checked={is_citoyen} onChange={(e) => setiscitoyen(true)} />
 
-  <label className="form-check-label" htmlFor="is_citoyen">Is Citoyen</label>
+  <label className="form-check-label" htmlFor="is_citoyen"> Citoyen</label>
 
 </div>
 
@@ -196,7 +197,7 @@ const CreateUser = ({ onUserCreated }) => {
 
   <input type="radio" className="form-check-input" id="is_chefservice" name="role" checked={ischefservice} onChange={(e) => setIschefservice(true)} />
 
-  <label className="form-check-label" htmlFor="is_chefservice">Is Chef Service</label>
+  <label className="form-check-label" htmlFor="is_chefservice"> Chef Service</label>
 
 </div>
 
@@ -204,11 +205,11 @@ const CreateUser = ({ onUserCreated }) => {
 
   <input type="radio" className="form-check-input" id="is_admin" name="role" checked={isadmin} onChange={(e) => setIsadmin(true)} />
 
-  <label className="form-check-label" htmlFor="is_admin">Is Admin</label>
+  <label className="form-check-label" htmlFor="is_admin"> Admin</label>
 
 </div>
 
-        <button type="submit" className="btn btn-primary" >Create User</button>
+        <button type="submit" className="btn btn-primary" >Create utlisateur</button>
         </form>
     </div>
     </div>

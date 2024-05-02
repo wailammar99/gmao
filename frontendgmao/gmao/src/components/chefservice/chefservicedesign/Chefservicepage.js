@@ -8,21 +8,26 @@ import { Button, TableCell, TableContainer, Paper, Table, TableHead, TableRow, T
 import InterventionFormTechnician from './InterventionFormTechnician';
 import ConversationForm from '../../citoyen/ConversationForm';
 import PopupMessage from '../../message';
+import Stack from '@mui/material/Stack';
+import Pagination from '@mui/material/Pagination';
 
 
 const Chefservicepage = () => {
   const [interventions, setInterventions] = useState([]);
+  const [interventionId, setInterventionId] = useState(null);
   const [equipments, setEquipments] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState({ message: '', color: 'success' });
   const { id } = useParams();
   const [showModal, setShowModal] = useState(false);
-  const [showModall,setShowModall]=useState(false)
+  const [showModall, setShowModall] = useState(false)
   const [selectedIntervention, setSelectedIntervention] = useState(null);
   const [isNoService, setIsNoService] = useState(false);
+  const [interventionsPerPage] = useState(4);
   const [showModalConversation, setShowModalConversation] = useState(false);
   const [conversationInterventionId, setConversationInterventionId] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchData();
@@ -73,20 +78,20 @@ const Chefservicepage = () => {
       const response = await fetch(`http://127.0.0.1:8000/api_refuse_intervention/${interventionId}/`, {
         method: 'GET',
       });
+      
       if (response.ok) {
-        // Update the state immediately
-        const updatedInterventions = interventions.map(intervention => {
-          if (intervention.id === interventionId) {
-            return { ...intervention, etat: 'Annulé' };
-          }
-          setShowPopup(true);
-        setPopupMessage({ message: 'Intervention EST BIEN  refuse ', color: 'success' });
-          
-          
-          return intervention;
-     
-        });
-        setInterventions(updatedInterventions);
+        // Show the popup message
+        setShowPopup(true);
+        setPopupMessage({ message: 'Intervention est bien refusée', color: 'success' });
+  
+        // Reset the popup message state after 3 seconds (adjust as needed)
+        setTimeout(() => {
+          setShowPopup(false);
+          setPopupMessage({ message: '', color: 'success' });
+        }, 1500);
+  
+        // Fetch updated data after refusing intervention
+        fetchData();
       } else {
         console.error('Failed to refuse intervention');
       }
@@ -94,25 +99,26 @@ const Chefservicepage = () => {
       console.error('Error refusing intervention:', error);
     }
   };
+  
+
   const hadllecloture = async (interventionId) => {
     try {
       const response = await fetch(`http://127.0.0.1:8000/api_cloture_inetrvetion/${interventionId}/`, {
         method: 'PUT',
       });
       if (response.ok) {
-        // Update the state immediately
-        const updatedInterventions = interventions.map(intervention => {
-          if (intervention.id === interventionId) {
-            return { ...intervention, etat: 'Cloture' };
-          }
-          setShowPopup(true);
-        setPopupMessage({ message: 'Intervention est bien  cloture ', color: 'success' });
-          
-          
-          return intervention;
-     
-        });
-        setInterventions(updatedInterventions);
+        setShowPopup(true);
+        setPopupMessage({ message: 'Intervention est bien cloture', color: 'success' });
+  
+        // Reset the popup message state after 3 seconds (adjust as needed)
+        setTimeout(() => {
+          setShowPopup(false);
+          setPopupMessage({ message: '', color: 'success' });
+        }, 1500);
+  
+        // Fetch updated data after refusing intervention
+        fetchData();
+        
       } else {
         console.error('Failed to refuse intervention');
       }
@@ -134,17 +140,11 @@ const Chefservicepage = () => {
     console.log('Form submitted:', formData);
   };
 
-  const handleStartConversation = (interventionId) => {
+  const handleStartConversation = async (interventionId) => {
     setConversationInterventionId(interventionId);
     setShowModalConversation(true);
-    // Update the state immediately
-    const updatedInterventions = interventions.map(intervention => {
-      if (intervention.id === interventionId) {
-        return { ...intervention, etat: 'Conversation Started' };
-      }
-      return intervention;
-    });
-    setInterventions(updatedInterventions);
+ 
+    
     // Close the assignment modal if it's open
     setShowModal(false);
   };
@@ -156,27 +156,31 @@ const Chefservicepage = () => {
     setShowModalConversation(false);
   };
 
-
   const handleCloseModal = () => {
     setShowModal(false);
   };
+
   const handleOpenModall = (intervention) => {
     setSelectedIntervention(intervention);
     setShowModall(true);
     // Close the conversation modal if it's open
     setShowModalConversation(false);
   };
+
   const handleCloseModall = () => {
     setShowModall(false);
   };
+
   const filterInterventionsByStatus = (status) => {
     setSelectedStatus(status);
   };
+
   const handleSearch = (query) => {
     // Implement your search functionality here
     console.log('Searching for:', query);
     // You can perform any search-related actions here
   };
+
   const updateInterventionStatus = (interventionId, status) => {
     setInterventions(interventions.map(intervention => {
       if (intervention.id === interventionId) {
@@ -185,7 +189,16 @@ const Chefservicepage = () => {
       return intervention;
     }));
   };
-  const filteredInterventions = interventions.filter(intervention => intervention.etat === selectedStatus);
+
+  const filteredInterventions = interventions.filter(intervention => !selectedStatus || intervention.etat === selectedStatus);
+  const indexOfLastIntervention = currentPage * interventionsPerPage;
+  const indexOfFirstIntervention = indexOfLastIntervention - interventionsPerPage;
+  const currentInterventions = filteredInterventions.slice(indexOfFirstIntervention, indexOfLastIntervention);
+
+  const paginate = (event, value) => {
+    setCurrentPage(value);
+  };
+
   return (
     <div className="list">
       <Sidebar />
@@ -193,9 +206,13 @@ const Chefservicepage = () => {
         <Navbar />
         <h1>Interventions</h1>
         <Button onClick={() => filterInterventionsByStatus('En cours')}>en cour </Button>
-          <Button onClick={() => filterInterventionsByStatus('En attente')}>En attente</Button>
-          <Button onClick={() => filterInterventionsByStatus('Terminé')}>Terminé</Button>
-          <Button onClick={() => filterInterventionsByStatus('Assigné')}>Assigné</Button>
+        <Button onClick={() => filterInterventionsByStatus('En attente')}>En attente</Button>
+        <Button onClick={() => filterInterventionsByStatus('Terminé')}>Terminé</Button>
+        <Button onClick={() => filterInterventionsByStatus('Assigné')}>Assigné</Button>
+        <Button onClick={() => filterInterventionsByStatus('Nouveau')}>Nouveau</Button>
+        <Button onClick={() => filterInterventionsByStatus('Clôture')}>Clôture</Button>
+
+        <Button onClick={() => filterInterventionsByStatus('')}>Tous</Button> {/* Add this button */}
         {showPopup && <PopupMessage message={popupMessage.message} color={popupMessage.color} />}
         {showModal && selectedIntervention && (
           <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
@@ -209,9 +226,9 @@ const Chefservicepage = () => {
                 </div>
                 <div className="modal-body">
                   {isNoService ? (
-                    <InterventionForm interventionId={selectedIntervention.id} onSubmit={handleFormSubmit} />
+                    <InterventionForm interventionId={selectedIntervention.id} onSubmit={handleFormSubmit} onClose={() => setShowModal(false)} />
                   ) : (
-                    <InterventionFormTechnician interventionId={selectedIntervention.id} onSubmit={handleFormSubmit} />
+                    <InterventionFormTechnician interventionId={selectedIntervention.id} onSubmit={handleFormSubmit} onClose={() => setShowModal(false)} />
                   )}
                 </div>
               </div>
@@ -240,35 +257,51 @@ const Chefservicepage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {interventions
-                .filter(intervention => !selectedStatus || intervention.etat === selectedStatus)
-                .map(intervention => (
-                  <TableRow key={intervention.id}>
-                    <TableCell>{intervention.date_creation}</TableCell>
-                    <TableCell>{intervention.date_debut}</TableCell>
-                    <TableCell>{intervention.date_fin}</TableCell>
-                    <TableCell>{intervention.etat}</TableCell>
-                    <TableCell>
-                      {intervention.conversation && intervention.conversation.id ? (
-                        <Link to={`/conversation/${intervention.conversation.id}/citoyen/${localStorage.getItem('userId')}`}>
-                          {intervention.conversation.title}
-                        </Link>
-                      ) : (
-                        <Button variant="contained" color="primary" onClick={() => handleStartConversation(intervention.id)}>Start Conversation</Button>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                <td><button type="button" className="btn btn-outline-warning" onClick={() => toggleModal(intervention)}>Assign </button></td>
-                <td><button className="btn btn-danger" onClick={() => handleRefuseIntervention(intervention.id)}>Refuse </button></td>
-                <td><button className="btn btn-success" onClick={() => hadllecloture(intervention.id)}>Cloture</button></td>
+              {currentInterventions.map(intervention => (
+                <TableRow key={intervention.id}>
+                  <TableCell>{intervention.date_creation}</TableCell>
+                  <TableCell>{intervention.date_debut}</TableCell>
+                  <TableCell>{intervention.date_fin}</TableCell>
+                  <TableCell>{intervention.etat}</TableCell>
 
-                <td><button className="btn btn-info" onClick={() => handleOpenModall(intervention)}> plus</button></td>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                  <TableCell>
+                    {intervention.conversation && intervention.conversation.id ? (
+                      <Link to={`/conversation/${intervention.conversation.id}/citoyen/${localStorage.getItem('userId')}`}>
+                        {intervention.conversation.title}
+                      </Link>
+                    ) : (
+                      <Button  variant="outlined" onClick={() => handleStartConversation(intervention.id)}>Start Conversation</Button>
+      
+                    )}
+                  </TableCell>
+                  {showModalConversation && (
+          <ConversationForm
+            show={showModalConversation}
+            onClose={() => setShowModalConversation(false)}
+            interventionId={conversationInterventionId}
+          />
+        )}
+                  <TableCell>
+          
+                    <div style={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
+                      <button type="button" className="btn btn-outline-warning" onClick={() => toggleModal(intervention)}>Assign</button>
+                      <button className="btn btn-danger" onClick={() => handleRefuseIntervention(intervention.id)}>Refuse</button>
+                      <button className="btn btn-success" onClick={() => hadllecloture(intervention.id)}>Cloture</button>
+                    </div>
+                    <td><button className="btn btn-info" onClick={() => handleOpenModall(intervention)}> plus</button></td>
+               
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
+        <Pagination
+          count={Math.ceil(filteredInterventions.length / interventionsPerPage)}
+          page={currentPage}
+          onChange={paginate}
+        />
+
         <Dialog open={showModall} onClose={handleCloseModall}>
           <DialogTitle>Details de l'intervention</DialogTitle>
           <DialogContent>
@@ -276,12 +309,12 @@ const Chefservicepage = () => {
               <div>
                 <p>Description : {selectedIntervention.description}</p>
                 <p>Date de création : {selectedIntervention.date_creation}</p>
-                <p>Date de début : {selectedIntervention.date_debut}</p>
-                <p>Date de fin : {selectedIntervention.date_fin}</p>
+                <p>Date de début : {selectedIntervention.date_debut ? selectedIntervention.date_debut :"ya pas de date "}</p>
+                <p>Date de fin : {selectedIntervention.date_fin ? selectedIntervention.date_fin :"ya pas de date "}</p>
                 <p>État : {selectedIntervention.etat}</p>
-                <p>Citoyen : {selectedIntervention.citoyen?.email ? selectedIntervention.citoyen.email : "null"}</p>
+                <p>Citoyen : {selectedIntervention.citoyen?.email ? selectedIntervention.citoyen.email : "intervetion preventive"}</p>
                 <p>Service : {selectedIntervention.service.nom ? selectedIntervention.service.nom : "NULL"}</p>
-                <p>tehcnicne id  : {selectedIntervention.technicien ? selectedIntervention.technicien : "NULL"}</p>
+                <p>tehcnicne id  : {selectedIntervention.technicien ? selectedIntervention.technicien : "le intervetion est pas assigne au tecnicien"}</p>
                 <p>Équipements :
                   <ul>
                     {selectedIntervention.equipements && selectedIntervention.equipements.map((equipementId) => {

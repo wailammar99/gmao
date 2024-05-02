@@ -109,7 +109,7 @@ const ConversationMessages = () => {
     <div>
       <div className="container">
         <h2 className="mt-5">Conversation Messages</h2>
-        {authorized && (
+        {authorized ? (
           <Card variant="outlined" className="p-2 h-96 overflow-auto">
             <List>
               {messages.map((message, index) => (
@@ -125,6 +125,8 @@ const ConversationMessages = () => {
             </List>
             <div ref={messagesEndRef} />
           </Card>
+        ) : (
+          <p>You are not authorized to access this conversation.</p>
         )}
         {authorized && (
           <form onSubmit={handleMessageSubmit} className="mt-3">

@@ -16,7 +16,7 @@ function ListService() {
   const [services, setServices] = useState([]);
   const [message, setMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [servicesPerPage] = useState(5);
+  const [servicesPerPage] = useState(6);
   const [showForm, setShowForm] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
 
@@ -145,13 +145,13 @@ function ListService() {
           </TableContainer>
           <ul className='pagination'>
             {servicesPerPage >= services.length ? null : (
-              <button onClick={() => paginate(currentPage - 1)} className='btn btn-secondary'>Prev</button>
+              <button onClick={() => paginate(currentPage - 1)} className='btn '>Précédent</button>
             )}
             {currentServices.map((service, index) => (
-              <button key={index} onClick={() => paginate(index + 1)} className={`btn ${currentPage === index + 1 ? 'btn-primary' : 'btn-secondary'}`}>{index + 1}</button>
+              <button key={index} onClick={() => paginate(index + 1)} className={`btn ${currentPage === index + 1 ? 'btn-primary' : 'btn'}`}>{index + 1}</button>
             ))}
             {servicesPerPage >= services.length ? null : (
-              <button onClick={() => paginate(currentPage + 1)} className='btn btn-secondary'>Next</button>
+              <button onClick={() => paginate(currentPage + 1)} className='btn '>Suivant</button>
             )}
           </ul>
         </div>

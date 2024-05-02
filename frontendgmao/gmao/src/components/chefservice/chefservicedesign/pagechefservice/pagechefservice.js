@@ -16,10 +16,14 @@ const Chefservice = () => {
         <Navbar />
         <div className="widgets">
           {/* Original Widget components */}
+          <Widget type="Annulé" />
           <Widget type="encour" />
           <Widget type="termine" />
           <Widget type="enattend" />
           <Widget type="Assigné" />
+          <Widget type="Clôture" />
+          <Widget type="Nouveau" />
+
           
         </div>
        

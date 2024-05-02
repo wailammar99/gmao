@@ -54,6 +54,9 @@ const Widget = ({ type }) => {
   const countCompleted = getCountByStatus("Terminé");
   const countenatte=getCountByStatus("En attente");
   const countassigne=getCountByStatus("Assigné");
+  const countcluture=getCountByStatus("Clôture");
+  const counteAnnulie=getCountByStatus("Annulé");
+  const countnouveux=getCountByStatus("Nouveau");
 
   let title;
   let count;
@@ -69,35 +72,39 @@ const Widget = ({ type }) => {
       count = countCompleted;
       break;
     case "enattend":
-      title = "enattend";
+      title = "Interventions enattend";
       count = countenatte;
       break;
       case "Assigné":
-      title = "Assigné";
+      title = "Interventions Assigné";
       count = countassigne;
       break;
+      case "Clôture":
+      title = "Interventions Clôture";
+      count = countcluture;
+      break;
+      case "Annulé":
+        title = "Interventions Annulé";
+        count = counteAnnulie;
+        break;
+        case "Nouveau":
+          title = "Interventions Nouveau";
+          count = countnouveux;
+          break;
+    
   }
 
   return (
     <div className="widget">
       <div className="left">
         <span className="title">{title}</span>
-        <span className="counter">{count}</span>
+       
         <span className="link">See all interventions</span>
       </div>
       <div className="right">
         <h1>{count}</h1>
-        <div className="percentage positive">
-          <KeyboardArrowUpIcon />
-          20 %
-        </div>
-        <PersonOutlinedIcon
-          className="icon"
-          style={{
-            color: "crimson",
-            backgroundColor: "rgba(255, 0, 0, 0.2)",
-          }}
-        />
+      
+       
       </div>
     </div>
   );

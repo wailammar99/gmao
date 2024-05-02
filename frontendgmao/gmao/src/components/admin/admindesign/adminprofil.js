@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
 
 import PopupMessage from '../../message';
@@ -20,7 +20,7 @@ const Adminprofil = () => {
   const [old_password, setOldpassword] = useState('');
   const [password1, setPassword1] = useState('');
   const [password2, setPassword2] = useState('');
-  const[color,setcolor]=useState('');
+  const [color,setcolor]=useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -105,10 +105,16 @@ const Adminprofil = () => {
         }),
       });
       if (response.ok) {
-        setSuccessMessage('User information updated successfully.');
+        setSuccessMessage('les infomation est bien modifie avec succes.');
         setIsDialogOpen(false);
         setcolor("success");
         fetchData();
+        setTimeout(() => {
+          setSuccessMessage('');
+        }, 5000);
+        setTimeout(() => {
+          navigate('/adminprofil');
+        }, 2000);
       } else {
         throw new Error('Failed to update user');
       }
@@ -135,28 +141,26 @@ const Adminprofil = () => {
         }),
       });
       if (response.ok) {
-        setSuccessMessage('Le mot passe est bien modifié.');
-        setShowPasswordForm(0);
+        setSuccessMessage('Le mot de passe a été modifié avec succès.');
         setcolor("success");
         fetchData();
-      } else if (response.state===400){
-        setSuccessMessage("le ancien mot passe est pas correct")
-        setShowPasswordForm(0);
+      } else if (response.status === 400) {
+        setSuccessMessage("L'ancien mot de passe n'est pas correct.");
         setcolor("warning");
-        fetchData();
-      }
-      else if (response===401)
-      {
-        setSuccessMessage("le mot passe 1 et mot passe 2  pas les meme ");
-        setShowPasswordForm(0);
+      } else if (response.status === 401) {
+        setSuccessMessage("Les nouveaux mots de passe ne correspondent pas.");
         setcolor("warning");
-        fetchData();
       }
     } catch (error) {
       console.error('Error updating password:', error);
       setError(error.message);
     }
+    // Reset success message after 5000 milliseconds
+    setTimeout(() => {
+      setSuccessMessage('');
+    }, 5000);
   };
+  
 
   if (loading) {
     return <div>Loading...</div>;

@@ -30,7 +30,12 @@ const ConversationForm = ({ interventionId, onClose ,onSuccess }) => {
         console.log(data.message);
         setShowPopup(true);
         setPopupMessage({ message: 'conversation est bien cree ', color: 'success' });
-        onSuccess(); // Call the onSuccess callback
+        setTimeout(() => {
+         onClose();
+        }, 1000); // 1000 milliseconds = 1 second
+    
+        
+        // Call the onSuccess callback
         
          // Log success message
        // Close the form after successful submission

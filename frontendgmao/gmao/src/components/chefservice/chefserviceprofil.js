@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
 
 import PopupMessage from '../message';
-import Navbar from './chefservicedesign/navbar/navbar';
 import Sidebar from './chefservicedesign/sidebar/sidebar';
+import Navbar from './chefservicedesign/navbar/navbar';
 
 const Chefserviceprofil = () => {
   const [userData, setUserData] = useState(null);
@@ -20,6 +20,8 @@ const Chefserviceprofil = () => {
   const [old_password, setOldpassword] = useState('');
   const [password1, setPassword1] = useState('');
   const [password2, setPassword2] = useState('');
+  const[service,setservice]=useState('');
+  const [color,setcolor]=useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,6 +50,7 @@ const Chefserviceprofil = () => {
         setEmail(data.user_info.email);
         setFirstname(data.user_info.first_name);
         setLastname(data.user_info.last_name);
+        setservice(data.user.service.nom);
       } else {
         console.error('Failed to fetch user data');
       }
@@ -85,6 +88,9 @@ const Chefserviceprofil = () => {
   const handlePassword2Change = (e) => {
     setPassword2(e.target.value);
   };
+  const handleserviceChange = (e) => {
+    setservice(e.target.value);
+  };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -104,9 +110,16 @@ const Chefserviceprofil = () => {
         }),
       });
       if (response.ok) {
-        setSuccessMessage('User information updated successfully.');
+        setSuccessMessage('les infomation est bien modifie avec succes.');
         setIsDialogOpen(false);
+        setcolor("success");
         fetchData();
+        setTimeout(() => {
+          setSuccessMessage('');
+        }, 5000);
+        setTimeout(() => {
+          navigate('/chefservice/profil');
+        }, 2000);
       } else {
         throw new Error('Failed to update user');
       }
@@ -133,17 +146,26 @@ const Chefserviceprofil = () => {
         }),
       });
       if (response.ok) {
-        setSuccessMessage('Password updated successfully.');
-        setShowPasswordForm(false);
+        setSuccessMessage('Le mot de passe a été modifié avec succès.');
+        setcolor("success");
         fetchData();
-      } else {
-        throw new Error('Failed to update password');
+      } else if (response.status === 400) {
+        setSuccessMessage("L'ancien mot de passe n'est pas correct.");
+        setcolor("warning");
+      } else if (response.status === 401) {
+        setSuccessMessage("Les nouveaux mots de passe ne correspondent pas.");
+        setcolor("warning");
       }
     } catch (error) {
       console.error('Error updating password:', error);
       setError(error.message);
     }
+    // Reset success message after 5000 milliseconds
+    setTimeout(() => {
+      setSuccessMessage('');
+    }, 5000);
   };
+  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -173,7 +195,7 @@ const Chefserviceprofil = () => {
           <Navbar />
           <section style={{ backgroundColor: '#fff' }}>
             <div className="container py-5">
-              {successMessage && <PopupMessage message={successMessage} color="success" />}
+              {successMessage && <PopupMessage message={successMessage} color={color} />}
               <div className="row">
                 <div className="col-lg-4">
                   <div className="card mb-4">
@@ -223,6 +245,19 @@ const Chefserviceprofil = () => {
                         <div className="col-sm-9">
                           <p className="text-muted mb-0">{userData ? userData.last_name : 'Loading...'}</p>
                         </div>
+                        
+                      
+                      </div>
+                      <hr/>
+                      <div className="row">
+                        <div className="col-sm-3">
+                          <p className="mb-0">service</p>
+                        </div>
+                        <div className="col-sm-9">
+                          <p className="text-muted mb-0">{userData ? userData.service.nom : 'Loading...'}</p>
+                        </div>
+                        
+                      
                       </div>
                     </div>
                   </div>

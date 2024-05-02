@@ -45,7 +45,7 @@ const Sidebar = () => {
   return (
     <div className="sidebar">
       <div className="top">
-        <Link to="/" style={{ textDecoration: "none" }}>
+        <Link to="/directeur_dashboard" style={{ textDecoration: "none" }}>
           <span className="logo">Directeur</span>
         </Link>
       </div>
@@ -105,10 +105,7 @@ const Sidebar = () => {
           </Link>
            
           
-          <li>
-            <SettingsApplicationsIcon className="icon" />
-            <span>Settings</span>
-          </li>
+        
 
           <p className="title">USER</p>
           <Link to={"/profildirecteur"} style={{ textDecoration: "none" }} >

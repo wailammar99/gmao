@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'; // Import useState and useEffect
+import PopupMessage from '../../message';
+import { Navigate, useNavigate } from 'react-router-dom';
+import Chefservice from './pagechefservice/pagechefservice';
 
-
-const InterventionFormTechnician = ({ interventionId, onSubmit }) => {
+const InterventionFormTechnician = ({ interventionId, onSubmit,onClose }) => {
   const [formData, setFormData] = useState({
     selectedOption: '',
     selectedEquipment: [], // State for selected equipment as an array
@@ -15,6 +17,9 @@ const InterventionFormTechnician = ({ interventionId, onSubmit }) => {
   console.log('Intervention ID:', interventionId);
  
   const [showMessage, setShowMessage] = useState(false);
+  const[message,setmessage]=useState('');
+  const[color,setcolor]=useState('');
+  const navigate=useNavigate();
 
   useEffect(() => {
     fetchDropdownOptions();
@@ -64,6 +69,9 @@ const InterventionFormTechnician = ({ interventionId, onSubmit }) => {
   
       if (response.ok) {
         setShowMessage(true);
+        setmessage("l intervetion est bien assigne au techncien");
+        setcolor("success");
+        
         setFormData({
           selectedOption: '',
           selectedEquipment: [],
@@ -71,8 +79,16 @@ const InterventionFormTechnician = ({ interventionId, onSubmit }) => {
           
         });
         onSubmit(formData);
-      } else {
-        console.error('Failed to assign service or technician');
+        setTimeout(() => {
+          onClose();
+        }, 2000); // Dela
+     
+      } else if (response.status===401) {
+        console.error('La date de début est postérieure à la date de fin');
+      }
+      else if (response.status==403)
+      {
+
       }
     } catch (error) {
       console.error('Error assigning service or technician:', error);
@@ -94,6 +110,7 @@ const InterventionFormTechnician = ({ interventionId, onSubmit }) => {
       <div className="intervention-form">
         <h2>Assign Service and Equipment</h2>
         <form onSubmit={handleSubmit}>
+        {showMessage && <PopupMessage message={message}color={color} />}
 
           <div className="mb-3">
           <div className="mb-3">
@@ -125,12 +142,8 @@ const InterventionFormTechnician = ({ interventionId, onSubmit }) => {
             </select>
           </div>
           
-          <div className="mb-3">
-            <label htmlFor="inputField" className="form-label">Additional Input:</label>
-            <input type="text" name="inputField" id="inputField" className="form-control" value={formData.inputField} onChange={handleChange} />
-          </div>
           
-          <button type="submit" className="btn btn-primary">Assign Service and Equipment</button>
+          <button type="submit" className="btn btn-primary">Assigné Service et Equipment </button>
         </form>
       </div>
     </>

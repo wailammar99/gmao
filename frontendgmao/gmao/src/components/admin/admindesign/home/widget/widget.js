@@ -80,7 +80,7 @@ const Widget = ({ type, userData }) => {
     <div className="widget">
       <div className="left">
       <span className={`title ${title.toLowerCase()}`}>{title}</span>
-        <span className="counter">{count}</span>
+       
         <Link to="/UserListPage" style={{ textDecoration: "none" , color: "black" }} >
           <span className="link">Voir tous les service</span> 
         </Link>

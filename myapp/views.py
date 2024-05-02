@@ -768,13 +768,19 @@ def assign_service_or_technician(request, id):
                 service_instance = service.objects.get(id=new_service_id)
                 intervention.service = service_instance
                 intervention.etat = "Nouveau"
+                message = f"Nouvelle intervention est assigne - citoyen email: {intervention.citoyen.email},"
+                chefservice=CustomUser.objects.get(service=service_instance,is_chefservice=True)
+
+                Notification.objects.create(recipient=chefservice,message=message,is_read=False)
+                
             else:
+                if start_date > end_date :
+                    return JsonResponse({"eroor","La date de début est postérieure à la date de fin "},status=401)
                 technicien=CustomUser.objects.get(id=new_service_id)
                 
-                Convers=converstation.objects.get(id=intervention.conversation.id)
+                
                 intervention.technicien = new_service_id
-                Convers.add_participant(technicien)
-                Convers.save()
+             
 
                
                 
@@ -782,11 +788,13 @@ def assign_service_or_technician(request, id):
                 intervention.raison=None
                 intervention.date_debut=start_date
                 intervention.date_fin=end_date
+                message = "Nouvelle intervention vous a été assignée."
+                Notification.objects.create(recipient=technicien, message=message, is_read=False)
                
                     
 
                  
-                  # Assuming you have the intervention object available
+                  
                
                
             
@@ -797,18 +805,22 @@ def assign_service_or_technician(request, id):
                     intervention.equipements.add(equipment_instance)
             
             intervention.save()
+
+            
             message = "New intervention has been assigned to you"
            
-            Notification.objects.create(recipient=citoyen,message="intervetion est bien assigne  ",is_read=False)
+           
+            Notification.objects.create(recipient=citoyen,message="intervetion est bien assigne a technicine  ",is_read=False)
+            
             return JsonResponse({"message": "Le service/technicien et les équipements sont bien assignés à l'intervention."}, status=200)
         except interven.DoesNotExist:
-            return JsonResponse({"error": "Intervention with the provided ID does not exist."}, status=400)
+            return JsonResponse({"error": "Intervention with the provided ID does not exist."}, status=402,safe=False)
         except service.DoesNotExist:
-            return JsonResponse({"error": "Service with the provided ID does not exist."}, status=400)
+            return JsonResponse({"error": "Service with the provided ID does not exist."}, status=403,safe=False)
         except Equipement.DoesNotExist:
-            return JsonResponse({"error": "Equipment with the provided ID does not exist."}, status=400)
+            return JsonResponse({"error": "Equipment with the provided ID does not exist."}, status=404,safe=False)
         except Exception as e:
-            return JsonResponse({"error": f"Failed to assign service/technician/equipment: {str(e)}"}, status=400)
+            return JsonResponse({"error": f"Failed to assign service/technician/equipment: {str(e)}"}, status=500,safe=False)
     else:
         return JsonResponse({"error": "Méthode non autorisée."}, status=405)
 
@@ -864,6 +876,9 @@ def api_mofifie_profil(request, id):
 def api_create_intervention(request,id):
     if request.method == 'POST':
         try:
+            noservice = service.objects.get(nom="noservice")
+            chefnoservice = CustomUser.objects.filter(service=noservice, is_chefservice=True)
+            
             data = json.loads(request.body)
             description = data.get('description')
             date_debut = data.get('date_debut')
@@ -886,8 +901,12 @@ def api_create_intervention(request,id):
                 service=noservice,
                 date_creation=datetime.now()
             )
+            message = f"Nouvelle intervention créée - citoyen email: {user.email},"
+            for user in chefnoservice:
+                Notification.objects.create(recipient=user, message=message, is_read=False)
 
             return JsonResponse({'message': 'Intervention created successfully', 'id': intervention.id}, status=200)
+           
         except Exception as e:
             return JsonResponse({'error': 'Failed to create intervention: {}'.format(str(e))}, status=400)
     else:
@@ -1002,6 +1021,7 @@ def api_create_conversationn(request, id):
         try:
             intervention_cible = interven.objects.get(id=id)
             user=CustomUser.objects.get(service=intervention_cible.service,is_chefservice=True)
+            technicien=CustomUser.objects
             data = json.loads(request.body)
             titre = data.get('title')
             
@@ -1009,14 +1029,17 @@ def api_create_conversationn(request, id):
             conversation = converstation.objects.create(title=titre)
             conversation.add_participant(intervention_cible.citoyen)
             conversation.add_participant(user)
-            # Assign the conversation to the intervention
+            if intervention_cible.technicien :
+                technicien=CustomUser.objects.get(id=intervention_cible.technicien)
+                conversation.add_participant(technicien)
+           
             intervention_cible.conversation = conversation
             intervention_cible.save()
             
             # Response message
-            response_data = {'message': "Conversation bien créée"}
+         
             
-            return JsonResponse(response_data)
+            return JsonResponse({"message":"Conversation bien créée "},status=200)
         except interven.DoesNotExist:
             return JsonResponse({"error": "L'intervention n'existe pas"}, status=404)
         except Exception as e:

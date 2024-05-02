@@ -8,9 +8,13 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import { Pagination } from '@mui/material';
+
 
 const Listtechnicien = () => {
   const [technicienData, setTechnicienData] = useState([]);
+  const [interventionsPerPage] = useState(4);
+  const [currentPage, setCurrentPage] = useState(1);
   
   useEffect(() => {
     fetchData();
@@ -45,6 +49,14 @@ const Listtechnicien = () => {
     }
   };
 
+  const paginate = (event, value) => {
+    setCurrentPage(value);
+  };
+
+  const indexOfLastIntervention = currentPage * interventionsPerPage;
+  const indexOfFirstIntervention = indexOfLastIntervention - interventionsPerPage;
+  const currentInterventions = technicienData.slice(indexOfFirstIntervention, indexOfLastIntervention);
+
   return (
     <div className="list">
       <Sidebar />
@@ -53,7 +65,7 @@ const Listtechnicien = () => {
         <div className="top">
           <h1>Les Techniciens</h1>
         </div>
-        <div className="botom">
+        <div className="bottom">
           <div>
             <TableContainer component={Paper} className="table">
               <TableHead>
@@ -69,7 +81,7 @@ const Listtechnicien = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {technicienData.map((user) => (
+                {currentInterventions.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell className="tableCell">{user.id}</TableCell>
                     <TableCell className="tableCell">{user.username}</TableCell>
@@ -85,6 +97,11 @@ const Listtechnicien = () => {
                 ))}
               </TableBody>
             </TableContainer>
+            <Pagination
+              count={Math.ceil(technicienData.length / interventionsPerPage)}
+              page={currentPage}
+              onChange={paginate}
+            />
           </div>
         </div>
       </div>

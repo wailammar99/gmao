@@ -3,16 +3,19 @@ import { Button, TableCell, TableContainer, Paper, Table, TableHead, TableRow, T
 import Navbar from './directeurdesi/Navbar/navbardic';
 import Sidebar from './directeurdesi/Sidebar/Sidebardic';
 import PopupMessage from '../message';
+import { Pagination } from '@mui/material';
 
 const Notificationdirecteur = () => {
   const [notifications, setNotifications] = useState([]);
-  const [showPopup, setShowPopup] = useState(false); // State to control showing/hiding the popup
-  const [popupMessage, setPopupMessage] = useState(''); // State to hold the popup message
-  const [popupColor, setPopupColor] = useState(''); // State to hold the popup color
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(5);
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
+  const [popupColor, setPopupColor] = useState('');
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [currentPage]); // Fetch notifications whenever currentPage changes
 
   const fetchNotifications = async () => {
     try {
@@ -37,25 +40,32 @@ const Notificationdirecteur = () => {
         method: 'DELETE'
       });
       if (response.ok) {
-        // Show success message
-        setPopupMessage('Notification successfully deleted');
+        setPopupMessage('Notification supprimée avec succès');
+
         setPopupColor('success');
         setShowPopup(true);
-        // Fetch notifications again to update the list
-        fetchNotifications();
+        fetchNotifications(); // Refetch notifications after deletion
       } else {
-        // Show error message
         setPopupMessage('Failed to delete notification');
         setPopupColor('error');
         setShowPopup(true);
       }
     } catch (error) {
       console.error('Error deleting notification:', error);
-      // Show error message
       setPopupMessage('Error deleting notification');
       setPopupColor('error');
       setShowPopup(true);
     }
+  };
+
+  // Pagination logic
+  const indexOfLastNotification = currentPage * usersPerPage;
+  const indexOfFirstNotification = indexOfLastNotification - usersPerPage;
+  const currentNotifications = notifications.slice(indexOfFirstNotification, indexOfLastNotification);
+
+  // Change page
+  const paginate = (event, pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
   return (
@@ -64,7 +74,6 @@ const Notificationdirecteur = () => {
       <div className="listContainer">
         <Navbar />
         <h1>Notifications</h1>
-        {/* Render PopupMessage if showPopup is true */}
         {showPopup && <PopupMessage message={popupMessage} color={popupColor} />}
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -76,7 +85,7 @@ const Notificationdirecteur = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {notifications.map(notification => (
+              {currentNotifications.map(notification => (
                 <TableRow key={notification.id}>
                   <TableCell>{notification.id}</TableCell>
                   <TableCell>{notification.message}</TableCell>
@@ -88,6 +97,7 @@ const Notificationdirecteur = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <Pagination count={Math.ceil(notifications.length / usersPerPage)} page={currentPage} onChange={paginate} />
       </div>
     </div>
   );

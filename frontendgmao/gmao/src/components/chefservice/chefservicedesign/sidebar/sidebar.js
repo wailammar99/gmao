@@ -46,9 +46,9 @@ const Sidebar = () => {
   return (
     <div className="sidebar">
       <div className="top">
-        <Link to="/" style={{ textDecoration: "none" }}>
+        
           <span className="logo">Chef Service</span>
-        </Link>
+       
       </div>
       <hr />
       <div className="center">
@@ -97,10 +97,7 @@ const Sidebar = () => {
           
        
            
-          <li>
-            <SettingsApplicationsIcon className="icon" />
-            <span>Settings</span>
-          </li>
+     
           <p className="title">USER</p>
           <Link to={"/chefservice/profil"} style={{ textDecoration: "none" }}>
           <li>

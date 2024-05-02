@@ -3,16 +3,20 @@ import { Button, TableCell, TableContainer, Paper, Table, TableHead, TableRow, T
 import Navbar from './chefservicedesign/navbar/navbar';
 import Sidebar from './chefservicedesign/sidebar/sidebar';
 import PopupMessage from '../message';
+import Pagination from '@mui/material/Pagination';
 
 const NotificationPagechefservice = () => {
   const [notifications, setNotifications] = useState([]);
   const [showPopup, setShowPopup] = useState(false); // State to control showing/hiding the popup
   const [popupMessage, setPopupMessage] = useState(''); // State to hold the popup message
   const [popupColor, setPopupColor] = useState(''); // State to hold the popup color
+  const [currentPage, setCurrentPage] = useState(1);
+  const [notificationsPerPage] = useState(5); // Set number of notifications per page
+  const [selectedStatus, setSelectedStatus] = useState(null); // State to hold the selected status filter
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, []); // Fetch notifications when the component mounts
 
   const fetchNotifications = async () => {
     try {
@@ -37,10 +41,15 @@ const NotificationPagechefservice = () => {
         method: 'DELETE'
       });
       if (response.ok) {
-        // Show success message
-        setPopupMessage('Notification successfully deleted');
+        setPopupMessage('Notification est bien supprimé');
         setPopupColor('success');
         setShowPopup(true);
+
+        // Automatically hide the popup after 3 seconds
+        setTimeout(() => {
+          setShowPopup(false);
+        }, 1500);
+       
         // Fetch notifications again to update the list
         fetchNotifications();
       } else {
@@ -57,6 +66,20 @@ const NotificationPagechefservice = () => {
       setShowPopup(true);
     }
   };
+
+  const paginate = (event, value) => {
+    setCurrentPage(value);
+  };
+
+  // Calculate the index of the first and last notification for the current page
+  const indexOfLastNotification = currentPage * notificationsPerPage;
+  const indexOfFirstNotification = indexOfLastNotification - notificationsPerPage;
+
+  // Filter notifications based on the selected status
+  const filteredNotifications = selectedStatus ? notifications.filter(notification => notification.status === selectedStatus) : notifications;
+
+  // Get the notifications for the current page
+  const currentNotifications = filteredNotifications.slice(indexOfFirstNotification, indexOfLastNotification);
 
   return (
     <div className="list">
@@ -76,7 +99,7 @@ const NotificationPagechefservice = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {notifications.map(notification => (
+              {currentNotifications.map(notification => (
                 <TableRow key={notification.id}>
                   <TableCell>{notification.id}</TableCell>
                   <TableCell>{notification.message}</TableCell>
@@ -88,6 +111,11 @@ const NotificationPagechefservice = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <Pagination
+          count={Math.ceil(filteredNotifications.length / notificationsPerPage)} // Calculate the total number of pages based on the filtered notifications
+          page={currentPage}
+          onChange={paginate}
+        />
       </div>
     </div>
   );

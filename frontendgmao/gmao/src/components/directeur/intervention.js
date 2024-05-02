@@ -10,12 +10,15 @@ import Paper from "@mui/material/Paper";
 import Sidebar from './directeurdesi/Sidebar/Sidebardic';
 import Navbar from './directeurdesi/Navbar/navbardic';
 import { Link } from 'react-router-dom';
+import Pagination from '@mui/material/Pagination';
 
 const Intervention = () => {
   const [interventionData, setInterventionData] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedIntervention, setSelectedIntervention] = useState(null);
   const [filterByState, setFilterByState] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [interventionsPerPage] = useState(5);
 
   useEffect(() => {
     fetchData();
@@ -53,6 +56,15 @@ const Intervention = () => {
     ? interventionData.filter(intervention => intervention.etat === filterByState)
     : interventionData;
 
+  // Pagination logic
+  const indexOfLastIntervention = currentPage * interventionsPerPage;
+  const indexOfFirstIntervention = indexOfLastIntervention - interventionsPerPage;
+  const currentInterventions = filteredInterventions.slice(indexOfFirstIntervention, indexOfLastIntervention);
+
+  const paginate = (event, value) => {
+    setCurrentPage(value);
+  };
+
   return (
     <div className="list">
       <Sidebar/>
@@ -76,17 +88,16 @@ const Intervention = () => {
                   <TableCell className="tableCell">Date de début</TableCell>
                   <TableCell className="tableCell">Date de fin</TableCell>
                   <TableCell className="tableCell">État</TableCell>
-               
+                  <TableCell className="tableCell">Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredInterventions.map((intervention) => (
+                {currentInterventions.map((intervention) => (
                   <TableRow key={intervention.id}>
                     <TableCell className="tableCell">{intervention.date_creation}</TableCell>
                     <TableCell className="tableCell">{intervention.date_debut}</TableCell>
                     <TableCell className="tableCell">{intervention.date_fin}</TableCell>
                     <TableCell className="tableCell">{intervention.etat}</TableCell>
-                    
                     <TableCell className="tableCell">
                       <Button className='btn btn-info' onClick={() => handleOpenDialog(intervention)} variant="outlined">Voir Plus</Button>
                     </TableCell>
@@ -95,6 +106,11 @@ const Intervention = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <Pagination
+            count={Math.ceil(filteredInterventions.length / interventionsPerPage)}
+            page={currentPage}
+            onChange={paginate}
+          />
         </div>
       </div>
       

@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import UserForm from './userform';
-import Sidebar from './admindesign/home/sidebar/sidebar';
-import Navbar from './admindesign/home/navbar/navbar';
+import PopupMessage from '../message';
+import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import PopupMessage from '../message';
-import { Stack } from '@mui/material';
-import { Navigate } from 'react-router-dom';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 
 function UserListPage() {
   const [users, setUsers] = useState([]);
@@ -22,6 +20,7 @@ function UserListPage() {
   const [showpop, setShowPop] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(5);
+  const [filteredUsers, setFilteredUsers] = useState([]);
 
   const fetchUsers = async () => {
     try {
@@ -31,6 +30,7 @@ function UserListPage() {
       }
       const data = await response.json();
       setUsers(data);
+      setFilteredUsers(data); // Initially, display all users
     } catch (error) {
       setError(error.message);
     }
@@ -105,9 +105,19 @@ function UserListPage() {
     }
   };
 
+  const filterUsersByType = (role) => {
+    if (role === 'all') {
+      setFilteredUsers(users); // Afficher tous les utilisateurs
+    } else {
+      const filtered = users.filter(user => user[`is_${role}`]); // Filtrer les utilisateurs par rôle
+      setFilteredUsers(filtered);
+    }
+    setCurrentPage(1); // Reset current page to 1 when filtering
+  };
+
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
   const paginate = pageNumber => setCurrentPage(pageNumber);
 
@@ -118,6 +128,15 @@ function UserListPage() {
   return (
     <div>
       <h1>Liste des utilisateurs</h1>
+      <div>
+        {/* Boutons pour filtrer par rôle */}
+        <Button onClick={() => filterUsersByType('all')}>All</Button>
+        <Button onClick={() => filterUsersByType('admin')}>Admin</Button>
+        <Button onClick={() => filterUsersByType('technicien')}>Technicien</Button>
+        <Button onClick={() => filterUsersByType('chefservice')}>Chef Service</Button>
+        <Button onClick={() => filterUsersByType('directeur')}>Directeur</Button>
+        <Button onClick={() => filterUsersByType('citoyen')}>Citoyen</Button>
+      </div>
       {showpop && <PopupMessage message={message} color="success" />}
       <TableContainer component={Paper} className="table">
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -148,11 +167,11 @@ function UserListPage() {
                   {user.is_chefservice && 'Chef Service '}
                   {user.is_citoyen && 'Citoyen '}
                 </TableCell>
-                <TableCell>{user.service ? user.service.nom : 'Unknown'}</TableCell>
+                <TableCell>{user.service ? user.service.nom : 'Inconnu'}</TableCell>
                 <TableCell>
                   <Stack direction="row" spacing={2}>
-                    <button onClick={() => handleDelete(user.id)} className="btn btn-danger">Supprimer</button>
-                    <button onClick={() => handleModifyClick(user)} className="btn btn-warning">Modifier</button>
+                  <Button onClick={() => handleDelete(user.id)} variant="outlined" color="error">Supprimer</Button>
+                  <Button onClick={() => handleModifyClick(user)} color="secondary">Modifier</Button>
                   </Stack>
                 </TableCell>
               </TableRow>
@@ -162,13 +181,13 @@ function UserListPage() {
       </TableContainer>
       <ul className='pagination'>
         {usersPerPage >= users.length ? null : (
-          <button onClick={() => paginate(currentPage - 1)} className='btn btn-secondary'>Prev</button>
+          <Button onClick={() => paginate(currentPage - 1)} variant="contained" color="primary">Précédent</Button>
         )}
         {currentUsers.map((user, index) => (
-          <button key={index} onClick={() => paginate(index + 1)} className={`btn ${currentPage === index + 1 ? 'btn-primary' : 'btn-secondary'}`}>{index + 1}</button>
+          <Button key={index} onClick={() => paginate(index + 1)} variant="contained" color={currentPage === index + 1 ? "primary" : "secondary"}>{index + 1}</Button>
         ))}
         {usersPerPage >= users.length ? null : (
-          <button onClick={() => paginate(currentPage + 1)} className='btn btn-secondary'>Next</button>
+          <Button onClick={() => paginate(currentPage + 1)} variant="contained" color="primary">Suivant</Button>
         )}
       </ul>
       {modifiedUser && (

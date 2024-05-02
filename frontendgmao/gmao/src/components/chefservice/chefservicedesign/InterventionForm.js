@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import PopupMessage from '../../message';
 
-const InterventionForm = ({ interventionId, onSubmit }) => {
+const InterventionForm = ({ interventionId, onSubmit,onClose }) => {
   const [formData, setFormData] = useState({
     selectedOption: '', // State for the selected service
   });
 
   const [dropdownOptions, setDropdownOptions] = useState([]);
+  const[message,setmessage]=useState("");
+  const [colors,setcolor]=useState("");
+  const[showMessage,setshowMessage]=useState(false);
+  
 
   useEffect(() => {
     fetchDropdownOptions();
@@ -46,13 +51,26 @@ const InterventionForm = ({ interventionId, onSubmit }) => {
       });
       if (response.ok) {
         const data = await response.json();
-        console.log(data.message);
+        setmessage("le intervetion est bien assigne ");
+        setcolor("success");
+        setshowMessage(true);
+      
         onSubmit(formData);
         setFormData({
           selectedOption: '',
         });
+        setTimeout(() => {
+          onClose();
+        }, 2000); 
       } else {
         console.error('Failed to assign service');
+        setmessage("si vous plais selectioner le service ");
+        setcolor("warning");
+        setshowMessage(true);
+        setTimeout(() => {
+         setshowMessage(false);
+        }, 1000); 
+      
       }
     } catch (error) {
       console.error('Error assigning service:', error);
@@ -62,6 +80,7 @@ const InterventionForm = ({ interventionId, onSubmit }) => {
   return (
     <div className="intervention-form">
       <h2>Assign Service</h2>
+      {showMessage && <PopupMessage message={message}color={colors} />}
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label htmlFor="selectedOption" className="form-label">Select Service:</label>

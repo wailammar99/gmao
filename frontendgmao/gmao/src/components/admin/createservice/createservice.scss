@@ -21,5 +21,11 @@ form {
           border-bottom: 1px solid gray;
         }
         textarea {
-          padding: 20px; /* Vous n'avez pas besoin de spécifier la largeur à nouveau */
-      }}}
+          padding: 20px;
+           /* Vous n'avez pas besoin de spécifier la largeur à nouveau */
+      }
+      .button 
+      {
+        display: block;
+      }
+    }}
