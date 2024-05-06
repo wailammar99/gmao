@@ -8,6 +8,7 @@ import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutline
 import ListOutlinedIcon from "@mui/icons-material/ListOutlined";
 import NotificationPopup from "../../../directeur/NotificationPopup";
 import { useState } from "react";
+import MessagePopupTechnicien from "../../messagepopTechnicien";
 
 
 
@@ -34,28 +35,19 @@ const Navbar = ({onSearch }) => {
             onChange={handleSearchChange}
           />
           <SearchOutlinedIcon onClick={handleSearchSubmit} />
-          <SearchOutlinedIcon />
+        
         </div>
         <div className="items">
-          <div className="item">
-            <LanguageOutlinedIcon className="icon" />
-            English
-          </div>
-          <div className="item">
-            <DarkModeOutlinedIcon
-              className="icon"
-             
-            />
-          </div>
-          <div className="item">
-            <FullscreenExitOutlinedIcon className="icon" />
-          </div>
+      
+     
           <NotificationPopup />
-          <div className="item">
-            <ListOutlinedIcon className="icon" />
-          </div>
+        
           
         </div>
+        <div className="item">
+           
+           <MessagePopupTechnicien></MessagePopupTechnicien>
+         </div>
       </div>
     </div>
   );

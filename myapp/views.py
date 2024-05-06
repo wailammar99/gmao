@@ -11,6 +11,10 @@ import jwt
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from .permissions import *
+import json
+import random
+import string
+from django.core.mail import send_mail
 from django.conf import settings
 from .permissions import *
 from rest_framework import status
@@ -545,7 +549,15 @@ def loginn(request):
         data = json.loads(request.body)
         username = data.get('username')
         password = data.get('password')
-
+        useractive=CustomUser.objects.get(username=username)
+        try:
+            user = CustomUser.objects.get(username=username)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"message": "le compte n'existe pas"}, status=403)
+      
+        if useractive.is_active== False :
+            return JsonResponse({"message":"le compte est pas active voulez contact admistateur"},status=404)
+        
         user = authenticate(request, username=username, password=password)
      
             
@@ -764,7 +776,7 @@ def assign_service_or_technician(request, id):
             intervention = interven.objects.get(id=id)
             citoyen=intervention.citoyen
             if intervention.service.nom == 'noservice':
-                # Assign service
+                
                 service_instance = service.objects.get(id=new_service_id)
                 intervention.service = service_instance
                 intervention.etat = "Nouveau"
@@ -800,9 +812,18 @@ def assign_service_or_technician(request, id):
             
             # Add equipment to intervention
             if equipment_ids:
-                for equipment_id in equipment_ids:
-                    equipment_instance = Equipement.objects.get(id=equipment_id)
-                    intervention.equipements.add(equipment_instance)
+              for equipment_id in equipment_ids:
+        # Check if the equipment is already associated with the intervention
+               if not intervention.equipements.filter(id=equipment_id).exists():
+                 try:
+                  equipment_instance = Equipement.objects.get(id=equipment_id)
+                  intervention.equipements.add(equipment_instance)
+                 except Equipement.DoesNotExist:
+                # Handle case where equipment with the provided ID does not exist
+                   pass
+
+
+                    
             
             intervention.save()
 
@@ -828,7 +849,7 @@ def assign_service_or_technician(request, id):
 @csrf_exempt  # Ensure the user is authenticated
 #api ciotoyen peut voir onmy cest intervetion 
 def api_intervetion_citoyen(request, id):
-    if request.method == 'GET':
+    if request.method == 'GET': 
         try:
             user = CustomUser.objects.get(id=id)
             interventions = interven.objects.filter(citoyen=user).select_related("service").prefetch_related("conversation")
@@ -888,7 +909,7 @@ def api_create_intervention(request,id):
 
             # Check if required fields are present
             if description  is None:
-                return JsonResponse({'error': 'Description, start date, and end date are required'}, status=400)
+                return JsonResponse({'error': 'Description, start date, and end date are required'}, status=401)
 
             # Create the intervention
             user = CustomUser.objects.get(id=user_id)
@@ -1402,5 +1423,143 @@ def api_put_service(request,service_id):
             return JsonResponse({"eroor":"le service est introuvabele "},status=404)
     else :
         return JsonResponse({"eroor":"le method not allow"},status=405)
+@csrf_exempt
+def api_create_equipment(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            service_id = data.get("service_id")
 
+            # Check if service_id is provided
+            if service_id is None:
+                return JsonResponse({'error': 'Service ID is required'}, status=400)
+
+            # Check if the service with the provided ID exists
+            try:
+                service_instance = service.objects.get(id=service_id)
+            except service.DoesNotExist:
+                return JsonResponse({'error': 'Service does not exist'}, status=404)
+
+            # Create the equipment
+            equipment = Equipement.objects.create(
+                service=service_instance,
+                nom=data.get('nom'),
+                marque=data.get('marque'),
+                prix=data.get('prix'),
+                description=data.get('description', ''),
+                stock=data.get('stock', 0),
+                numero_serie=data.get('numero_serie', ''),
+                date_expiration=data.get('date_expiration', None),
+                caracteristiques_techniques=data.get('caracteristiques_techniques', '')
+            )
+
+            return JsonResponse({'message': 'Equipment created successfully', 'equipment_id': equipment.id}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": "An error occurred: {}".format(str(e))}, status=500)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+@csrf_exempt 
+def api_delete_equiment(request,eq_id) :
+    if request.method=="DELETE" :
+        try :
+            Equipement.objects.get(id=eq_id).delete()
+            return JsonResponse({"message":"le equiment est bien supprmier "},status=200)
+        except Equipement.DoesNotExist :
+            return JsonResponse({"eroor":"cant get id equiment "},status=404)
+    else:
+        return JsonResponse({"eroor":"methode not allow"},status=405)
+@csrf_exempt
+def api_update_equipment(request, equipment_id):
+    if request.method == "PUT":
+        try:
+            data = json.loads(request.body)
+            service_id = data.get("service_id")
+
+            # Check if service_id is provided
+            if service_id is None:
+                return JsonResponse({'error': 'Service ID is required'}, status=400)
+
+            # Check if the service with the provided ID exists
+            try:
+                service_instance = service.objects.get(id=service_id)
+            except service.DoesNotExist:
+                return JsonResponse({'error': 'Service does not exist'}, status=404)
+
+            # Check if the equipment with the provided ID exists
+            try:
+                equipment = Equipement.objects.get(id=equipment_id)
+            except Equipement.DoesNotExist:
+                return JsonResponse({'error': 'Equipment does not exist'}, status=404)
+
+            # Update the equipment
+            equipment.service = service_instance
+            equipment.nom = data.get('nom', equipment.nom)
+            equipment.marque = data.get('marque', equipment.marque)
+            equipment.prix = data.get('prix', equipment.prix)
+            equipment.description = data.get('description', equipment.description)
+            equipment.stock = data.get('stock', equipment.stock)
+            equipment.numero_serie = data.get('numero_serie', equipment.numero_serie)
+            equipment.date_expiration = data.get('date_expiration', equipment.date_expiration)
+            equipment.caracteristiques_techniques = data.get('caracteristiques_techniques', equipment.caracteristiques_techniques)
+            equipment.save()
+
+            return JsonResponse({'message': 'Equipment updated successfully'}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": "An error occurred: {}".format(str(e))}, status=500)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+
+def generate_random_password():
+    """Generate a random password."""
+    password_length = 10  # You can adjust the length of the random password
+    characters = string.ascii_letters + string.digits
+    return ''.join(random.choice(characters) for i in range(password_length))
+
+
+
+@csrf_exempt
+def api_forget_password(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            email = data.get("email")
+         
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"message": "The email does not exist"}, status=404)
+
+        # Generate a random password
+        random_password = generate_random_password()
+
+        # Update the user's password in the database
+        user.password = make_password(random_password)
+        user.save()
+
+        # Send an email with the random password to the user
+        subject = 'Password Reset'
+        message = f'Your new password is: {random_password}'
+        from_email = 'mailtrap@demomailtrap.com'  # Update with your Mailtrap email address
+        to_email = [email]
+        send_mail(subject, message, from_email, to_email)
+
+        return JsonResponse({"message": "Password reset successful. Check your email."}, status=200)
+    else:
+        return JsonResponse({"message": "Invalid request method"}, status=405)
+@csrf_exempt
+def updrade_technicien_to_chef_service(request,user_id):
+    if request.method=="POST" :
+        try :
+            technicien=CustomUser.objects.get(id=user_id)
+            technicien.is_technicien=False 
+            technicien.is_chefservice=True
+            technicien.save()
+            return JsonResponse({"message":"techbncien est updrade into chefservcie "},status=200)
+        except CustomUser.DoesNotExist :
+            return JsonResponse({"message":"usr not fund "},status=404)
+        except Exception as e :
+            return JsonResponse({"error": "An error occurred: {}".format(str(e))}, status=500)
         
+    else :
+        return JsonResponse({"eroor":"methode not allow"},status=405)

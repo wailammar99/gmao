@@ -20,7 +20,7 @@
 #chefservice 
 [probleme] :quanfd je ajouter les equiment par example jai un equiment je veut supprimer ancien equipment et ajouter just un eqsuiment il craze et ajouter 2 equiment 
 [probleme] :quand le intervetion start with chef service no service he cant add tehcncine because he dont yet assigne and when the same probleme for chef service of service eq he can strat conversation before he assigne teccine so tehcncine he cant asses into conversation 
-[probleme] :when i create concversation he show message and not 
+ 
 [fix] :
 #1.le message show up just one time
 #2.assine dont show message and dont close form 

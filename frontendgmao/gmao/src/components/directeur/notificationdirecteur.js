@@ -44,6 +44,9 @@ const Notificationdirecteur = () => {
 
         setPopupColor('success');
         setShowPopup(true);
+        setTimeout(() => {
+          setShowPopup(false);
+        }, 1500);
         fetchNotifications(); // Refetch notifications after deletion
       } else {
         setPopupMessage('Failed to delete notification');

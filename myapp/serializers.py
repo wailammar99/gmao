@@ -28,7 +28,7 @@ class IntervetionSerializers(serializers.ModelSerializer):
         fields='__all__'
 
 class EquimenentSerializers(serializers.ModelSerializer):
-
+    service = ServiceSerializers()
     class Meta :
         model=Equipement
         fields='__all__'

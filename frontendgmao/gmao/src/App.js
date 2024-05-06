@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './components/Login';
 import { Navigate } from 'react-router-dom';
+import PasswordResetForm from './components/passwordsetup';
 
 
 import CreateService from './components/admin/createservice/CreateService';
@@ -26,7 +27,7 @@ import Listcostumer from './components/directeur/Listcostumer';
 import Listtechnicien from './components/directeur/listetechnicien';
 import Listchefservice from './components/directeur/listechefservice';
 import CompteNoActive from './components/directeur/noucompte';
-
+import ConversationMessagesdir from './components/directeur/convrmessgedir';
 
 import Chefservice from './components/chefservice/chefservicedesign/pagechefservice/pagechefservice';
 import Chefservicepage from './components/chefservice/chefservicedesign/Chefservicepage';
@@ -42,9 +43,14 @@ import Technicineprofil from './components/technicien/technicineprofil';
 import NotificationPagechefservice from './components/chefservice/notifationchefservice';
 import Citoyenprofil from './components/citoyen/citoyenprofil';
 import Notificationcitoyen from './components/citoyen/citoyennotification';
+
 import Notificationdirecteur from './components/directeur/notificationdirecteur';
+import MessagePopup from './components/directeur/messagepopdirecteur';
 import Directeurprofil from './components/directeur/directeurprofil';
 import Adminprofil from './components/admin/admindesign/adminprofil';
+import ConversationFormchefservice from './components/chefservice/conversationformchefservice';
+import ConversationMessageschefservice from './components/chefservice/conversationformchefservice';
+import ConversationMessagesTechnicien from './components/technicien/cpnversationmessagetechnicien';
 
 
 
@@ -111,6 +117,7 @@ function App() {
             path="/directeur_dashboard"
             element={isLoggedIn ? <Pagedirecteur onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
           />
+             <Route path="/conversation/:id/directeur/:int" element={<ConversationMessagesdir />} />
           <Route
             path="/profildirecteur"
             element={isLoggedIn ? <Directeurprofil onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
@@ -156,6 +163,7 @@ function App() {
           path="/technicienpage"
           element={isLoggedIn ? <Technicienpage /> : <Navigate to="/technicien_dashboard/:Id" />}
           />
+           <Route path="/conversation/:id/technicien/:int" element={<ConversationMessagesTechnicien />} />
           <Route path="/calender/technien" element={isLoggedIn ? <Calendertechncien/> : <Navigate to="/technicien_dashboard/:Id" />}>
 
           </Route>
@@ -219,7 +227,7 @@ function App() {
           path="/chefservicenotificationpage"
           element={isLoggedIn ? <NotificationPagechefservice /> : <Navigate to="/chef_service_dashboard/:Id" />}
           />
-          
+           <Route path="/conversation/:id/chefservice/:int" element={<ConversationMessageschefservice />} />
 
            <Route
             path="/citoyen_dashboard/:Id"
@@ -232,6 +240,10 @@ function App() {
           <Route
           path="/create_intervention"
           element={isLoggedIn ? <CreateInterventionForm /> : <Navigate to="/citoyen_dashboard/:Id" />}
+          />
+           <Route
+          path="/passwordsetup"
+          element={ <PasswordResetForm /> }
           />
           
           

@@ -20,6 +20,9 @@ function EnAttenteForm({ onClose, onSubmit,interventionId  }) {
       {
         setShowPopup(true);
         setPopupMessage({ message: 'Intervention est bien en attent  ', color: 'success' });
+        setTimeout(() => {
+          setPopupMessage(false);
+        }, 1500);
       }
       const data = await response.json();
       console.log(data);

@@ -88,6 +88,7 @@ const Intervention = () => {
                   <TableCell className="tableCell">Date de début</TableCell>
                   <TableCell className="tableCell">Date de fin</TableCell>
                   <TableCell className="tableCell">État</TableCell>
+                 
                   <TableCell className="tableCell">Action</TableCell>
                 </TableRow>
               </TableHead>
@@ -98,6 +99,7 @@ const Intervention = () => {
                     <TableCell className="tableCell">{intervention.date_debut}</TableCell>
                     <TableCell className="tableCell">{intervention.date_fin}</TableCell>
                     <TableCell className="tableCell">{intervention.etat}</TableCell>
+                    
                     <TableCell className="tableCell">
                       <Button className='btn btn-info' onClick={() => handleOpenDialog(intervention)} variant="outlined">Voir Plus</Button>
                     </TableCell>

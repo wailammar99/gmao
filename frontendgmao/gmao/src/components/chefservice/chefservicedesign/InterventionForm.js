@@ -84,7 +84,7 @@ const InterventionForm = ({ interventionId, onSubmit,onClose }) => {
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label htmlFor="selectedOption" className="form-label">Select Service:</label>
-          <select name="selectedOption" id="selectedOption" className="form-control" value={formData.selectedOption} onChange={handleChange}>
+          <select name="selectedOption" id="selectedOption" className="form-control" value={formData.selectedOption} onChange={handleChange} required>
             <option value="">Select a service</option>
             {dropdownOptions.map(option => (
               <option key={option.id} value={option.id}>{option.nom}</option>

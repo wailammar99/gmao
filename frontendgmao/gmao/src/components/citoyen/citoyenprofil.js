@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
 
 import PopupMessage from '../message';
 import Navbar from './cityoendesign/navbar/navbar';
 import Sidebar from './cityoendesign/sidebar/sidebar';
-
 const Citoyenprofil = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -20,6 +19,7 @@ const Citoyenprofil = () => {
   const [old_password, setOldpassword] = useState('');
   const [password1, setPassword1] = useState('');
   const [password2, setPassword2] = useState('');
+  const [color,setcolor]=useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -104,9 +104,16 @@ const Citoyenprofil = () => {
         }),
       });
       if (response.ok) {
-        setSuccessMessage('User information updated successfully.');
+        setSuccessMessage('les infomation est bien modifie avec succes.');
         setIsDialogOpen(false);
+        setcolor("success");
         fetchData();
+        setTimeout(() => {
+          setSuccessMessage('');
+        }, 5000);
+        setTimeout(() => {
+          navigate('/citoyenprofil');
+        }, 2000);
       } else {
         throw new Error('Failed to update user');
       }
@@ -133,17 +140,26 @@ const Citoyenprofil = () => {
         }),
       });
       if (response.ok) {
-        setSuccessMessage('Password updated successfully.');
-        setShowPasswordForm(false);
+        setSuccessMessage('Le mot de passe a été modifié avec succès.');
+        setcolor("success");
         fetchData();
-      } else {
-        throw new Error('Failed to update password');
+      } else if (response.status === 400) {
+        setSuccessMessage("L'ancien mot de passe n'est pas correct.");
+        setcolor("warning");
+      } else if (response.status === 401) {
+        setSuccessMessage("Les nouveaux mots de passe ne correspondent pas.");
+        setcolor("warning");
       }
     } catch (error) {
       console.error('Error updating password:', error);
       setError(error.message);
     }
+    // Reset success message after 5000 milliseconds
+    setTimeout(() => {
+      setSuccessMessage('');
+    }, 5000);
   };
+  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -173,7 +189,7 @@ const Citoyenprofil = () => {
           <Navbar />
           <section style={{ backgroundColor: '#fff' }}>
             <div className="container py-5">
-              {successMessage && <PopupMessage message={successMessage} color="success" />}
+              {successMessage && <PopupMessage message={successMessage} color={color} />}
               <div className="row">
                 <div className="col-lg-4">
                   <div className="card mb-4">

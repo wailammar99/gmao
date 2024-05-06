@@ -1,18 +1,22 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button, TableCell, TableContainer, Paper, Table, TableHead, TableRow, TableBody } from '@mui/material';
 import Navbar from './techniciendesign/navbar/navbar';
 import Sidebar from './techniciendesign/sidebar/sidebar';
 import PopupMessage from '../message';
+import { Pagination } from '@mui/material';
 
 const NotificationPageTechnicine = () => {
   const [notifications, setNotifications] = useState([]);
   const [showPopup, setShowPopup] = useState(false); // State to control showing/hiding the popup
   const [popupMessage, setPopupMessage] = useState(''); // State to hold the popup message
   const [popupColor, setPopupColor] = useState(''); // State to hold the popup color
+  const [currentPage, setCurrentPage] = useState(1); // State for current page
+  const [notificationsPerPage] = useState(5); // Number of notifications per page
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [currentPage]); // Fetch notifications whenever currentPage changes
 
   const fetchNotifications = async () => {
     try {
@@ -38,9 +42,12 @@ const NotificationPageTechnicine = () => {
       });
       if (response.ok) {
         // Show success message
-        setPopupMessage('Notification successfully deleted');
+        setPopupMessage('Notification supprimée avec succès');
         setPopupColor('success');
         setShowPopup(true);
+        setTimeout(() => {
+          setShowPopup(false);
+        }, 1500);
         // Fetch notifications again to update the list
         fetchNotifications();
       } else {
@@ -56,6 +63,16 @@ const NotificationPageTechnicine = () => {
       setPopupColor('error');
       setShowPopup(true);
     }
+  };
+
+  // Pagination logic
+  const indexOfLastNotification = currentPage * notificationsPerPage;
+  const indexOfFirstNotification = indexOfLastNotification - notificationsPerPage;
+  const currentNotifications = notifications.slice(indexOfFirstNotification, indexOfLastNotification);
+
+  // Change page
+  const handlePageChange = (event, pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
   return (
@@ -76,7 +93,7 @@ const NotificationPageTechnicine = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {notifications.map(notification => (
+              {currentNotifications.map(notification => (
                 <TableRow key={notification.id}>
                   <TableCell>{notification.id}</TableCell>
                   <TableCell>{notification.message}</TableCell>
@@ -88,6 +105,7 @@ const NotificationPageTechnicine = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <Pagination count={Math.ceil(notifications.length / notificationsPerPage)} page={currentPage} onChange={handlePageChange} />
       </div>
     </div>
   );

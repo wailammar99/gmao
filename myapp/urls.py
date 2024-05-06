@@ -1,5 +1,8 @@
 from django.urls import path
 from . import views
+#web socket 
+
+
 
 urlpatterns = [
      path('login/', views.login_view, name='login_view'),
@@ -73,7 +76,13 @@ urlpatterns = [
                   path("api_change_password/<int:user_id>/",views.api_change_password),
                    path("allconversation/",views.api_allconversation),
                    path("test_particement/<int:conversation>/citoyen/<int:user_id>/",views.test_perticement),
-                   path("modifie_service/<int:service_id>/",views.api_put_service)
+                   path("modifie_service/<int:service_id>/",views.api_put_service),
+                   path("create_equiment/",views.api_create_equipment),
+                   path("delete_equiment/<int:eq_id>/",views.api_delete_equiment),
+                   path("put_equimpetment/<int:equipment_id>/",views.api_update_equipment),
+                    path("reset_password/",views.api_forget_password),
+                    path("update_tehcncien/<int:user_id>/",views.updrade_technicien_to_chef_service)
+
 
                 
           

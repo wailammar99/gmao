@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PopupMessage from './message';
+import PopupMessage from './message'; // Assuming PopupMessage component is implemented in './PopupMessage'
 import { Avatar, Button, CssBaseline, TextField, FormControlLabel, Checkbox, Link, Grid, Box, Typography, Container, createTheme, ThemeProvider } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-
 
 const defaultTheme = createTheme();
 
@@ -11,7 +10,14 @@ const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState("");
+  const [showMessage, setShowMessage] = useState(false);
   const navigate = useNavigate();
+
+  // Reset error state on component mount
+  useEffect(() => {
+    
+  }, []);
 
   const handleLogin = async (username, password) => {
     try {
@@ -26,16 +32,23 @@ const Login = ({ onLogin }) => {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('mot ');
+      if (response.status === 404) {
+        setMessage('Le compte n\'est pas actif. Veuillez contacter l\'administrateur.');
+        setShowMessage(true);
+      } else if (response.status === 400) {
+        setMessage('Nom d\'utilisateur ou mot de passe incorrect.');
+        setShowMessage(true);
+      } else if (response.status === 403) {
+        setMessage('Votre compte n\'est pas activé. Contactez l\'administrateur.');
+        setShowMessage(true);
       }
 
       const { token, role, userId } = await response.json();
       
       localStorage.setItem('token', token);
       localStorage.setItem('userId', userId);
-      
-
+      sessionStorage.setItem('username', username);
+      sessionStorage.setItem('role', role);
 
       onLogin();
 
@@ -43,19 +56,21 @@ const Login = ({ onLogin }) => {
         navigate(`/admin_dashboard`);
       } else if (role === 'citoyen') {
         navigate(`/citoyen_dashboard/${userId}`);
-      }
-      else if (role==='chefservice') {
+      } else if (role === 'chefservice') {
         navigate(`/chef_service_dashboard/${userId}`);
-      }
-      else if (role==="technicien") {
+      } else if (role === "technicien") {
         navigate(`/technicien_dashboard/${userId}`)
-      }
-      else if (role==="directeur") {
+      } else if (role === "directeur") {
         navigate(`/directeur_dashboard`);
       }
+
+      // Hide the message after 1500 milliseconds (1.5 seconds)
+      setTimeout(() => {
+        setShowMessage(false);
+      }, 1500);
     } catch (error) {
-      console.error('Login failed:', error);
-      setError('Login failed. Please try again.');
+      console.error('Échec de la connexion:', error);
+      setError('Échec de la connexion. Veuillez réessayer.');
     }
   };
 
@@ -80,7 +95,7 @@ const Login = ({ onLogin }) => {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign in
+            Connexion
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
             <TextField
@@ -88,9 +103,8 @@ const Login = ({ onLogin }) => {
               required
               fullWidth
               id="username"
-              label="Username"
+              label="Nom d'utilisateur"
               name="username"
-              
               autoFocus
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -100,7 +114,7 @@ const Login = ({ onLogin }) => {
               required
               fullWidth
               name="password"
-              label="Password"
+              label="Mot de passe"
               type="password"
               id="password"
               autoComplete="current-password"
@@ -109,7 +123,7 @@ const Login = ({ onLogin }) => {
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
+              label="Se souvenir de moi"
             />
             <Button
               type="submit"
@@ -117,17 +131,17 @@ const Login = ({ onLogin }) => {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Sign In
+              Connexion
             </Button>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
+                <Link href="/passwordsetup" variant="body2">
+                  Mot de passe oublié ?
                 </Link>
               </Grid>
               <Grid item>
                 <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
+                  {"Vous n'avez pas de compte ? Inscrivez-vous"}
                 </Link>
               </Grid>
             </Grid>
@@ -135,7 +149,7 @@ const Login = ({ onLogin }) => {
         </Box>
       </Container>
       {/* Conditionally render PopupMessage if there's an error */}
-      {error && <PopupMessage message={error} color="danger" />}
+      {showMessage && <PopupMessage message={message} color="danger" />}
     </ThemeProvider>
   );
 };

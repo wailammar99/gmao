@@ -17,9 +17,11 @@ class enatte (models.Model):
 
 
 class Equipement(models.Model):
-    nom = models.CharField(max_length=100)
-    marque = models.CharField(max_length=100)
-    prix = models.DecimalField(max_digits=10, decimal_places=2)
+    service=models.ForeignKey('service',on_delete=models.CASCADE,blank=True, null=True)
+ 
+    nom = models.CharField(max_length=100,null=True)
+    marque = models.CharField(max_length=100,null=True)
+    prix = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
     description = models.TextField(blank=True)
     stock = models.PositiveIntegerField(default=0)
     date_ajout = models.DateField(auto_now_add=True)

@@ -38,9 +38,14 @@ const Notificationcitoyen = () => {
       });
       if (response.ok) {
         // Show success message
-        setPopupMessage('Notification successfully deleted');
+        setPopupMessage('notification est bien supprimé');
         setPopupColor('success');
         setShowPopup(true);
+        setTimeout(() => {
+
+          setShowPopup(false);
+          
+        }, 1500);
         // Fetch notifications again to update the list
         fetchNotifications();
       } else {

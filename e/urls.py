@@ -16,9 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+from channels.routing import ProtocolTypeRouter, URLRouter
+from myapp.routing import websocket_urlpatterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('myapp.urls')),
 
 ]
+application = ProtocolTypeRouter({
+    "websocket": URLRouter(websocket_urlpatterns),
+})

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path,os
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,7 +48,8 @@ INSTALLED_APPS = [
     'myapp',
     'rest_framework',
     'corsheaders',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    
     
     
     
@@ -177,3 +179,11 @@ STATICFILES_DIRS =(os.path.join(BASE_DIR,'static'),)
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+env = environ.Env()
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'bulk.smtp.mailtrap.io'
+EMAIL_PORT = 587  # You can also use 2525 or 25
+EMAIL_HOST_USER = 'api'
+EMAIL_HOST_PASSWORD = '19e94660429a781884f38d1702651586'  # Update with your Mailtrap password
+EMAIL_USE_TLS = True

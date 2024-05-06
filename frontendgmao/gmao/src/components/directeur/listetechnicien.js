@@ -13,6 +13,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
 import PopupMessage from '../message';
 import { useNavigate } from 'react-router-dom';
 import { Pagination } from '@mui/material';
@@ -20,17 +21,16 @@ import { Pagination } from '@mui/material';
 const Listtechnicien = () => {
   const [technicienData, setTechnicienData] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [showUserForm, setShowUserForm] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [formData, setFormData] = useState({
-    selectedOption: '',
-  });
+  const [formData, setFormData] = useState({ selectedOption: '' });
   const [dropdownOptions, setDropdownOptions] = useState([]);
   const [message, setMessage] = useState(null);
   const [messageColor, setMessageColor] = useState('');
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
-  const [usersPerPage] = useState(5); // Number of users per page
+  const usersPerPage = 5; // Number of users per page
+  const [showMessage, setShowMessage] = useState(false);
+  const [upgradeMessage, setUpgradeMessage] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -78,9 +78,7 @@ const Listtechnicien = () => {
 
   const handleChange = (e) => {
     const { value } = e.target;
-    setFormData({
-      selectedOption: value,
-    });
+    setFormData({ selectedOption: value });
   };
 
   const handleSubmit = async (e) => {
@@ -88,26 +86,18 @@ const Listtechnicien = () => {
     try {
       const response = await fetch(`http://127.0.0.1:8000/api_assigne_service_user/${selectedUser.id}/`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          service_id: formData.selectedOption,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ service_id: formData.selectedOption }),
       });
       if (response.ok) {
         setMessage("Utilisateur est bien assigné");
         setMessageColor('success');
         setTimeout(() => {
           setOpenDialog(false);
-          
-        }, 3000);
-
-      
-        fetchData(); // Refresh the list of technicians after assignment
-        setFormData({
-          selectedOption: '',
-        });
+          setShowMessage(false);
+          fetchData(); // Refresh the list of technicians after assignment
+          setFormData({ selectedOption: '' });
+        }, 1500);
       } else {
         setMessage("Choisir un service s'il vous plaît");
         setMessageColor('warning');
@@ -119,12 +109,9 @@ const Listtechnicien = () => {
     }
   };
 
-  // Define handleActivate function
   const handleActivate = async (id) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api_activer_compte/${id}`, {
-        method: 'GET',
-      });
+      const response = await fetch(`http://127.0.0.1:8000/api_activer_compte/${id}`, { method: 'GET' });
       if (response.ok) {
         console.log('Compte utilisateur activé avec succès');
       } else {
@@ -135,7 +122,24 @@ const Listtechnicien = () => {
     }
   };
 
-  // Pagination logic
+  const handleUpgrade = async (id) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/update_tehcncien/${id}/`, { method: 'POST' });
+      if (response.ok) {
+        console.log('Technician upgraded successfully');
+        setUpgradeMessage("le tehncien est devenze chefservice ");
+        setShowMessage(true);
+        fetchData();
+        setTimeout(() => setShowMessage(false), 3000);
+      } else {
+        console.error('Failed to upgrade technician');
+        // Handle the error or show an error message
+      }
+    } catch (error) {
+      console.error('Error upgrading technician:', error);
+    }
+  };
+
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = technicienData.slice(indexOfFirstUser, indexOfLastUser);
@@ -152,6 +156,8 @@ const Listtechnicien = () => {
         <div className="top">
           <h1>technicien </h1>
         </div>
+        {message && <PopupMessage message={message} color={messageColor} />}
+        {showMessage && <PopupMessage message={upgradeMessage} color="success" />}
         <div className="botom">
           <div>
             <TableContainer component={Paper} className="table">
@@ -175,13 +181,14 @@ const Listtechnicien = () => {
                     <TableCell className="tableCell">{user.email}</TableCell>
                     <TableCell className="tableCell">{user.first_name}</TableCell>
                     <TableCell className="tableCell">{user.last_name}</TableCell>
-                    <TableCell className="tableCell">{user.service?.nom ? user.service.nom : "he needs assigned service"}</TableCell>
+                    <TableCell className="tableCell">{user.service?.nom || "he needs assigned service"}</TableCell>
                     <TableCell className="tableCell">{user.is_active ? 'Yes' : 'No'}</TableCell>
                     <TableCell className="tableCell">
-                      {!user.is_active && (
-                        <button onClick={() => handleActivate(user.id)} className="btn btn-success">Activer</button>
-                      )}
-                      <button type="button" className="btn btn-outline-warning" onClick={() => handleClick(user)}>Assigné Service</button>
+                      <Stack direction="row" spacing={2}>
+                        {!user.is_active && <button onClick={() => handleActivate(user.id)} className="btn btn-success">Activer</button>}
+                        <button type="button" className="btn btn-outline-warning" onClick={() => handleClick(user)}>Assigné Service</button>
+                        <button type="button" className="btn btn-outline-success" onClick={() => handleUpgrade(user.id)}>update </button>
+                      </Stack>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -214,7 +221,6 @@ const Listtechnicien = () => {
               </div>
               <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '10px', borderRadius: '5px', backgroundColor: '#007bff', border: 'none' }}>Assign Service</button>
             </form>
-            {message && <PopupMessage message={message} color={messageColor} />}
           </div>
         </DialogContent>
         <DialogActions>

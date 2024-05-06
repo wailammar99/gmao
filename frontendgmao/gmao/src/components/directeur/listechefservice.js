@@ -16,7 +16,7 @@ import Button from '@mui/material/Button';
 import PopupMessage from '../message';
 import { useNavigate } from 'react-router-dom';
 import { Pagination } from '@mui/material';
-
+import Stack from '@mui/material/Stack';
 const Listtechnicien = () => {
   const [technicienData, setTechnicienData] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -177,10 +177,12 @@ const Listtechnicien = () => {
                     <TableCell className="tableCell">{user.service?.nom ? user.service.nom : "he needs assigned service"}</TableCell>
                     <TableCell className="tableCell">{user.is_active ? 'Yes' : 'No'}</TableCell>
                     <TableCell className="tableCell">
+                    <Stack direction="row" spacing={2}>
                       {!user.is_active && (
                         <button onClick={() => handleActivate(user.id)} className="btn btn-success">Activer</button>
                       )}
                       <button type="button" className="btn btn-outline-warning" onClick={() => handleClick(user)}>Assigné Service</button>
+                      </Stack>
                     </TableCell>
                   </TableRow>
                 ))}

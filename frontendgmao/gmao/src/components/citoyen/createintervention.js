@@ -7,6 +7,7 @@ import PopupMessage from '../message';
 
 
 
+
 const CreateInterventionForm = ({ onInterventionCreated }) => {
   const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -53,17 +54,25 @@ const CreateInterventionForm = ({ onInterventionCreated }) => {
 
       if (response.ok) {
         
-        setPopupMessage('Intervention created successfully');
+        setPopupMessage('intervetion est bien créé');
         setPopupColor('success');
         setShowPopup(true);
+        setTimeout(() => {
+          setShowPopup(false);
+          
+        }, 1500);
         setDescription('');
         setStartDate('');
         setEndDate('');
-      } else {
+      } else if (response.status===401) {
         console.error('Failed to create intervention');
-        setPopupMessage('Failed to create intervention');
+        setPopupMessage('si vous plais remplie le fomre ');
         setPopupColor('danger');
         setShowPopup(true);
+        setTimeout(() => {
+          
+          setShowPopup(false);
+        }, 1500);
       }
     } catch (error) {
       console.error('Error creating intervention:', error);
