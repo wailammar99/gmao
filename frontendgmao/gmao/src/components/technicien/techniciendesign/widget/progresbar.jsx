@@ -84,34 +84,20 @@ const NavigationBar = () => {
             </div>
             <div className="summary">
               <div className="item">
-                <div className="itemTitle">etat</div>
+                <div className="itemTitle">Date de début: </div> 
                 <div className="itemResult negative">
-                  <div className="resultAmount">{intervention.etat}</div>
+                  <div className="resultAmount">{format(new Date(intervention.date_debut), 'dd/MM/yyyy')}</div>
+                  <div><br></br></div>
                 </div>
-              </div>
-              <div className="item">
-                <div className="itemTitle">date de debut</div>
-                <div className="itemResult positive">
-                  <div className="resultAmount">{intervention.date_debut}</div>
-                </div>
-              </div>
-              <div className="item">
-                <div className="itemTitle">date de fin</div>
-                <div className="itemResult positive">
-                 
-                  <div className="resultAmount">{intervention.date_fin}</div>
-                </div>
-              </div>
-              <div className="item">
-             
-                <div className="itemResult positive">
                 
-                  <div className="resultAmount">
-                    
-                  </div>
-               
+              </div>
+              <div className="item">
+                <div className="itemTitle">Date de fin: </div>
+                <div className="itemResult positive">
+                  <div className="resultAmount">{format(new Date(intervention.date_fin), 'dd/MM/yyyy')}</div>
                 </div>
               </div>
+              {/* Add other data items similarly */}
             </div>
           </div>
         </div>

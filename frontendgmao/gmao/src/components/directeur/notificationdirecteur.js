@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button, TableCell, TableContainer, Paper, Table, TableHead, TableRow, TableBody } from '@mui/material';
+import { Button, Paper } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 import Navbar from './directeurdesi/Navbar/navbardic';
 import Sidebar from './directeurdesi/Sidebar/Sidebardic';
 import PopupMessage from '../message';
@@ -41,7 +42,6 @@ const Notificationdirecteur = () => {
       });
       if (response.ok) {
         setPopupMessage('Notification supprimée avec succès');
-
         setPopupColor('success');
         setShowPopup(true);
         setTimeout(() => {
@@ -71,6 +71,21 @@ const Notificationdirecteur = () => {
     setCurrentPage(pageNumber);
   };
 
+  const columns = [
+    { field: 'id', headerName: 'ID', width: 100 },
+    { field: 'message', headerName: 'Message', width: 200},
+    { field: 'created_at', headerName: 'date de creation', width: 600},
+
+    {
+      field: 'action',
+      headerName: 'Action',
+      width: 200,
+      renderCell: (params) => (
+        <Button variant="contained" color="secondary" onClick={() => deleteNotification(params.row.id)}>Delete</Button>
+      ),
+    },
+  ];
+
   return (
     <div className="list">
       <Sidebar />
@@ -78,28 +93,18 @@ const Notificationdirecteur = () => {
         <Navbar />
         <h1>Notifications</h1>
         {showPopup && <PopupMessage message={popupMessage} color={popupColor} />}
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Message</TableCell>
-                <TableCell>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {currentNotifications.map(notification => (
-                <TableRow key={notification.id}>
-                  <TableCell>{notification.id}</TableCell>
-                  <TableCell>{notification.message}</TableCell>
-                  <TableCell>
-                    <Button variant="contained" color="secondary" onClick={() => deleteNotification(notification.id)}>Delete</Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <div style={{ height: 400, width: '100%' }}>
+          <DataGrid
+            rows={currentNotifications}
+            columns={columns}
+            pageSize={usersPerPage}
+            rowsPerPageOptions={[usersPerPage]}
+            hideFooterPagination={true}
+            
+            hideFooter={true}
+            hideFooterSelectedRowCount={true}
+          />
+        </div>
         <Pagination count={Math.ceil(notifications.length / usersPerPage)} page={currentPage} onChange={paginate} />
       </div>
     </div>

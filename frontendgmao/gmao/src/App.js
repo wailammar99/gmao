@@ -115,7 +115,7 @@ function App() {
           />
              <Route
             path="/directeur_dashboard"
-            element={isLoggedIn ? <Pagedirecteur onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+            element= <Pagedirecteur onLogout={handleLogout} /> 
           />
              <Route path="/conversation/:id/directeur/:int" element={<ConversationMessagesdir />} />
           <Route

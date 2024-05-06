@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './directeurdesi/Sidebar/Sidebardic';
 import Navbar from './directeurdesi/Navbar/navbardic';
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
+import { DataGrid } from '@mui/x-data-grid';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -17,6 +11,7 @@ import Stack from '@mui/material/Stack';
 import PopupMessage from '../message';
 import { useNavigate } from 'react-router-dom';
 import { Pagination } from '@mui/material';
+
 
 const Listtechnicien = () => {
   const [technicienData, setTechnicienData] = useState([]);
@@ -42,8 +37,12 @@ const Listtechnicien = () => {
       const response = await fetch('http://127.0.0.1:8000/listecustomer/');
       if (response.ok) {
         const data = await response.json();
-        const techniciens = data.filter(user => user.is_technicien);
-        setTechnicienData(techniciens);
+        const techniciens = data.filter(user => user.is_technicien && user.is_active === true);
+        const flattenedTechniciens = techniciens.map(user => ({
+          ...user,
+          service_nom: user.service ? user.service.nom : "he needs assigned service",
+        }));
+        setTechnicienData(flattenedTechniciens);
       } else {
         console.error('Failed to fetch user data');
       }
@@ -86,21 +85,33 @@ const Listtechnicien = () => {
     try {
       const response = await fetch(`http://127.0.0.1:8000/api_assigne_service_user/${selectedUser.id}/`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ service_id: formData.selectedOption }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          service_id: formData.selectedOption,
+        }),
       });
       if (response.ok) {
         setMessage("Utilisateur est bien assigné");
+        setShowMessage(true);
         setMessageColor('success');
+
         setTimeout(() => {
-          setOpenDialog(false);
           setShowMessage(false);
-          fetchData(); // Refresh the list of technicians after assignment
-          setFormData({ selectedOption: '' });
-        }, 1500);
-      } else {
+          setOpenDialog(false);
+        }, 3000);
+        fetchData();
+        setFormData({
+          selectedOption: '',
+        });
+      } else if (response.status==403) {
         setMessage("Choisir un service s'il vous plaît");
         setMessageColor('warning');
+        setShowMessage(true);
+        setTimeout(() => {
+          setShowMessage(false);
+        }, 1500);
       }
     } catch (error) {
       console.error('Error assigning service:', error);
@@ -109,25 +120,13 @@ const Listtechnicien = () => {
     }
   };
 
-  const handleActivate = async (id) => {
-    try {
-      const response = await fetch(`http://127.0.0.1:8000/api_activer_compte/${id}`, { method: 'GET' });
-      if (response.ok) {
-        console.log('Compte utilisateur activé avec succès');
-      } else {
-        throw new Error('Failed to activate user account');
-      }
-    } catch (error) {
-      console.error('Error activating user account:', error);
-    }
-  };
-
   const handleUpgrade = async (id) => {
     try {
       const response = await fetch(`http://127.0.0.1:8000/update_tehcncien/${id}/`, { method: 'POST' });
       if (response.ok) {
         console.log('Technician upgraded successfully');
-        setUpgradeMessage("le tehncien est devenze chefservice ");
+        setMessage("le tehncien est devenze chefservice ");
+        setMessageColor("success");
         setShowMessage(true);
         fetchData();
         setTimeout(() => setShowMessage(false), 3000);
@@ -140,6 +139,7 @@ const Listtechnicien = () => {
     }
   };
 
+  const totalUsers = technicienData.length;
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = technicienData.slice(indexOfFirstUser, indexOfLastUser);
@@ -147,6 +147,25 @@ const Listtechnicien = () => {
   const paginate = (event, value) => {
     setCurrentPage(value);
   };
+
+  const columns = [
+    { field: 'username', headerName: 'Username', width: 150 },
+    { field: 'email', headerName: 'Email', width: 200 },
+    { field: 'first_name', headerName: 'First Name', width: 150 },
+    { field: 'last_name', headerName: 'Last Name', width: 150 },
+    { field: 'service_nom', headerName: 'Service', width: 150 },
+    {
+      field: 'action',
+      headerName: 'Action',
+      width: 200,
+      renderCell: (params) => (
+        <Stack direction="row" spacing={1}>
+          <Button variant="outlined" color="warning" onClick={() => handleClick(params.row)} sx={{ color: 'black', border: '1px solid yellow', '&:hover': { bgcolor: 'yellow', }, }}>Assigné </Button>
+          <Button variant="outlined" color="success" onClick={() => handleUpgrade(params.row.id)}sx={{ color: 'Black', border: '1px solid green', '&:hover': { bgcolor: 'green', }, }}>update</Button>
+        </Stack>
+      ),
+    },
+  ];
 
   return (
     <div className="list">
@@ -156,53 +175,24 @@ const Listtechnicien = () => {
         <div className="top">
           <h1>technicien </h1>
         </div>
-        {message && <PopupMessage message={message} color={messageColor} />}
-        {showMessage && <PopupMessage message={upgradeMessage} color="success" />}
+        {showMessage && <PopupMessage message={message} color={messageColor} />}
+        
         <div className="botom">
-          <div>
-            <TableContainer component={Paper} className="table">
-              <TableHead>
-                <TableRow>
-                  <TableCell className="tableCell">ID</TableCell>
-                  <TableCell className="tableCell">Username</TableCell>
-                  <TableCell className="tableCell">Email</TableCell>
-                  <TableCell className="tableCell">first_name</TableCell>
-                  <TableCell className="tableCell">last_name</TableCell>
-                  <TableCell className="tableCell">Service</TableCell>
-                  <TableCell className="tableCell">Is Active</TableCell>
-                  <TableCell className="tableCell">Action</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {currentUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="tableCell">{user.id}</TableCell>
-                    <TableCell className="tableCell">{user.username}</TableCell>
-                    <TableCell className="tableCell">{user.email}</TableCell>
-                    <TableCell className="tableCell">{user.first_name}</TableCell>
-                    <TableCell className="tableCell">{user.last_name}</TableCell>
-                    <TableCell className="tableCell">{user.service?.nom || "he needs assigned service"}</TableCell>
-                    <TableCell className="tableCell">{user.is_active ? 'Yes' : 'No'}</TableCell>
-                    <TableCell className="tableCell">
-                      <Stack direction="row" spacing={2}>
-                        {!user.is_active && <button onClick={() => handleActivate(user.id)} className="btn btn-success">Activer</button>}
-                        <button type="button" className="btn btn-outline-warning" onClick={() => handleClick(user)}>Assigné Service</button>
-                        <button type="button" className="btn btn-outline-success" onClick={() => handleUpgrade(user.id)}>update </button>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </TableContainer>
+          <div style={{ height: 400, width: '100%' }}>
+            <DataGrid
+              rows={currentUsers}
+              columns={columns}
+              pageSize={usersPerPage}
+              hideFooterPagination={true}
+            />
             <Pagination
-              count={Math.ceil(technicienData.length / usersPerPage)}
+              count={Math.ceil(totalUsers / usersPerPage)}
               page={currentPage}
               onChange={paginate}
             />
           </div>
         </div>
       </div>
-
       {/* Dialog to assign service */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>Assigner un service</DialogTitle>

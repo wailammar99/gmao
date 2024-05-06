@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PopupMessage from '../../message';
 import { Navigate, useNavigate } from 'react-router-dom';
  
-const InterventionFormTechnician = ({ interventionId, onSubmit }) => {
+const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose }) => {
   const [formData, setFormData] = useState({
     selectedOption: '',
     selectedEquipment: [], // State for selected equipment IDs as an array
@@ -10,11 +10,12 @@ const InterventionFormTechnician = ({ interventionId, onSubmit }) => {
     startDate: interventionId.date_debut || '',
     endDate: '',
   });
-  const navgiate=useNavigate();
+
  
   const [equipmentOptions, setEquipmentOptions] = useState([]);
   const [selectedEquipmentsDetails, setSelectedEquipmentsDetails] = useState([]);
   const [showMessage, setShowMessage] = useState(false);
+  const navigate = useNavigate();
  
   useEffect(() => {
     fetchDropdownOptions();
@@ -49,6 +50,7 @@ const InterventionFormTechnician = ({ interventionId, onSubmit }) => {
  
   const handleSubmit = async (e) => {
     e.preventDefault();
+     
     try {
       const response = await fetch(`http://127.0.0.1:8000/api_assigne_service/${interventionId}`, {
         method: 'PUT',
@@ -65,7 +67,11 @@ const InterventionFormTechnician = ({ interventionId, onSubmit }) => {
  
       if (response.ok) {
         setShowMessage(true);
-        nav
+        setTimeout(() => {
+          navigate("/Chefservicepage");
+          setShowMessage(false);
+          onClose();
+        }, 1500);
         setFormData({
           selectedOption: '',
           selectedEquipment: [],
@@ -163,14 +169,7 @@ const InterventionFormTechnician = ({ interventionId, onSubmit }) => {
         </form>
  
         {/* Display selected equipments */}
-        <div>
-          <p>Équipements :</p>
-          <ul>
-            {selectedEquipmentsDetails.map((equipmentName, index) => (
-              <li key={index}>{equipmentName}</li>
-            ))}
-          </ul>
-        </div>
+        
       </div>
     </>
   );

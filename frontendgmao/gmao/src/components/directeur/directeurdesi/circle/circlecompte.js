@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { PieChart } from '@mui/x-charts';
-import "./circulecompte.scss" ;
+import { PieChart, pieArcLabelClasses } from '@mui/x-charts';
 
 const Circlecompte = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [admin, setamdin] = useState(0);
-  const[citoyen,setcitoyen]=useState(0);
-  const[chefservice,setchefservice]=useState(0);
-  const[technicien,settechnicien]=useState(0);
-
- 
+  const [admin, setAdmin] = useState(0);
+  const [citoyen, setCitoyen] = useState(0);
+  const [chefService, setChefService] = useState(0);
+  const [technicien, setTechnicien] = useState(0);
 
   useEffect(() => {
     fetchData();
@@ -23,37 +20,30 @@ const Circlecompte = () => {
         throw new Error('Failed to fetch data');
       }
       const data = await response.json();
-      let tt = 0;
-      let chefservice=0 ;
-      let citoyen=0;
-      let admin =0 ;
-      let technicien=0;
-     
-      const dataLength = data.length;
-      console.log("total:",dataLength)
+      let admins = 0;
+      let chefServices = 0;
+      let citoyens = 0;
+      let techniciens = 0;
+
       data.forEach(c => {
-        if (c.is_admin ==true) {
-          admin++;
+        if (c.is_admin) {
+          admins++;
         }
-        if (c.is_technicien==true )
-        {
-          technicien++;
+        if (c.is_technicien) {
+          techniciens++;
         }
-        if (c.is_citoyen== true )
-        {
-          citoyen++;
+        if (c.is_citoyen) {
+          citoyens++;
         }
-        if (c.is_chefservice==true )
-        {
-          chefservice++;
+        if (c.is_chefservice) {
+          chefServices++;
         }
-       
       });
-    
-     setamdin(admin);
-     setcitoyen(citoyen);
-     setchefservice(chefservice);
-     settechnicien(technicien);
+
+      setAdmin(admins);
+      setCitoyen(citoyens);
+      setChefService(chefServices);
+      setTechnicien(techniciens);
       setLoading(false);
     } catch (error) {
       setError(error);
@@ -65,33 +55,35 @@ const Circlecompte = () => {
   if (error) return <div>Error: {error.message}</div>;
 
   const data = [
-    { id: 0, value: admin,label:"admin"},
-    { id: 1, value: chefservice ,label:"chefservice"},
-    { id: 2, value: technicien,label:"techncien "},
-    { id: 3, value: citoyen ,label:"citoyen"},
-   
-    
-
-    
-
+    { id: 1, value: chefService, label: "chefservice" },
+    { id: 2, value: technicien, label: "technicien" },
+    { id: 3, value: citoyen, label: "citoyen" },
   ];
 
   return (
     <div className='chart'>
-
-    <div className='top'>
-    <h1 className='title'>les nombre de employer  </h1>
-    <PieChart
-      series={[
-        {
-          data,
-          highlightScope: { faded: 'global', highlighted: 'item' },
-          faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
-        },
-      ]}
-      height={200}
-    />
-    </div>
+      <div className='top'>
+        <h1 className='title'>Nombre d'employés par catégorie</h1>
+        <PieChart
+          series={[
+            {
+              arcLabel: (item) => ` ${Math.round(item.value / data.reduce((acc, curr) => acc + curr.value, 0) * 100)}%`,
+              arcLabelMinAngle: 45,
+              data,
+              highlightScope: { faded: 'global', highlighted: 'item' },
+              faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
+              animation: true, // Enable animation
+            },
+          ]}
+          sx={{
+            [`& .${pieArcLabelClasses.root}`]: {
+              fill: 'white', // Set the color to black
+              fontWeight: 'bold',
+            },
+          }}
+          height={200}
+        />
+      </div>
     </div>
   );
 }

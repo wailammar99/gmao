@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './directeurdesi/Sidebar/Sidebardic';
 import Navbar from './directeurdesi/Navbar/navbardic';
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import { Button } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -64,8 +58,11 @@ const CompteNoActive = () => {
       if (response.ok) {
         const data = await response.json();
         // Filter users where is_active is false
-        const filteredUsers = data.filter(user => !user.is_active);
-        setUsers(filteredUsers);
+        const filteredUsers = data.filter(user => user.is_active==false);
+        const flattenedTechniciens = filteredUsers.map(user => ({
+          ...user,
+          service_nom: user.service ? user.service.nom : "vous devez assigé service ",  }));
+        setUsers(flattenedTechniciens);
       } else {
         console.error('Failed to fetch user data');
       }
@@ -125,15 +122,22 @@ const CompteNoActive = () => {
       if (response.ok) {
         setMessage("Utilisateur est bien assigné");
         setColor('success');
+      
+        
          setShowMessage(true); // Set showMessage to true here
       setTimeout(() => {
         setOpenDialog(false);
-      }, 3000);
+        fetchData();
+      }, 1500);
         setOpenDialog(false);
-        fetchData(); 
-      } else {
+       
+      } else if (response.status===403){
         setMessage("Choisir un service s'il vous plaît");
         setColor('warning');
+        setShowMessage(true);
+        setTimeout(() => {
+          setShowMessage(false);
+        }, 1500);
       }
     } catch (error) {
       console.error('Error assigning service:', error);
@@ -162,6 +166,26 @@ const CompteNoActive = () => {
     setCurrentPage(value);
   };
 
+  const columns = [
+    { field: 'id', headerName: 'ID', width: 100 },
+    { field: 'username', headerName: 'Username', width: 150 },
+    { field: 'email', headerName: 'Email', width: 200 },
+    { field: 'first_name', headerName: 'First Name', width: 150 },
+    { field: 'last_name', headerName: 'Last Name', width: 150 },
+    { field: 'service_nom', headerName: 'Service', width: 150 },
+    {
+      field: 'action',
+      headerName: 'Actions',
+      width: 200,
+      renderCell: (params) => (
+        <Stack direction="row" spacing={2}>
+          <Button onClick={() => handleActivate(params.row.id)} variant="outlined" sx={{ color: 'Black', border: '1px solid green', '&:hover': { bgcolor: 'green', }, }}>Activer</Button>
+          <Button onClick={() => handleAssignServiceClick(params.row)} variant="outlined" color="warning" >Assigné</Button>
+        </Stack>
+      ),
+    },
+  ];
+
   return (
     <div className="list">
       <Sidebar />
@@ -172,38 +196,13 @@ const CompteNoActive = () => {
           {showMessage && <PopupMessage message={message} color={color} />}
         </div>
         <div className="bottom">
-          <div>
-            <TableContainer component={Paper} className="table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Username</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>First Name</TableCell>
-                  <TableCell>Last Name</TableCell>
-                  <TableCell>Service</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {currentUsers.map(user => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.id}</TableCell>
-                    <TableCell>{user.username}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.first_name}</TableCell>
-                    <TableCell>{user.last_name}</TableCell>
-                    <TableCell>{user.service ? user.service.nom : "Utilisateur pas de service"}</TableCell>
-                    <TableCell>
-                      <Stack direction="row" spacing={2}>
-                        <Button onClick={() => handleActivate(user.id)} variant="outlined" sx={{ color: 'Black', border: '1px solid green', '&:hover': { bgcolor: 'green', }, }}>Activer</Button>
-                        <button onClick={() => handleAssignServiceClick(user)} className="btn btn-outline-warning">Assign Service</button>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </TableContainer>
+          <div style={{ height: 400, width: '100%' }}>
+            <DataGrid
+              rows={currentUsers}
+              columns={columns}
+              pageSize={usersPerPage}
+              hideFooterPagination={true}
+            />
             <Pagination count={Math.ceil(users.length / usersPerPage)} page={currentPage} onChange={paginate} />
           </div>
         </div>
