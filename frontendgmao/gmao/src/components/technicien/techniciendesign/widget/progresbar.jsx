@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { CircularProgressbar } from "react-circular-progressbar";
+import { format } from 'date-fns';
 import 'react-circular-progressbar/dist/styles.css';
-import { format, differenceInDays } from 'date-fns';
+import './progressbar.css';
+import { colors } from '@mui/material';
+import { differenceInDays } from 'date-fns';
 
-import './progressbar.css'; 
 
 const NavigationBar = () => {
   const [interventionData, setInterventionData] = useState([]);
@@ -44,57 +47,30 @@ const NavigationBar = () => {
     }
   };
 
-  const calculateDurationProgress = (startDate, endDate) => {
-    const start = new Date(startDate).getTime();
-    const end = new Date(endDate).getTime();
-    const now = Date.now();
-
-    const totalDuration = end - start;
-    const elapsedDuration = now - start;
-
-    return Math.min(100, (elapsedDuration / totalDuration) * 100);
-  };
-
-  const calculateRemainingDays = endDate => {
-    const end = new Date(endDate);
-    const today = new Date();
-    const remainingDays = differenceInDays(end, today);
-
-    return remainingDays > 0 ? remainingDays : 0;
-  };
-
-  const calculateInterventionDuration = (startDate, endDate) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const durationInDays = differenceInDays(end, start);
-
-    return durationInDays > 0 ? durationInDays : 0;
-  };
-
   return (
     <div className='intervention-container'>
       {interventionData.map((intervention) => (
         <div className="featured" key={intervention.id}>
           <div className="top">
             <h1 className="title">{intervention.id}</h1>
+            <MoreVertIcon fontSize="small" />
           </div>
           <div className="bottom">
             <div className="featuredChart">
-              <CircularProgressbar value={intervention.etat} text={`${calculateInterventionDuration(intervention.date_debut, intervention.date_fin)} days`} strokeWidth={5} />
+              <CircularProgressbar value={intervention.etat}  text={`${differenceInDays(new Date(intervention.date_fin), new Date(intervention.date_debut))} jours `}  strokeWidth={5} />
             </div>
             <div className="summary">
               <div className="item">
-                <div className="itemTitle">Date de début: </div> 
-                <div className="itemResult negative">
-                  <div className="resultAmount">{format(new Date(intervention.date_debut), 'dd/MM/yyyy')}</div>
-                  <div><br></br></div>
+                <div className="date">
+                  <span className="itemTitle"  >Date de début:</span> <br></br>
+                  <span className="resultAmount" style={{ color: "green" }}>{format(new Date(intervention.date_debut), 'dd/MM/yyyy')} </span> 
                 </div>
-                
               </div>
               <div className="item">
-                <div className="itemTitle">Date de fin: </div>
-                <div className="itemResult positive">
-                  <div className="resultAmount">{format(new Date(intervention.date_fin), 'dd/MM/yyyy')}</div>
+                <div className="date">
+                  <span className="itemTitle">Date de fin:</span> <br></br>
+                  <span className="resultAmount" style={{ color: "red" }}>{format(new Date(intervention.date_fin), 'dd/MM/yyyy')}</span>
+
                 </div>
               </div>
               {/* Add other data items similarly */}

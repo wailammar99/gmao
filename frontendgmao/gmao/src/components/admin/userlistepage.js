@@ -1,26 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import UserForm from './userform';
-import PopupMessage from '../message';
-import Paper from "@mui/material/Paper";
+import Sidebar from './admindesign/home/sidebar/sidebar';
+import Navbar from './admindesign/home/navbar/navbar';
 import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
+import { Button } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
+import Pagination from '@mui/material/Pagination';
+import PopupMessage from '../message';
 
-function UserListPage() {
+const UserListPage = () => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState(null);
   const [modifiedUser, setModifiedUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [message, setMessage] = useState("");
-  const [showpop, setShowPop] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [usersPerPage] = useState(5);
   const [filteredUsers, setFilteredUsers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(6);
+  const [message, setMessage] = useState("");
+  const [color, setColor] = useState("");
+  const [showPop, setShowPop] = useState(false);
 
   const fetchUsers = async () => {
     try {
@@ -29,26 +27,21 @@ function UserListPage() {
         throw new Error('Failed to fetch data');
       }
       const data = await response.json();
-      setUsers(data);
-      setFilteredUsers(data); // Initially, display all users
+      const modifiedData = data.map(user => ({
+        ...user,
+        service_nom: user.service ? user.service.nom : null
+      }));
+      setUsers(modifiedData);
+      setFilteredUsers(modifiedData);
     } catch (error) {
-      setError(error.message);
+      console.error('Error fetching users:', error);
+      setError('Failed to fetch users. Please try again later.');
     }
   };
 
   useEffect(() => {
     fetchUsers();
   }, []);
-
-  useEffect(() => {
-    if (showpop) {
-      const timer = setTimeout(() => {
-        setShowPop(false);
-      }, 5000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [showpop]);
 
   const handleModifyClick = (user) => {
     setModifiedUser(user);
@@ -64,10 +57,13 @@ function UserListPage() {
         }
       });
       if (response.ok) {
-        setUsers(users.filter(user => user.id !== id));
         setMessage("L'utilisateur a été supprimé avec succès");
         setShowPop(true);
-        fetchUsers();
+        setColor("success");
+        setTimeout(() => {
+          setShowPop(false);
+          fetchUsers();
+        }, 1500);
       } else {
         throw new Error('Failed to delete user');
       }
@@ -91,12 +87,14 @@ function UserListPage() {
         body: JSON.stringify(updatedUserData),
       });
       if (response.ok) {
-        setUsers(users.map(user => user.id === modifiedUser.id ? updatedUserData : user));
-        setModifiedUser(null);
-        setShowModal(false);
-        setMessage("L'utilisateur a été modifié avec succès");
         setShowPop(true);
-        fetchUsers();
+        setColor("success");
+        setMessage("utilisteur est bien modfifie");
+        setTimeout(() => {
+          setShowPop(false);
+          setShowModal(false);
+          fetchUsers();
+        }, 1500);
       } else {
         throw new Error('Failed to update user');
       }
@@ -105,106 +103,88 @@ function UserListPage() {
     }
   };
 
-  const filterUsersByType = (role) => {
-    if (role === 'all') {
-      setFilteredUsers(users); // Afficher tous les utilisateurs
+  const columns = [
+    { field: 'username', headerName: 'Username', width: 200 },
+    { field: 'first_name', headerName: 'prenom', width: 200 },
+    { field: 'last_name', headerName: 'nom', width: 200 },
+    { field: 'email', headerName: 'Email', width: 200 },
+    { field: 'service_nom', headerName: 'Service', width: 150 },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 400,
+      renderCell: (params) => (
+        <>
+          <Button onClick={() => handleDelete(params.row.id)} variant="outlined" color="error">Supprimer</Button>
+          <Button onClick={() => handleModifyClick(params.row)} color="secondary" variant='outlined'>Modifier</Button>
+        </>
+      ),
+    },
+  ];
+
+  const filterUsersByType = (type) => {
+    if (type === 'all') {
+      setFilteredUsers(users);
     } else {
-      const filtered = users.filter(user => user[`is_${role}`]); // Filtrer les utilisateurs par rôle
+      const filtered = users.filter(user => user[`is_${type}`]);
       setFilteredUsers(filtered);
     }
-    setCurrentPage(1); // Reset current page to 1 when filtering
+    setCurrentPage(1); // Reset pagination when filter changes
   };
 
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser); // Use filteredUsers for pagination
 
-  const paginate = pageNumber => setCurrentPage(pageNumber);
+  const paginate = (event, value) => setCurrentPage(value);
 
   if (error) {
     return <div>Error: {error}</div>;
   }
 
   return (
-    <div>
-      <h1>Liste des utilisateurs</h1>
-      <div>
-        {/* Boutons pour filtrer par rôle */}
-        <Button onClick={() => filterUsersByType('all')}>All</Button>
-        <Button onClick={() => filterUsersByType('admin')}>Admin</Button>
-        <Button onClick={() => filterUsersByType('technicien')}>Technicien</Button>
-        <Button onClick={() => filterUsersByType('chefservice')}>Chef Service</Button>
-        <Button onClick={() => filterUsersByType('directeur')}>Directeur</Button>
-        <Button onClick={() => filterUsersByType('citoyen')}>Citoyen</Button>
-      </div>
-      {showpop && <PopupMessage message={message} color="success" />}
-      <TableContainer component={Paper} className="table">
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Username</TableCell>
-              <TableCell>Firstname</TableCell>
-              <TableCell>Last Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Poste</TableCell>
-              <TableCell>Service</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {currentUsers.map(user => (
-              <TableRow key={user.id}>
-                <TableCell>{user.id}</TableCell>
-                <TableCell>{user.username}</TableCell>
-                <TableCell>{user.first_name}</TableCell>
-                <TableCell>{user.last_name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>
-                  {user.is_directeur && 'Directeur '}
-                  {user.is_admin && 'Admin '}
-                  {user.is_technicien && 'Technicien '}
-                  {user.is_chefservice && 'Chef Service '}
-                  {user.is_citoyen && 'Citoyen '}
-                </TableCell>
-                <TableCell>{user.service ? user.service.nom : 'Inconnu'}</TableCell>
-                <TableCell>
-                  <Stack direction="row" spacing={2}>
-                  <Button onClick={() => handleDelete(user.id)} variant="outlined" color="error">Supprimer</Button>
-                  <Button onClick={() => handleModifyClick(user)} color="secondary">Modifier</Button>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <ul className='pagination'>
-        {usersPerPage >= users.length ? null : (
-          <Button onClick={() => paginate(currentPage - 1)} variant="contained" color="primary">Précédent</Button>
-        )}
-        {currentUsers.map((user, index) => (
-          <Button key={index} onClick={() => paginate(index + 1)} variant="contained" color={currentPage === index + 1 ? "primary" : "secondary"}>{index + 1}</Button>
-        ))}
-        {usersPerPage >= users.length ? null : (
-          <Button onClick={() => paginate(currentPage + 1)} variant="contained" color="primary">Suivant</Button>
-        )}
-      </ul>
-      {modifiedUser && (
-        <div className={`modal ${showModal ? 'show' : ''}`} tabIndex="-1" role="dialog" style={{ display: showModal ? 'block' : 'none' }}>
-          <div className="modal-dialog" role="document">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Modifier l'utilisateur</h5>
-                <button type="button" className="btn-close" aria-label="Close" onClick={() => setShowModal(false)}></button>
-              </div>
-              <div className="modal-body">
-                <UserForm user={modifiedUser} onSubmit={handleFormSubmit} />
+    <div className="list">
+      <div className="listContainer">
+        <h1>Customer List</h1>
+        {showPop && <PopupMessage message={message} color={color} />}
+        <div>
+          {/* Add buttons for filtering users */}
+          <Button onClick={() => filterUsersByType('all')}>All</Button>
+          <Button onClick={() => filterUsersByType('admin')}>Admin</Button>
+          <Button onClick={() => filterUsersByType('technicien')}>Technicien</Button>
+          <Button onClick={() => filterUsersByType('chefservice')}>Chef Service</Button>
+          <Button onClick={() => filterUsersByType('directeur')}>Directeur</Button>
+          <Button onClick={() => filterUsersByType('citoyen')}>Citoyen</Button>
+        </div>
+        <DataGrid
+          rows={currentUsers}
+          columns={columns}
+          checkboxSelection={false}
+          hideFooterPagination={true}
+          hideFooter={true}
+          autoHeight={true} // Remove scrollbar
+        />
+        <Pagination
+          count={Math.ceil(filteredUsers.length / usersPerPage)} // Use filteredUsers.length for pagination count
+          page={currentPage}
+          onChange={paginate}
+        />
+        {modifiedUser && (
+          <div className={`modal ${showModal ? 'show' : ''}`} tabIndex="-1" role="dialog" style={{ display: showModal ? 'block' : 'none' }}>
+            <div className="modal-dialog" role="document">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Modify User</h5>
+                  <button type="button" className="btn-close" aria-label="Close" onClick={() => setShowModal(false)}></button>
+                </div>
+                <div className="modal-body">
+                  <UserForm user={modifiedUser} onSubmit={handleFormSubmit} />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

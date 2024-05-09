@@ -14,6 +14,9 @@ const LogoutButton = () => {
       });
       if (response.ok) {
         console.log("is workign ");
+        localStorage.clear();
+        sessionStorage.clear();
+      
         // Handle successful logout (e.g., redirect to login page)
         navigate('/login'); // Redirect to login page after logout
       } else {

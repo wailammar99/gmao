@@ -160,8 +160,8 @@ const Listtechnicien = () => {
       width: 200,
       renderCell: (params) => (
         <Stack direction="row" spacing={1}>
-          <Button variant="outlined" color="warning" onClick={() => handleClick(params.row)} sx={{ color: 'black', border: '1px solid yellow', '&:hover': { bgcolor: 'yellow', }, }}>Assigné </Button>
-          <Button variant="outlined" color="success" onClick={() => handleUpgrade(params.row.id)}sx={{ color: 'Black', border: '1px solid green', '&:hover': { bgcolor: 'green', }, }}>update</Button>
+          <Button variant="outlined" color="warning" onClick={() => handleClick(params.row)} >Assigné </Button>
+          <Button variant="outlined" color="success" onClick={() => handleUpgrade(params.row.id)}>update</Button>
         </Stack>
       ),
     },

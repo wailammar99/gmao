@@ -114,10 +114,28 @@ class Notification(models.Model):
  is_read = models.BooleanField(default=False)
  created_at = models.DateTimeField(auto_now_add=True)
 
-    
-    
+class Contact (models.Model):
+    email=models.EmailField(max_length=100)
+    nom=models.CharField(max_length=100)
+    telephone=models.IntegerField(max_length=100)
+    SUJET_TYPE = (
+        ('probleme avec compte ', 'probleme avec compte '),
+        ('publicite', 'publicite '),
+        ('suggestion','sugestion'),
+        ("autre","auttre"),
+        ("abonement","abonement")
+    )
+    sujet_type = models.CharField(max_length=1100, choices=SUJET_TYPE, default='autre')
+    message=models.TextField(max_length=2500)
+class Rapport(models.Model):
+    date_rapport=models.DateField(auto_now_add=True)
+   
+    date_debut = models.DateField(null=True, blank=True)
+    date_fin = models.DateField(null=True, blank=True)
+    intevetions=models.ManyToManyField(interven)
+    def generate_rapport (self):
+       return interven.objects.filter(date_debut=self.data_debut,date_fin=self.date_fin)
         
-
 
 
 

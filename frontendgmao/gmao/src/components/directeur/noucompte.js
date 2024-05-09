@@ -179,7 +179,7 @@ const CompteNoActive = () => {
       width: 200,
       renderCell: (params) => (
         <Stack direction="row" spacing={2}>
-          <Button onClick={() => handleActivate(params.row.id)} variant="outlined" sx={{ color: 'Black', border: '1px solid green', '&:hover': { bgcolor: 'green', }, }}>Activer</Button>
+          <Button onClick={() => handleActivate(params.row.id)} variant="outlined" color="success" >Activer</Button>
           <Button onClick={() => handleAssignServiceClick(params.row)} variant="outlined" color="warning" >Assigné</Button>
         </Stack>
       ),

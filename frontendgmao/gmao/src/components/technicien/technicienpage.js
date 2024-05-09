@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Button, TableCell, TableContainer, Paper, Table, TableHead, TableRow, TableBody, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle,Pagination } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 import Sidebar from './techniciendesign/sidebar/sidebar';
 import Navbar from './techniciendesign/navbar/navbar';
 import EnAttenteForm from './EnAttenteForm';
 import ConversationForm from '../citoyen/ConversationForm';
 import PopupMessage from '../message';
-import Pagination from '@mui/material/Pagination';
-
+import { Link } from 'react-router-dom';
 const Technicienpage = () => {
   const [interventions, setInterventions] = useState([]);
-  const [equipments, setEquipments] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedIntervention, setSelectedIntervention] = useState(null);
   const [isNoService, setIsNoService] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+ 
   const [currentPage, setCurrentPage] = useState(1);
   const [interventionsPerPage] = useState(4);
   const [showModalConversation, setShowModalConversation] = useState(false);
@@ -22,13 +21,29 @@ const Technicienpage = () => {
   const [showEnAttenteForm, setShowEnAttenteForm] = useState(false);
   const [interventionId, setInterventionId] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
+  const [equipments, setEquipments] = useState([]);
   const [popupMessage, setPopupMessage] = useState({ message: '', color: 'success' });
   const [selectedStatus, setSelectedStatus] = useState('');
+  const[FilteredInterventions,setFilteredInterventions]=useState('');
+
 
   useEffect(() => {
     fetchData();
     fetchEquipmentData();
   }, []);
+  const fetchEquipmentData = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/liste_equipment/');
+      if (response.ok) {
+        const equipmentData = await response.json();
+        setEquipments(equipmentData);
+      } else {
+        console.error('Failed to fetch equipment data');
+      }
+    } catch (error) {
+      console.error('Error fetching equipment data:', error);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -55,20 +70,6 @@ const Technicienpage = () => {
     }
   };
 
-  const fetchEquipmentData = async () => {
-    try {
-      const response = await fetch('http://127.0.0.1:8000/liste_equipment/');
-      if (response.ok) {
-        const equipmentData = await response.json();
-        setEquipments(equipmentData);
-      } else {
-        console.error('Failed to fetch equipment data');
-      }
-    } catch (error) {
-      console.error('Error fetching equipment data:', error);
-    }
-  };
-
   const handleStartIntervention = async (interventionId) => {
     try {
       const response = await fetch(`http://127.0.0.1:8000/api_demarer_inetrvetion/${interventionId}/`, {
@@ -78,12 +79,13 @@ const Technicienpage = () => {
         setShowPopup(true);
         setPopupMessage({ message: 'intervention est bien démarrée avec succès', color: 'success' });
         setTimeout(() => {
-          setPopupMessage(false);
+          setShowPopup(false);
+          fetchData();
         }, 1500);
       } else {
         throw new Error('Failed to start intervention');
       }
-      updateInterventionStatus(interventionId, 'En cours');
+      
     } catch (error) {
       console.error('Error starting intervention:', error);
     }
@@ -99,33 +101,22 @@ const Technicienpage = () => {
         setPopupMessage({ message: 'intervention est bien terminée avec succès', color: 'success' });
         setTimeout(() => {
           setPopupMessage(false);
+          fetchData();
         }, 1500);
         fetchData();
       } else {
         throw new Error('Failed to finish intervention');
       }
-      updateInterventionStatus(interventionId, 'Terminé');
+      
     } catch (error) {
       console.error('Error finishing intervention:', error);
     }
   };
 
-  const updateInterventionStatus = (interventionId, status) => {
-    setInterventions(interventions.map(intervention => {
-      if (intervention.id === interventionId) {
-        return { ...intervention, etat: status };
-      }
-      return intervention;
-    }));
-  };
 
   const handleToggleEnAttenteForm = (interventionId) => {
     setShowEnAttenteForm(!showEnAttenteForm);
     setInterventionId(interventionId); // Set the intervention_id
-  };
-
-  const handleFormSubmit = (formData) => {
-    console.log('Form submitted:', formData);
   };
 
   const handleOpenModal = (intervention) => {
@@ -149,19 +140,80 @@ const Technicienpage = () => {
 
   const filterInterventionsByStatus = (status) => {
     setSelectedStatus(status);
+    if (status === '') {
+      // If status is empty, set filtered interventions to all interventions
+      setFilteredInterventions(interventions);
+    } else {
+      // Filter interventions based on selected status
+      const filtered = interventions.filter(intervention => intervention.etat === status);
+      setFilteredInterventions(filtered);
+    }
+    // Reset current page to 1 whenever filter changes
+    setCurrentPage(1);
   };
 
   const handleSearch = (query) => {
-    console.log('Searching for:', query);
+    setSearchQuery(query);
+    // Perform search logic here
   };
 
-  const paginate = (event, pageNumber) => {
-    setCurrentPage(pageNumber);
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
+  const handleFormSubmit = (formData) => {
+    console.log('Form submitted:', formData);
+  };
+  
 
+  // Calculate range of interventions to display based on current page and interventions per page
+
+  const columns = [
+    { field: 'date_debut', headerName: 'Date de début', width: 200 },
+    { field: 'date_fin', headerName: 'Date de fin', width: 200 },
+    { field: 'etat', headerName: 'État', width: 150 },
+    {
+      field: 'conversation', // Assuming 'conversation' is an object within each intervention
+      headerName: 'Conversation', 
+      width: 150,
+      renderCell: (params) => {
+        if (params.row.conversation && params.row.conversation.id) {
+          return (
+            <Link to={`/conversation/${params.row.conversation.id}/technicien/${localStorage.getItem('userId')}`}>
+              {params.row.conversation.title}
+            </Link>
+          );
+        } else {
+          return (
+            <Button variant="outlined" onClick={() => handleStartConversation(params.row.id)}>demarer</Button>
+          );
+        }
+      } // Closing parenthesis was missing here
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 300,
+      renderCell: (params) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {params.row.etat === 'Assigné' && (
+            <Button onClick={() => handleStartIntervention(params.row.id)} variant="contained" color="primary">démarrer</Button>
+          )}
+          {params.row.etat === 'En cours' && (
+            <>
+              <Button onClick={() => handleFinishIntervention(params.row.id)} variant="contained" color="success">terminé</Button>
+              <Button onClick={() => handleToggleEnAttenteForm(params.row.id)} variant="outlined" color="error">En attente</Button>
+            </>
+          )}
+          <Button onClick={() => handleOpenModal(params.row)} variant="outlined" className='primary'>Voir plus</Button>
+        </div>
+      ),
+    },
+  ];
+  
   const indexOfLastIntervention = currentPage * interventionsPerPage;
   const indexOfFirstIntervention = indexOfLastIntervention - interventionsPerPage;
-  const currentInterventions = interventions.slice(indexOfFirstIntervention, indexOfLastIntervention);
+  // Slice the interventions array to get the interventions for the current page
+  const currentInterventions = FilteredInterventions.slice(indexOfFirstIntervention, indexOfLastIntervention);
 
   return (
     <div className="list">
@@ -170,39 +222,13 @@ const Technicienpage = () => {
         <Navbar onSearch={handleSearch} />
         <h1>Interventions</h1>
         <div className="filterButtons">
-          <Button onClick={() => filterInterventionsByStatus('En cours')}>en cours</Button>
+          <Button onClick={() => filterInterventionsByStatus('En cours')}>En cours</Button>
           <Button onClick={() => filterInterventionsByStatus('En attente')}>En attente</Button>
           <Button onClick={() => filterInterventionsByStatus('Terminé')}>Terminé</Button>
           <Button onClick={() => filterInterventionsByStatus('Assigné')}>Assigné</Button>
+          <Button onClick={() => filterInterventionsByStatus('')}>Tous</Button>
         </div>
-        {showPopup && <PopupMessage message={popupMessage.message} color={popupMessage.color} />}
-
-        <TableContainer component={Paper} className="table">
-          <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell>Date de début</TableCell>
-                <TableCell>Date de fin</TableCell>
-                <TableCell>État</TableCell>
-                <TableCell>Conversations</TableCell>
-                <TableCell>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {currentInterventions.map(intervention => (
-                <TableRow key={intervention.id}>
-                  <TableCell>{intervention.date_debut}</TableCell>
-                  <TableCell>{intervention.date_fin}</TableCell>
-                  <TableCell>{intervention.etat}</TableCell>
-                  <TableCell>
-                    {intervention.conversation && intervention.conversation.id ? (
-                      <Link to={`/conversation/${intervention.conversation.id}/citoyen/${localStorage.getItem('userId')}`}>
-                        {intervention.conversation.title}
-                      </Link>
-                    ) : (
-                      <Button variant="outlined" onClick={() => handleStartConversation(intervention.id)}>Start Conversation</Button>
-                    )}
-                    {showEnAttenteForm && (
+        {showEnAttenteForm && (
                       <EnAttenteForm
                         onClose={() => setShowEnAttenteForm(false)}
                         onSubmit={(formData) => {
@@ -219,27 +245,26 @@ const Technicienpage = () => {
                         interventionId={conversationInterventionId}
                       />
                     )}
-                  </TableCell>
-                  <TableCell>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {intervention.etat === 'Assigné' && (
-                        <Button onClick={() => handleStartIntervention(intervention.id)} variant="contained" color="primary">démarrer</Button>
-                      )}
-                      {intervention.etat === 'En cours' && (
-                        <>
-                          <Button onClick={() => handleFinishIntervention(intervention.id)} variant="contained" color="success">terminé</Button>
-                          <Button onClick={() => handleToggleEnAttenteForm(intervention.id)} variant="outlined" color="error">En attente</Button>
-                        </>
-                      )}
-                      <Button onClick={() => handleOpenModal(intervention)} variant="outlined" className='primary'>Voir plus</Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <Pagination count={Math.ceil(interventions.length / interventionsPerPage)} page={currentPage} onChange={paginate} />
+        <DataGrid
+          rows={currentInterventions}
+          columns={columns}
+          pageSize={interventionsPerPage}
+          pagination={false}
+          autoHeight={true}
+          hideFooter={true}
+          hideFooterPagination={true}
+        />
+        <div>
+        <Pagination
+  count={Math.ceil(FilteredInterventions.length / interventionsPerPage)}
+  page={currentPage}
+  onChange={(event, page) => handlePageChange(page)}
+  variant="outlined"
+  shape="rounded"
+/>
+   
+        </div>
+        {showPopup && <PopupMessage message={popupMessage.message} color={popupMessage.color} />}
         <Dialog open={showModal} onClose={handleCloseModal}>
           <DialogTitle>Details de l'intervention</DialogTitle>
           <DialogContent>
@@ -248,10 +273,10 @@ const Technicienpage = () => {
                 {/* Intervention details */}
                 <p>Description: {selectedIntervention.description}</p>
                 <p>Date de création : {selectedIntervention.date_creation}</p>
-    <p>Date de début : {selectedIntervention.date_debut}</p>
-    <p>Date de fin : {selectedIntervention.date_fin}</p>
-    <p>État : {selectedIntervention.etat}</p>
-    <p>Citoyen : {selectedIntervention.citoyen?.email ? selectedIntervention.citoyen.email : "null"}</p>
+                <p>Date de début : {selectedIntervention.date_debut}</p>
+                <p>Date de fin : {selectedIntervention.date_fin}</p>
+                <p>État : {selectedIntervention.etat}</p>
+                <p>Citoyen : {selectedIntervention.citoyen?.email ? selectedIntervention.citoyen.email : "null"}</p>
     <p>Service : {selectedIntervention.service.nom ? selectedIntervention.service.nom : "NULL"}</p>
     <p>Équipements :
       <ul>

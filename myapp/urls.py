@@ -81,7 +81,10 @@ urlpatterns = [
                    path("delete_equiment/<int:eq_id>/",views.api_delete_equiment),
                    path("put_equimpetment/<int:equipment_id>/",views.api_update_equipment),
                     path("reset_password/",views.api_forget_password),
-                    path("update_tehcncien/<int:user_id>/",views.updrade_technicien_to_chef_service)
+                    path("update_tehcncien/<int:user_id>/",views.updrade_technicien_to_chef_service),
+                    path("CreateContact/",views.api_post_contact),
+                    path("DeleteConatct/<int:contact_id>/",views.api_delete_contact),
+                    path("GetAllConatct/",views.api_get_contact),
 
 
                 

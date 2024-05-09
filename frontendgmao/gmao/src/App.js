@@ -51,6 +51,7 @@ import Adminprofil from './components/admin/admindesign/adminprofil';
 import ConversationFormchefservice from './components/chefservice/conversationformchefservice';
 import ConversationMessageschefservice from './components/chefservice/conversationformchefservice';
 import ConversationMessagesTechnicien from './components/technicien/cpnversationmessagetechnicien';
+import ListEquipement from './components/chefservice/listeequiment';
 
 
 
@@ -206,6 +207,10 @@ function App() {
           path="/Listchefservice"
           element={isLoggedIn ? <Listchefservice /> : <Navigate to="/directeur_dashboard" />}
           />
+           <Route
+            path="/listeequipement"
+            element={ <ListEquipement onLogout={handleLogout} />   }
+          />
 
         <Route
           path="/intervention"
@@ -225,7 +230,7 @@ function App() {
           />
               <Route
           path="/chefservicenotificationpage"
-          element={isLoggedIn ? <NotificationPagechefservice /> : <Navigate to="/chef_service_dashboard/:Id" />}
+          element={ <NotificationPagechefservice /> }
           />
            <Route path="/conversation/:id/chefservice/:int" element={<ConversationMessageschefservice />} />
 

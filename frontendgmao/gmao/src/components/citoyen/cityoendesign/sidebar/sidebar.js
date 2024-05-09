@@ -94,10 +94,7 @@ const Sidebar = () => {
         </Link>
           
         
-          <li>
-            <SettingsApplicationsIcon className="icon" />
-            <span>Settings</span>
-          </li>
+      
          
           <p className="title">USER</p>
           <li>

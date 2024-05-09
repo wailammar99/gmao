@@ -4,36 +4,39 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import InterventionForm from './InterventionForm';
 import Sidebar from './sidebar/sidebar';
 import Navbar from './navbar/navbar';
-import { Button, TableCell, TableContainer, Paper, Table, TableHead, TableRow, TableBody, Dialog, DialogTitle, DialogContent, DialogActions, TablePagination } from '@mui/material';
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Stack } from '@mui/material';
 import InterventionFormTechnician from './InterventionFormTechnician';
-import ConversationForm from '../../citoyen/ConversationForm';
 import PopupMessage from '../../message';
-import Stack from '@mui/material/Stack';
+import ConversationForm from '../../citoyen/ConversationForm';
+import { DataGrid } from '@mui/x-data-grid';
 import Pagination from '@mui/material/Pagination';
-
-
+ 
 const Chefservicepage = () => {
   const [interventions, setInterventions] = useState([]);
-  const [interventionId, setInterventionId] = useState(null);
   const [equipments, setEquipments] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState({ message: '', color: 'success' });
   const { id } = useParams();
   const [showModal, setShowModal] = useState(false);
-  const [showModall, setShowModall] = useState(false)
+  const [showModall, setShowModall] = useState(false);
   const [selectedIntervention, setSelectedIntervention] = useState(null);
   const [isNoService, setIsNoService] = useState(false);
-  const [interventionsPerPage] = useState(4);
   const [showModalConversation, setShowModalConversation] = useState(false);
   const [conversationInterventionId, setConversationInterventionId] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState('');
+  const [filteredInterventions, setFilteredInterventions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-
+  const [interventionsPerPage] = useState(6);
+ 
   useEffect(() => {
     fetchData();
     fetchEquipmentData();
   }, []);
-
+ 
+  useEffect(() => {
+    setCurrentPage(1); // Réinitialiser la page actuelle à 1 lorsque les interventions filtrées changent
+  }, [filteredInterventions]);
+ 
   const fetchData = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -41,16 +44,17 @@ const Chefservicepage = () => {
         console.log("Token not found. Redirecting to login...");
         return;
       }
-
+ 
       const response = await fetch(`http://127.0.0.1:8000/api_intervetion_chefservice/${localStorage.getItem('userId')}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
+ 
       if (response.ok) {
         const data = await response.json();
         setInterventions(data || []);
+        setFilteredInterventions(data || []); // Initially, set filtered interventions to all interventions
       } else {
         console.error('Failed to fetch interventions');
       }
@@ -58,7 +62,7 @@ const Chefservicepage = () => {
       console.error('Error fetching interventions:', error);
     }
   };
-
+ 
   const fetchEquipmentData = async () => {
     try {
       const response = await fetch('http://127.0.0.1:8000/liste_equipment/');
@@ -72,25 +76,19 @@ const Chefservicepage = () => {
       console.error('Error fetching equipment data:', error);
     }
   };
-
+ 
   const handleRefuseIntervention = async (interventionId) => {
     try {
       const response = await fetch(`http://127.0.0.1:8000/api_refuse_intervention/${interventionId}/`, {
         method: 'GET',
       });
-      
       if (response.ok) {
-        // Show the popup message
+        
         setShowPopup(true);
-        setPopupMessage({ message: 'Intervention est bien refusée', color: 'success' });
-  
-        // Reset the popup message state after 3 seconds (adjust as needed)
+        setPopupMessage({ message: 'Intervention est bien  refuse ', color: 'success' });
         setTimeout(() => {
           setShowPopup(false);
-          setPopupMessage({ message: '', color: 'success' });
         }, 1500);
-  
-        // Fetch updated data after refusing intervention
         fetchData();
       } else {
         console.error('Failed to refuse intervention');
@@ -99,26 +97,25 @@ const Chefservicepage = () => {
       console.error('Error refusing intervention:', error);
     }
   };
-  
-
+ 
   const hadllecloture = async (interventionId) => {
     try {
       const response = await fetch(`http://127.0.0.1:8000/api_cloture_inetrvetion/${interventionId}/`, {
         method: 'PUT',
       });
       if (response.ok) {
-        setShowPopup(true);
-        setPopupMessage({ message: 'Intervention est bien cloture', color: 'success' });
-  
-        // Reset the popup message state after 3 seconds (adjust as needed)
+        // Update the state immediately
+     
+       
+     // Update filtered interventions
+     setShowPopup(true);
+     
+        setPopupMessage({ message: 'Intervention est bien cloture ', color: 'success' });
         setTimeout(() => {
           setShowPopup(false);
-          setPopupMessage({ message: '', color: 'success' });
+          
         }, 1500);
-  
-        // Fetch updated data after refusing intervention
         fetchData();
-        
       } else {
         console.error('Failed to refuse intervention');
       }
@@ -126,8 +123,7 @@ const Chefservicepage = () => {
       console.error('Error refusing intervention:', error);
     }
   };
-
-
+ 
   const toggleModal = (intervention) => {
     setSelectedIntervention(intervention);
     setIsNoService(intervention.service && intervention.service.nom === 'noservice');
@@ -135,84 +131,133 @@ const Chefservicepage = () => {
     // Close the conversation modal if it's open
     setShowModalConversation(false);
   };
-
+ 
   const handleFormSubmit = (formData) => {
     console.log('Form submitted:', formData);
   };
-
-  const handleStartConversation = async (interventionId) => {
+ 
+  const handleStartConversation = (interventionId) => {
     setConversationInterventionId(interventionId);
     setShowModalConversation(true);
- 
-    
+    // Update the state immediately
+    const updatedInterventions = interventions.map(intervention => {
+      if (intervention.id === interventionId) {
+        return { ...intervention, etat: 'Conversation Started' };
+      } else {
+        return intervention; // Return the intervention as is
+      }
+    });
+    setInterventions(updatedInterventions);
     // Close the assignment modal if it's open
     setShowModal(false);
   };
-
+ 
   const handleOpenModal = (intervention) => {
     setSelectedIntervention(intervention);
     setShowModal(true);
     // Close the conversation modal if it's open
     setShowModalConversation(false);
   };
-
+ 
   const handleCloseModal = () => {
     setShowModal(false);
   };
-
+ 
   const handleOpenModall = (intervention) => {
     setSelectedIntervention(intervention);
     setShowModall(true);
     // Close the conversation modal if it's open
     setShowModalConversation(false);
   };
-
+ 
   const handleCloseModall = () => {
     setShowModall(false);
   };
-
+ 
   const filterInterventionsByStatus = (status) => {
     setSelectedStatus(status);
   };
-
+ 
   const handleSearch = (query) => {
     // Implement your search functionality here
     console.log('Searching for:', query);
     // You can perform any search-related actions here
   };
+ 
+  const columns = [
+ 
+    { field: 'date_debut', headerName: 'Date de début', width: 150 },
+    { field: 'date_fin', headerName: 'Date de fin', width: 150 },
+   
+    { field: 'etat', headerName: 'État', width: 150 },
+    {
+      field: 'conversation',
+      headerName: 'Conversation',
+      width: 150,
+      renderCell: (params) => (
+        <Link to={`/conversation/${params.row.conversation?.id}/chefservice/${localStorage.getItem('userId')}`}>
+          {params.row.conversation ? params.row.conversation.title : 'Unknown'}
+        </Link>
+      ),
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 400,
+      renderCell: (params) => (
+        <>
+       
+          <button type="button" className="btn btn-outline-warning" onClick={() => toggleModal(params.row)}>Assigner </button>
+          {params.row.etat !== 'Cloture' && ( // Vérifiez si l'intervention n'est pas déjà clôturée
+            <>
+              <button className="btn btn-danger" onClick={() => handleRefuseIntervention(params.row.id)}>Annule </button>
+              <button className="btn btn-success" onClick={() => hadllecloture(params.row.id)}>Cloturer</button>
+            </>
+          )}
+        
+          <button className="btn btn-info" onClick={() => handleOpenModall(params.row)}> Plus </button>
+         
+        </>
 
-  const updateInterventionStatus = (interventionId, status) => {
-    setInterventions(interventions.map(intervention => {
-      if (intervention.id === interventionId) {
-        return { ...intervention, etat: status };
-      }
-      return intervention;
-    }));
+      ),
+     
+    },
+  ];
+ 
+  const filterInterventionsByType = (etat) => {
+    if (etat === 'all') {
+      setFilteredInterventions(interventions); // Show all interventions
+    } else {
+      const filtered = interventions.filter(intervention => intervention.etat === etat); // Filter interventions by type
+      setFilteredInterventions(filtered);
+    }
   };
-
-  const filteredInterventions = interventions.filter(intervention => !selectedStatus || intervention.etat === selectedStatus);
-  const indexOfLastIntervention = currentPage * interventionsPerPage;
-  const indexOfFirstIntervention = indexOfLastIntervention - interventionsPerPage;
-  const currentInterventions = filteredInterventions.slice(indexOfFirstIntervention, indexOfLastIntervention);
-
   const paginate = (event, value) => {
     setCurrentPage(value);
   };
-
+ 
+  // Get current interventions
+  const indexOfLastIntervention = currentPage * interventionsPerPage;
+  const indexOfFirstIntervention = indexOfLastIntervention - interventionsPerPage;
+  const currentInterventions = filteredInterventions.slice(indexOfFirstIntervention, indexOfLastIntervention);
+ 
   return (
     <div className="list">
       <Sidebar />
       <div className="listContainer">
         <Navbar />
         <h1>Interventions</h1>
-        <Button onClick={() => filterInterventionsByStatus('En cours')}>en cour </Button>
-        <Button onClick={() => filterInterventionsByStatus('En attente')}>En attente</Button>
-        <Button onClick={() => filterInterventionsByStatus('Terminé')}>Terminé</Button>
-        <Button onClick={() => filterInterventionsByStatus('Assigné')}>Assigné</Button>
-        <Button onClick={() => filterInterventionsByStatus('Nouveau')}>Nouveau</Button>
-        <Button onClick={() => filterInterventionsByStatus('Clôture')}>Clôture</Button>
-
-        <Button onClick={() => filterInterventionsByStatus('')}>Tous</Button> {/* Add this button */}
+        <div>
+          {/* Boutons pour filtrer les interventions */}
+          <Button onClick={() => filterInterventionsByType('all')}>Tous</Button>
+          <Button onClick={() => filterInterventionsByType('Nouveau')}>Nouveau</Button>
+          <Button onClick={() => filterInterventionsByType('En attente')}>En attente</Button>
+          <Button onClick={() => filterInterventionsByType('En cours')}>En cours</Button>
+          <Button onClick={() => filterInterventionsByType('Assigné')}>Assigné</Button>
+          <Button onClick={() => filterInterventionsByType('Terminé')}>Terminé</Button>
+          <Button onClick={() => filterInterventionsByType('Annulé')}>Annulé</Button>
+          <Button onClick={() => filterInterventionsByType('Clôture')}>Clôture</Button>
+        </div>
         {showPopup && <PopupMessage message={popupMessage.message} color={popupMessage.color} />}
         {showModal && selectedIntervention && (
           <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
@@ -226,7 +271,7 @@ const Chefservicepage = () => {
                 </div>
                 <div className="modal-body">
                   {isNoService ? (
-                    <InterventionForm interventionId={selectedIntervention.id} onSubmit={handleFormSubmit} onClose={() => setShowModal(false)} />
+                    <InterventionForm interventionId={selectedIntervention.id} onSubmit={handleFormSubmit} onClose={() => setShowModal(false)}/>
                   ) : (
                     <InterventionFormTechnician interventionId={selectedIntervention.id} onSubmit={handleFormSubmit} onClose={() => setShowModal(false)} />
                   )}
@@ -235,7 +280,7 @@ const Chefservicepage = () => {
             </div>
           </div>
         )}
-
+ 
         {showModalConversation && (
           <ConversationForm
             show={showModalConversation}
@@ -243,65 +288,18 @@ const Chefservicepage = () => {
             interventionId={conversationInterventionId}
           />
         )}
-
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Date de création</TableCell>
-                <TableCell>Date de début</TableCell>
-                <TableCell>Date de fin</TableCell>
-                <TableCell>État</TableCell>
-                <TableCell>Conversations</TableCell>
-                <TableCell>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {currentInterventions.map(intervention => (
-                <TableRow key={intervention.id}>
-                  <TableCell>{intervention.date_creation}</TableCell>
-                  <TableCell>{intervention.date_debut}</TableCell>
-                  <TableCell>{intervention.date_fin}</TableCell>
-                  <TableCell>{intervention.etat}</TableCell>
-
-                  <TableCell>
-                    {intervention.conversation && intervention.conversation.id ? (
-                      <Link to={`/conversation/${intervention.conversation.id}/citoyen/${localStorage.getItem('userId')}`}>
-                        {intervention.conversation.title}
-                      </Link>
-                    ) : (
-                      <Button  variant="outlined" onClick={() => handleStartConversation(intervention.id)}>Start Conversation</Button>
-      
-                    )}
-                  </TableCell>
-                  {showModalConversation && (
-          <ConversationForm
-            show={showModalConversation}
-            onClose={() => setShowModalConversation(false)}
-            interventionId={conversationInterventionId}
-          />
-        )}
-                  <TableCell>
-          
-                    <div style={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
-                      <button type="button" className="btn btn-outline-warning" onClick={() => toggleModal(intervention)}>Assign</button>
-                      <button className="btn btn-danger" onClick={() => handleRefuseIntervention(intervention.id)}>Refuse</button>
-                      <button className="btn btn-success" onClick={() => hadllecloture(intervention.id)}>Cloture</button>
-                    </div>
-                    <td><button className="btn btn-info" onClick={() => handleOpenModall(intervention)}> plus</button></td>
-               
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <Pagination
-          count={Math.ceil(filteredInterventions.length / interventionsPerPage)}
-          page={currentPage}
-          onChange={paginate}
+        <DataGrid
+          rows={currentInterventions}
+          columns={columns}
+          checkboxSelection={false}
+          hideFooterPagination={true}
+          autoHeight={true} // Supprimer la barre de défilement
         />
-
+        <Pagination
+              count={Math.ceil(interventions.length / interventionsPerPage)}
+              page={currentPage}
+              onChange={paginate}
+            />
         <Dialog open={showModall} onClose={handleCloseModall}>
           <DialogTitle>Details de l'intervention</DialogTitle>
           <DialogContent>
@@ -309,12 +307,12 @@ const Chefservicepage = () => {
               <div>
                 <p>Description : {selectedIntervention.description}</p>
                 <p>Date de création : {selectedIntervention.date_creation}</p>
-                <p>Date de début : {selectedIntervention.date_debut ? selectedIntervention.date_debut :"ya pas de date "}</p>
-                <p>Date de fin : {selectedIntervention.date_fin ? selectedIntervention.date_fin :"ya pas de date "}</p>
+                <p>Date de début : {selectedIntervention.date_debut}</p>
+                <p>Date de fin : {selectedIntervention.date_fin}</p>
                 <p>État : {selectedIntervention.etat}</p>
-                <p>Citoyen : {selectedIntervention.citoyen?.email ? selectedIntervention.citoyen.email : "intervetion preventive"}</p>
-                <p>Service : {selectedIntervention.service.nom ? selectedIntervention.service.nom : "NULL"}</p>
-                <p>tehcnicne id  : {selectedIntervention.technicien ? selectedIntervention.technicien : "le intervetion est pas assigne au tecnicien"}</p>
+                <p>Citoyen : {selectedIntervention.citoyen?.email ? selectedIntervention.citoyen.email : "null"}</p>
+                <p>Service : {selectedIntervention.service?.nom ? selectedIntervention.service.nom : "NULL"}</p>
+                <p>tehcnicne id  : {selectedIntervention.technicien ? selectedIntervention.technicien : "NULL"}</p>
                 <p>Équipements :
                   <ul>
                     {selectedIntervention.equipements && selectedIntervention.equipements.map((equipementId) => {
@@ -342,5 +340,5 @@ const Chefservicepage = () => {
     </div>
   );
 };
-
-export default Chefservicepage;
+ 
+export default Chefservicepage ;

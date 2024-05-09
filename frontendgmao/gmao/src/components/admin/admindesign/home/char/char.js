@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { PieChart } from '@mui/x-charts';
+import { PieChart, pieArcLabelClasses } from '@mui/x-charts'; // Import pieArcLabelClasses
 import "./char.scss";
 
 const PieChartComponent = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [encour, setencour] = useState(0);
-  const[termine,setterminer]=useState(0);
-  const[Cloture,setCloture]=useState(0);
-  const[assige,setassigne]=useState(0);
-  const[nouveux,setnouveux]=useState(0);
-  const[enattend,setattend]=useState(0);
+  const [termine, setterminer] = useState(0);
+  const [Cloture, setCloture] = useState(0);
+  const [assige, setassigne] = useState(0);
 
   useEffect(() => {
     fetchData();
@@ -24,35 +22,36 @@ const PieChartComponent = () => {
       }
       const data = await response.json();
       let dir = 0;
-      let chefs=0 ;
-      let te=0;
-      let cit =0 ;
-    
-      const dataLength = data.length;
-      console.log("total:",dataLength)
+      let chefs = 0;
+      let te = 0;
+      let cit = 0;
+      let admin=0;
       data.forEach(listecustomer => {
-        if (listecustomer.is_directeur == true) {
+        if (listecustomer.is_admin) {
+          admin++;
+        }
+      });
+
+    
+      const dataLength = data.length-admin;
+      data.forEach(listecustomer => {
+        if (listecustomer.is_directeur) {
             dir++;
         }
-        if (listecustomer.is_chefservice== true)
-        {
+        if (listecustomer.is_chefservice) {
             chefs++;
         }
-        if (listecustomer.is_technicien== true  )
-        {
+        if (listecustomer.is_technicien) {
             te++;
         }
-        if (listecustomer.is_citoyen== true )
-        {
+        if (listecustomer.is_citoyen) {
             cit++;
         }
-       
       });
-      dir=(dir*100)/dataLength;
-      chefs=(chefs*100)/dataLength;
-    
-      te=(te*100)/dataLength;
-      cit=(cit*100)/dataLength;
+      dir = (dir * 100) / dataLength;
+      chefs = (chefs * 100) / dataLength;
+      te = (te * 100) / dataLength;
+      cit = (cit * 100) / dataLength;
       setencour(dir);
       setterminer(chefs);
       setCloture(te);
@@ -69,27 +68,28 @@ const PieChartComponent = () => {
 
   const data = [
     { id: 0, value: encour , label :'directeur'},
-    { id: 1, value: termine,label :'chef service' },
-    { id: 2, value: assige,label :'technicien'},
-    { id: 3, value: Cloture,label :'cityoen' },
-   
-    
-
-    
-
+    { id: 1, value: termine, label :'chef service' },
+    { id: 2, value: assige, label :'technicien'},
+    { id: 3, value: Cloture, label :'citoyen' },
   ];
 
   return (
-    
     <PieChart
       series={[
         {
           data,
           highlightScope: { faded: 'global', highlighted: 'item' },
           faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
+          arcLabel: (item) => `${((item.value) ).toFixed(2)}%`, // Display percentage
         },
       ]}
-      height={200}
+      height={300}
+      sx={{
+        [`& .${pieArcLabelClasses.root}`]: {
+              fill: 'white',
+              fontWeight: 'bold',
+            },
+      }}
     />
   );
 }

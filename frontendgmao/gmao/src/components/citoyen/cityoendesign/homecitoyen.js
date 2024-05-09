@@ -10,6 +10,7 @@ import Featured from '../citoyenprogres/citoyenprogres';
 
 
 
+
 const Pagecityoen = () => {
   return (
     <div className="cityoen-page">
@@ -17,10 +18,13 @@ const Pagecityoen = () => {
       <div className="cityoen-content">
       <Navbar />
       <div className="widgets">
-          <Widget type="user" />
-          <Widget type="order" />
-          <Widget type="earning" />
-          <Widget type="balance" />
+      <Widget type="Nouveau" />
+      <Widget type="Assigné" />
+          <Widget type="encour" />
+          <Widget type="termine" />
+          <Widget type="enattend" />
+         
+          <Widget type="Clôture" />
         </div>
         <div className='figure'><Featured></Featured></div>
       </div>

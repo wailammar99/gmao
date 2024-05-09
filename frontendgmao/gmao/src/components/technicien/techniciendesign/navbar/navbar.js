@@ -28,13 +28,8 @@ const Navbar = ({onSearch }) => {
     <div className="navbar">
       <div className="wrapper">
         <div className="search">
-        <input
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-          />
-          <SearchOutlinedIcon onClick={handleSearchSubmit} />
+        
+          
         
         </div>
         <div className="items">
@@ -43,8 +38,8 @@ const Navbar = ({onSearch }) => {
           <NotificationPopup />
         
           
-        </div>
-        <div className="item">
+      
+        
            
            <MessagePopupTechnicien></MessagePopupTechnicien>
          </div>

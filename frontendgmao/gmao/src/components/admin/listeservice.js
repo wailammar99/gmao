@@ -2,21 +2,19 @@ import React, { useState, useEffect } from 'react';
 import ServiceForm from './ServiceForm';
 import Sidebar from './admindesign/home/sidebar/sidebar';
 import Navbar from './admindesign/home/navbar/navbar';
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import { Button } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
 import PopupMessage from '../message';
-import { Stack } from '@mui/material';
+import Pagination from '@mui/material/Pagination';
+
 
 function ListService() {
   const [services, setServices] = useState([]);
   const [message, setMessage] = useState('');
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [servicesPerPage] = useState(6);
+  const [servicesPerPage] = useState(5);
   const [showForm, setShowForm] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
 
@@ -46,6 +44,10 @@ function ListService() {
       if (response.ok) {
         setServices(prevServices => prevServices.filter(service => service.id !== id));
         setMessage('Le service a été supprimé avec succès.');
+        
+        setTimeout(() => {
+          setMessage("");
+        }, 1500);
         fetchData();
       } else {
         throw new Error('Échec de la suppression du service');
@@ -55,6 +57,10 @@ function ListService() {
     }
   };
 
+ 
+  const handleCloseMessage = () => {
+    setMessage('');
+  };
   const handleUpdateService = async (id, updatedServiceData) => {
     try {
       const response = await fetch(`http://127.0.0.1:8000/modifie_service/${id}/`, {
@@ -76,10 +82,6 @@ function ListService() {
     }
   };
 
-  const handleCloseMessage = () => {
-    setMessage('');
-  };
-
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => {
@@ -89,12 +91,6 @@ function ListService() {
       return () => clearTimeout(timer);
     }
   }, [message]);
-
-  const indexOfLastService = currentPage * servicesPerPage;
-  const indexOfFirstService = indexOfLastService - servicesPerPage;
-  const currentServices = services.slice(indexOfFirstService, indexOfLastService);
-
-  const paginate = pageNumber => setCurrentPage(pageNumber);
 
   const handleOpenForm = (service) => {
     setSelectedService(service);
@@ -106,6 +102,32 @@ function ListService() {
     setShowForm(false);
   };
 
+  const columns = [
+    { field: 'nom', headerName: 'Nom', flex: 1 },
+    { field: 'descrtions', headerName: 'Description', flex: 1 },
+    {
+      field: 'actions',
+      headerName: 'Action',
+      flex: 1,
+      renderCell: (params) => (
+        <>
+          <Button onClick={() => handleDeleteService(params.row.id)} variant="outlined" color="error">Supprimer</Button>
+          
+          <Button onClick={() => handleOpenForm(params.row)} variant='outlined' color="secondary">Modifier</Button>
+        
+        </>
+        
+      ),
+    },
+  ];
+ 
+
+  const paginate = (event, value) => setCurrentPage(value);
+
+  const indexOfLastService = currentPage * servicesPerPage;
+  const indexOfFirstService = indexOfLastService - servicesPerPage;
+  const currentServices = services.slice(indexOfFirstService, indexOfLastService);
+
   return (
     <div className="list">
       <Sidebar />
@@ -113,51 +135,38 @@ function ListService() {
         <Navbar />
         <div className="top">
           <h1>Liste des services</h1>
-        </div>
-        <div className="bottom">
-          <TableContainer component={Paper} className="table">
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell className="tableCell">Nom</TableCell>
-                  <TableCell className="tableCell">Description</TableCell>
-                  <TableCell className="tableCell">Action</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {currentServices.map((service) => (
-                  <TableRow key={service.id}>
-                    <TableCell className="tableCell">{service.nom}</TableCell>
-                    <TableCell className="tableCell">{service.descrtions}</TableCell>
-                    <TableCell className="tableCell">
-                    <Stack direction="row" spacing={2}>
-                      <button onClick={() => handleDeleteService(service.id)} className="btn btn-danger">Supprimer</button>
-                      <button onClick={() => handleOpenForm(service)} className="btn btn-warning">Modifier</button>
-                    </Stack>
-                      {message && (
+          {message && (
                         <PopupMessage message={message} color="success" onClose={handleCloseMessage} />
                       )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <ul className='pagination'>
-            {servicesPerPage >= services.length ? null : (
-              <button onClick={() => paginate(currentPage - 1)} className='btn '>Précédent</button>
-            )}
-            {currentServices.map((service, index) => (
-              <button key={index} onClick={() => paginate(index + 1)} className={`btn ${currentPage === index + 1 ? 'btn-primary' : 'btn'}`}>{index + 1}</button>
-            ))}
-            {servicesPerPage >= services.length ? null : (
-              <button onClick={() => paginate(currentPage + 1)} className='btn '>Suivant</button>
-            )}
-          </ul>
+        
+        </div>
+        <div className="bottom">
+          <div style={{ height: 400, width: '100%' }}>
+            <DataGrid
+              rows={currentServices}
+              columns={columns}
+              pageSize={servicesPerPage}
+              rowCount={services.length}
+              pagination
+              hideFooter={true}
+              hideFooterPagination={true}
+              onPageChange={(params) => paginate(params.page)}
+              paginationMode="server"
+            />
+            <Pagination
+            count={Math.ceil(services.length / servicesPerPage)}
+            page={currentPage}
+            onChange={paginate}
+          />
+          </div>
+          
+          {message && (
+            <PopupMessage message={message} color="success" onClose={handleCloseMessage} />
+          )}
         </div>
       </div>
       {showForm && (
-        <ServiceForm className="modal-body"
+        <ServiceForm
           service={selectedService}
           onUpdate={(updatedServiceData) => handleUpdateService(selectedService.id, updatedServiceData)}
           onClose={handleCloseForm}

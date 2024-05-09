@@ -49,6 +49,7 @@ const PasswordResetForm = () => {
           label="Adresse email"
           name="email"
           autoFocus
+          type='email'
           margin="normal"
           value={email}
           onChange={(e) => setEmail(e.target.value)}

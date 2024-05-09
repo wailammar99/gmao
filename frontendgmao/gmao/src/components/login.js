@@ -47,8 +47,9 @@ const Login = ({ onLogin }) => {
       
       localStorage.setItem('token', token);
       localStorage.setItem('userId', userId);
-      sessionStorage.setItem('username', username);
-      sessionStorage.setItem('role', role);
+     
+      localStorage.setItem('role', role); 
+      sessionStorage.setItem("sesion",token);
 
       onLogin();
 

@@ -11,7 +11,7 @@ function ServiceForm({ service, onUpdate, onClose }) {
     if (service) {
       setFormData({
         nom: service.nom,
-        description: service.descrtions,
+        description: service.description, // Corrected property name
       });
     } else {
       setFormData({
@@ -40,13 +40,13 @@ function ServiceForm({ service, onUpdate, onClose }) {
       <div className="modal-dialog" role="document">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">Modifier le service</h5>
+            <h5 className="modal-title">{service ? 'Modifier' : 'Ajouter'} le service</h5>
             <button type="button" className="btn-close" aria-label="Close" onClick={onClose}></button>
           </div>
           <div className="modal-body">
             <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="nom">Nom:</label>
+              <div className="mb-3">
+                <label htmlFor="nom" className="form-label">Nom:</label>
                 <input
                   type="text"
                   id="nom"
@@ -57,20 +57,21 @@ function ServiceForm({ service, onUpdate, onClose }) {
                   required
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="description">Description:</label>
+              <div className="mb-3">
+                <label htmlFor="description" className="form-label">Description:</label>
                 <textarea
                   id="description"
                   name="description"
                   className="form-control"
-                  value={formData.descrtions}
+                  value={formData.description}
                   onChange={handleChange}
                   required
                 ></textarea>
               </div>
-              <button type="submit" className="btn btn-primary">
-                Modifier
-              </button>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={onClose}>Annuler</button>
+                <button type="submit" className="btn btn-primary">{service ? 'Modifier' : 'Ajouter'}</button>
+              </div>
             </form>
           </div>
         </div>

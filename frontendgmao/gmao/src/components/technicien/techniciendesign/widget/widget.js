@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
+import { Link } from "react-router-dom";
 
 const Widget = ({ type }) => {
   const [interventionData, setInterventionData] = useState([]);
@@ -82,22 +83,17 @@ const Widget = ({ type }) => {
     <div className="widget">
       <div className="left">
         <span className="title">{title}</span>
-        <span className="counter">{count}</span>
+        <Link to="/technicienpage"style={{ textDecoration: "none" }} >
         <span className="link">See all interventions</span>
+        </Link>
+       
       </div>
       <div className="right">
         <h1>{count}</h1>
         <div className="percentage positive">
-          <KeyboardArrowUpIcon />
-          20 %
+      
         </div>
-        <PersonOutlinedIcon
-          className="icon"
-          style={{
-            color: "crimson",
-            backgroundColor: "rgba(255, 0, 0, 0.2)",
-          }}
-        />
+        
       </div>
     </div>
   );

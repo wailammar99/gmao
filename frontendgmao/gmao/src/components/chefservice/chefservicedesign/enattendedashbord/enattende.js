@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import TableContainer from '@mui/material/TableContainer';
-import Table from '@mui/material/Table';
-import TableHead from '@mui/material/TableHead';
-import TableBody from '@mui/material/TableBody';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
+import { DataGrid } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
+import { Button, Typography } from '@mui/material';
 
 const Enattendecom = () => {
   const [data, setData] = useState([]);
@@ -54,27 +50,26 @@ const Enattendecom = () => {
     return <div>Error: {error.message}</div>;
   }
 
+  const columns = [
+    
+    { field: 'raison', headerName: 'Raison', width: 600, renderCell: (params) => <Button style={{ color: 'red' }}>{params.value.description}</Button> },
+    
+   
+  ];
+
   return (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>ID</TableCell>
-            <TableCell>Raison</TableCell>
-            <TableCell>Date de création</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data.map((intervention, index) => (
-            <TableRow key={index}>
-              <TableCell >{intervention.id}</TableCell>
-              <TableCell  style={{ color: 'red' }}>{intervention.raison.description}</TableCell>
-              <TableCell>{intervention.raison.date_de_creation}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <div>
+      <Typography variant="h5" gutterBottom style={{ marginLeft: '10px' }}>Interventions en attente</Typography>
+      <div style={{ height: 400, width: '100%' }}>
+        <DataGrid
+          rows={data}
+          columns={columns}
+          pageSize={5}
+          rowsPerPageOptions={[5]}
+          autoHeight={true}
+        />
+      </div>
+    </div>
   );
 };
 

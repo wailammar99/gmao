@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Sidebar from './cityoendesign/sidebar/sidebar';
 import Navbar from './cityoendesign/navbar/navbar';
 import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid'; // Import DataGrid
+import { ButtonGroup, Button } from '@mui/material';
 import Pagination from '@mui/material/Pagination';
 
 const Citoyenpage = () => {
   const [interventions, setInterventions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [interventionsPerPage] = useState(5); // Number of interventions per page
+  const interventionsPerPage = 5; // Number of interventions per page
 
   useEffect(() => {
     fetchData();
@@ -43,13 +44,41 @@ const Citoyenpage = () => {
     }
   };
 
+  const handlePageChange = (event, page) => {
+    setCurrentPage(page);
+  };
+
+  // Calculate total number of pages
+  const totalPages = Math.ceil(interventions.length / interventionsPerPage);
+
+  // Get current interventions for the current page
   const indexOfLastIntervention = currentPage * interventionsPerPage;
   const indexOfFirstIntervention = indexOfLastIntervention - interventionsPerPage;
   const currentInterventions = interventions.slice(indexOfFirstIntervention, indexOfLastIntervention);
 
-  const paginate = (event, value) => {
-    setCurrentPage(value);
-  };
+  // Columns for DataGrid
+  const columns = [
+    { field: 'description', headerName: 'Description', width: 200 },
+    { field: 'date_creation', headerName: 'Date de création', width: 150 },
+    { field: 'date_debut', headerName: 'Date de début', width: 150 },
+    { field: 'date_fin', headerName: 'Date de fin', width: 150 },
+    { field: 'etat', headerName: 'État', width: 120 },
+    {
+      field: 'conversation',
+      headerName: 'Conversations',
+      width: 180,
+      renderCell: (params) => (
+        params.row.conversation && params.row.conversation.id ? (
+          <Link to={`/conversation/${params.row.conversation.id}/citoyen/${localStorage.getItem('userId')}`}>
+            <ChatBubbleOutlineOutlinedIcon />
+            {params.row.conversation.title}
+          </Link>
+        ) : (
+          'pas de conversation'
+        )
+      ),
+    },
+  ];
 
   return (
     <div className="list">
@@ -57,49 +86,25 @@ const Citoyenpage = () => {
       <div className="listContainer">
         <Navbar />
         <h1>Interventions</h1>
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="Interventions table">
-            <TableHead>
-              <TableRow>
-                <TableCell>Description</TableCell>
-                <TableCell>Date de création</TableCell>
-                <TableCell>Date de début</TableCell>
-                <TableCell>Date de fin</TableCell>
-                <TableCell>État</TableCell>
-                <TableCell>Conversations</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {currentInterventions.map((intervention) => (
-                <TableRow key={intervention.id}>
-                  <TableCell>{intervention.description}</TableCell>
-                  <TableCell>{intervention.date_creation}</TableCell>
-                  <TableCell>{intervention.date_debut}</TableCell>
-                  <TableCell>{intervention.date_fin}</TableCell>
-                  <TableCell>{intervention.etat}</TableCell>
-                  <TableCell>
-                    {/* Render a Link to ConversationMessages component with conversation ID */}
-                    {intervention.conversation && intervention.conversation.id ? (
-                      <Link to={`/conversation/${intervention.conversation.id}/citoyen/${localStorage.getItem('userId')}`}>
-                        <ChatBubbleOutlineOutlinedIcon />
-                        {intervention.conversation.title}
-                      </Link>
-                    ) : (
-                      'pas de conversation '
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <Pagination
-          count={Math.ceil(interventions.length / interventionsPerPage)}
-          page={currentPage}
-          onChange={paginate}
-          variant="outlined"
-          
-        />
+        <div style={{ height: 400, width: '100%' }}>
+          <DataGrid
+            rows={currentInterventions}
+            columns={columns}
+            pageSize={interventionsPerPage}
+            hideFooter={true}
+            hideFooterPagination={true}
+            hideFooterSelectedRowCount={true}
+          />
+        </div>
+        <div className="pagination">
+          <ButtonGroup color="primary" aria-label="outlined primary button group" >
+            <Pagination 
+              count={totalPages} 
+              page={currentPage} 
+              onChange={handlePageChange} 
+            />
+          </ButtonGroup>
+        </div>
       </div>
     </div>
   );

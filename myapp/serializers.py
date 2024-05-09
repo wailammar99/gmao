@@ -46,3 +46,7 @@ class NotificationSerialize(serializers.ModelSerializer):
     class Meta :
      model=Notification
      fields='__all__'
+class ContactSerialize(serializers.ModelSerializer):
+    class Meta :
+        model=Contact
+        fields='__all__'

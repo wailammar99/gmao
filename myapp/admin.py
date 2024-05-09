@@ -6,8 +6,11 @@ from .models import *
 admin.site.register(CustomUser)
 admin.site.register(Equipement)
 admin.site.register(interven)
-admin.site.register(enatte)
+admin.site.register(enatte) 
+
 admin.site.register(converstation)
 admin.site.register(message)
 admin.site.register(Notification)
 admin.site.register(service)
+admin.site.register(Contact)
+admin.site.register(Rapport)

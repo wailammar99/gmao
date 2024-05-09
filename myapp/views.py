@@ -6,10 +6,11 @@ from .serializers import *
 from django.contrib.auth.hashers import make_password
 from rest_framework.parsers import JSONParser,api_settings
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes,authentication_classes
 import jwt
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from rest_framework.authentication import TokenAuthentication
 from .permissions import *
 import json
 import random
@@ -404,9 +405,13 @@ def modify_service_page(request):
     
 #api for equiment 
 @api_view(['GET', 'POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def equipement_list(request):
+    
     if request.method == 'GET':
         equipements = Equipement.objects.all()
+        
         serializer = EquimenentSerializers(equipements, many=True)
         return Response(serializer.data)
 
@@ -415,8 +420,7 @@ def equipement_list(request):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)                                                                                                                                                        
-
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 @api_view(['GET', 'PUT'])
 def equipement_detail(request, pk):
     try:
@@ -1458,8 +1462,9 @@ def api_create_equipment(request):
             return JsonResponse({"error": "An error occurred: {}".format(str(e))}, status=500)
     else:
         return JsonResponse({'error': 'Method not allowed'}, status=405)
-@csrf_exempt 
+
 def api_delete_equiment(request,eq_id) :
+    
     if request.method=="DELETE" :
         try :
             Equipement.objects.get(id=eq_id).delete()
@@ -1468,7 +1473,8 @@ def api_delete_equiment(request,eq_id) :
             return JsonResponse({"eroor":"cant get id equiment "},status=404)
     else:
         return JsonResponse({"eroor":"methode not allow"},status=405)
-@csrf_exempt
+
+
 def api_update_equipment(request, equipment_id):
     if request.method == "PUT":
         try:
@@ -1563,3 +1569,51 @@ def updrade_technicien_to_chef_service(request,user_id):
         
     else :
         return JsonResponse({"eroor":"methode not allow"},status=405)
+
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def api_get_contact(request):
+    if request.method == "GET":
+        try:
+            queryset = Contact.objects.all()
+            serializer = ContactSerialize(queryset, many=True)
+            return JsonResponse(serializer.data, safe=False)
+        except Exception as e:
+            return JsonResponse({"error": "An error occurred: {}".format(str(e))}, status=500)
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+@csrf_exempt
+def api_delete_contact(request,contact_id):
+    if request.method=="DELETE" :
+        try :
+            setquery=Contact.objects.get(id=contact_id)
+            setquery.delete()
+            return JsonResponse({"messge":"contact est supprime avec success"},status=200)
+        except Contact.DoesNotExist :
+            return JsonResponse({"eroor":"le conatct do not existe "},status=404)
+        except Exception as e :
+            return JsonResponse({"error": "An error occurred: {}".format(str(e))}, status=500)
+    else :
+        return JsonResponse({"eroor":"method not allow"},status=405)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_post_contact(request):
+    if request.method == "POST":
+        try:
+            admin=CustomUser.objects.filter(is_admin=True)
+            serializer = ContactSerialize(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                message="vous avze nouveux coonatc "
+                for i in admin :
+                    Notification.objects.create(recipient=i,message=message,is_read=False)
+                return Response({"message": "Le contact est créé avec succès"}, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": "An error occurred: {}".format(str(e))}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response({"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)

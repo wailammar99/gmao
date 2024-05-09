@@ -77,15 +77,12 @@ const Sidebar = () => {
           <Link  to={"/calender/technien" } style={{ textDecoration: "none" }}>
           <li>
           <CalendarMonthIcon className="icon" />
-            <span>calender </span>
+            <span>calendrier </span>
           </li>
           </Link>
            
          
-          <li>
-            <SettingsApplicationsIcon className="icon" />
-            <span>Settings</span>
-          </li>
+         
 
           <p className="title">USER</p>
           <Link to={"/technicienprofil"} style={{ textDecoration: "none" }}>

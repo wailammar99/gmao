@@ -13,6 +13,7 @@ import ListIcon from '@mui/icons-material/List';
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import { Link } from "react-router-dom";
 import MessageIcon from '@mui/icons-material/Message';
+import ConstructionIcon from '@mui/icons-material/Construction';
 
 
 const Sidebar = () => {
@@ -27,8 +28,8 @@ const Sidebar = () => {
 
       if (response.ok) {
         // Clear local storage or perform any other logout actions
-        localStorage.removeItem('token');
-        localStorage.removeItem('userId');
+       sessionStorage.clear();
+       localStorage.clear();
 
         // Redirect to the login page or any other desired route
         window.location.href = '/login'; // Redirect to the login page
@@ -85,6 +86,13 @@ const Sidebar = () => {
             <span>tout les intervetion </span>
           </li>
           </Link> 
+          <p className="title">les equipements</p>
+         <Link to="http://localhost:3000/listeequipement" style={{ textDecoration: "none" }}>
+          <li>
+            <ConstructionIcon className="icon" />
+            <span>Equipements</span>
+          </li>
+          </Link>
           <Link to={"/chefservicenotificationpage"}  style={{ textDecoration: "none" }}>
           <li>
             <NotificationsNoneIcon className="icon" />

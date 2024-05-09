@@ -22,18 +22,19 @@ const Chefservice = () => {
           <Widget type="enattend" />
           <Widget type="Assigné" />
           <Widget type="Clôture" />
-          <Widget type="Nouveau" />
+          
 
           
         </div>
        
         <div className='chart'> <PieChartComponent></PieChartComponent>
-        <div className='enatte'><Enattendecom></Enattendecom></div>
+        
         </div>
         <div className='bar'>
         <BarsDataset></BarsDataset>
-       
+        
         </div>
+        <div className='enatte'><Enattendecom></Enattendecom></div>
         
         {/* Donut Chart */}
        

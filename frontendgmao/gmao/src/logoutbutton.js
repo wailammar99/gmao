@@ -12,8 +12,9 @@ const LogoutButton = () => {
 
       if (response.ok) {
         // Clear local storage or perform any other logout actions
-        localStorage.removeItem('token');
-        localStorage.removeItem('userId');
+        localStorage.clear();
+        sessionStorage.clear();
+        console.log("is workignnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn ");
 
         // Redirect to the login page or any other desired route
         window.location.href = '/login'; // Redirect to the login page
