@@ -23,6 +23,7 @@ import Link from './components/admin/admindesign/link';
 import ListService from './components/admin/listeservice';
 
 import Pagedirecteur from './components/directeur/directeurdesi/pagedirecteur';
+import Rapportform from './components/directeur/Raportfomr';
 import Listcostumer from './components/directeur/Listcostumer';
 import Listtechnicien from './components/directeur/listetechnicien';
 import Listchefservice from './components/directeur/listechefservice';
@@ -52,6 +53,11 @@ import ConversationFormchefservice from './components/chefservice/conversationfo
 import ConversationMessageschefservice from './components/chefservice/conversationformchefservice';
 import ConversationMessagesTechnicien from './components/technicien/cpnversationmessagetechnicien';
 import ListEquipement from './components/chefservice/listeequiment';
+import Contact from './components/contactform';
+import WebSocketTest from './testwebsocketdjango';
+import Notificationadmin from './components/admin/notificationadmin';
+import Contactadmin from './components/admin/contactliste';
+import Listerapport from './components/directeur/listeRapport';
 
 
 
@@ -89,35 +95,64 @@ function App() {
             path="/"
             element={isLoggedIn ? <AdminPage onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
           />
+          <Route
+            path="/contact"
+            element={<Contact></Contact>}
+          />
+            <Route
+            path="/testsocket"
+            element={<WebSocketTest/>}
+          />
+          
             <Route
             path="/login"
             element=<Login onLogin={handleLogin} />
           />
           <Route
             path="/adminprofil"
-            element={isLoggedIn ? <Adminprofil onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+            element={ <Adminprofil onLogout={handleLogout} />}
           />
             
           <Route
             path="/admin_dashboard"
-            element={isLoggedIn ? <AdminPage onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+            element={ <AdminPage onLogout={handleLogout} /> }
           />
           <Route
             path="/UserListPage"
-            element={isLoggedIn ? <Link onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+            element={ <Link onLogout={handleLogout} /> }
           />
           <Route
             path="/listeservice"
-            element={isLoggedIn ? <ListService onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+            element={ <ListService onLogout={handleLogout} /> }
           />
           <Route
           path="/CreateUser"
           element={isLoggedIn ? <CreateUser /> : <Navigate to="/admin_dashboard" />}
           />
+            <Route
+          path="/Notificationadmin"
+          element={<Notificationadmin/>}
+          />
+              <Route
+          path="/contactadmin"
+          element={<Contactadmin/>}
+          />
+
+
              <Route
             path="/directeur_dashboard"
             element= <Pagedirecteur onLogout={handleLogout} /> 
           />
+            <Route
+            path="/RaportForm"
+            element= <Rapportform onLogout={handleLogout} /> 
+          />
+           <Route
+            path="/listerapport"
+            element= <Listerapport   onLogout={handleLogout} /> 
+          />
+
+          
              <Route path="/conversation/:id/directeur/:int" element={<ConversationMessagesdir />} />
           <Route
             path="/profildirecteur"
@@ -179,7 +214,7 @@ function App() {
        
            <Route
             path="/create-service"
-            element={isLoggedIn ? <CreateService onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+            element={ <CreateService onLogout={handleLogout} /> }
           />
              <Route
             path="/profil"
@@ -200,7 +235,7 @@ function App() {
           />
           <Route
           path="/Listtechnicienparservice"
-          element={isLoggedIn ? <Listtechnicienparservice /> : <Navigate to="/technicien_dashboard" />}
+          element={ <Listtechnicienparservice /> }
           />
 
           <Route
@@ -218,15 +253,15 @@ function App() {
           />  
             <Route
             path="/chef_service_dashboard/:Id"
-            element={isLoggedIn ? <Chefservice onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+            element={ <Chefservice onLogout={handleLogout} /> }
           />
            <Route
           path="/Chefservicepage"
-          element={isLoggedIn ? <Chefservicepage /> : <Navigate to="/chef_service_dashboard/:Id" />}
+          element={ <Chefservicepage /> }
           />
              <Route
           path="/chefservice/profil"
-          element={isLoggedIn ? <Chefserviceprofil /> : <Navigate to="/chef_service_dashboard/:Id" />}
+          element={ <Chefserviceprofil /> }
           />
               <Route
           path="/chefservicenotificationpage"

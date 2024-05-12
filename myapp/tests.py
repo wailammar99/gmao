@@ -1,4 +1,5 @@
 from django.test import TestCase
+from .models import *
 import requests 
 import unittest
 import logging
@@ -29,3 +30,9 @@ class TestDeleteUserAPI(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 # Create your tests here.
+class Rapportapi(unittest.TestCase):
+    def create_rapport(self):
+        rapport_cible=Rapport.objects.get(id=3)
+        rapport_cible.generate_rapport("2024-05-12","2024-05-12")
+        
+        

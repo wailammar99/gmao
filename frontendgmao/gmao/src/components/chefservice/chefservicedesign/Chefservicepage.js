@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import InterventionForm from './InterventionForm';
 import Sidebar from './sidebar/sidebar';
@@ -27,11 +27,25 @@ const Chefservicepage = () => {
   const [filteredInterventions, setFilteredInterventions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [interventionsPerPage] = useState(6);
+  const token =localStorage.getItem("token");
+  const role =localStorage.getItem("role")
+  const navigate=useNavigate();
  
   useEffect(() => {
-    fetchData();
-    fetchEquipmentData();
-  }, []);
+    if (token && role ==="chefservice")
+      {
+        fetchData();
+        fetchEquipmentData();
+        console.log("autorise ");
+      }
+      else
+      {
+        navigate('/login');
+        console.log("pas autorise ");
+      } 
+      
+  
+  }, [token]);
  
   useEffect(() => {
     setCurrentPage(1); // Réinitialiser la page actuelle à 1 lorsque les interventions filtrées changent
@@ -47,7 +61,7 @@ const Chefservicepage = () => {
  
       const response = await fetch(`http://127.0.0.1:8000/api_intervetion_chefservice/${localStorage.getItem('userId')}/`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Token ${token}`,
         },
       });
  
@@ -81,6 +95,9 @@ const Chefservicepage = () => {
     try {
       const response = await fetch(`http://127.0.0.1:8000/api_refuse_intervention/${interventionId}/`, {
         method: 'GET',
+        headers:{
+          Authorization: `Token ${token}`
+        }
       });
       if (response.ok) {
         

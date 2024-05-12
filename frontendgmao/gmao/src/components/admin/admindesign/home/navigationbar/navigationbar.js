@@ -2,19 +2,35 @@
 import React, { useState, useEffect } from "react";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./navigationbar.scss" ;
 
 const Featured = () => {
   const [t, setT] = useState(0);
-
+  const token =localStorage.getItem("token");
+  const role =localStorage.getItem("role");
+  const navigate=useNavigate();
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (token && role==="admin")
+      {
+        fetchData();
+      }
+      else 
+      {
+        navigate("/login");
+      }
+    
+  }, [token,role]);
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/Serviceliste/');
+      const response = await fetch('http://127.0.0.1:8000/Serviceliste/',
+      {
+        method:"GET",
+        headers: {
+          'Authorization': `token ${token}`,
+
+      }});
       if (response.ok) {
         const data = await response.json();
         const taille = data.length;

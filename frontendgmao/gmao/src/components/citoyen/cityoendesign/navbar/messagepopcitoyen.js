@@ -1,64 +1,62 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 import { Link } from 'react-router-dom';
-
+ 
+ 
 const MessagePopupCitoyen = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [interventions, setInterventions] = useState([]);
-  const userId = localStorage.getItem('userId');
-
+ 
   useEffect(() => {
     fetchData();
   }, []);
-
+ 
   const fetchData = async () => {
     try {
       const token = localStorage.getItem('token');
-      console.log('REPNSEEEEE',token
-        
-      )
       if (!token) {
         console.log("Token not found. Redirecting to login...");
-        // Redirect to login page or handle unauthorized access
+        // Rediriger vers la page de connexion ou gérer l'accès non autorisé
         return;
       }
-      
-      const response = await fetch(`http://127.0.0.1:8000/api_intervetion_citoyen/${localStorage.getItem('userId')}/`,{
-        method: "GET",
+ 
+      const response = await fetch(`http://127.0.0.1:8000/api_intervetion_citoyen/${localStorage.getItem('userId')}/`, {
         headers: {
-          "Content-Type": "application/json", 
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log('RESPONSE ',response)
-      if (!response.ok) {
-        throw new Error('Failed to fetch intervention data');
+ 
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data); // Journalisez les données de réponse pour voir leur structure
+        setInterventions(data.interventions || []);
+      } else {
+        console.error('Failed to fetch interventions');
       }
-      
-      const data = await response.json();
-      
-      // Check if data is an array
-      if (!Array.isArray(data)) {
-        throw new Error('Response data is not an array');
-      }
-      
-      setInterventions(data);
-      
     } catch (error) {
-      console.error('Error fetching intervention data:', error);
+      console.error('Error fetching interventions:', error);
     }
   };
-  
+ 
+  const handleOpen = () => {
+    setIsOpen(true);
+  };
+ 
   const handleClose = () => {
     setIsOpen(false);
   };
-
+ 
+  const handleLinkClick = () => {
+    setIsOpen(false);
+  };
+ 
   return (
     <div className="notification-popup">
-      <Button onClick={() => setIsOpen(true)}>
+      <Button onClick={handleOpen}>
         <ChatBubbleOutlineOutlinedIcon className="icon" />
-        <span className="counter">{interventions.length}</span>
+        <span className="counter">{interventions.reduce((total, intervention) => total + (intervention.conversations ? intervention.conversations.length : 0), 0)}</span>
       </Button>
       <Dialog open={isOpen} onClose={handleClose} fullWidth maxWidth="md">
         <DialogTitle>Les Conversations</DialogTitle>
@@ -66,24 +64,31 @@ const MessagePopupCitoyen = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Intervention IDdddddddddddd</TableCell>
+                <TableCell>Titre de l'intervention</TableCell>
+                <TableCell>Titre de la conversation</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {interventions.map((intervention, index) => (
-                <TableRow key={index}>
-                  <TableCell>{intervention.id}</TableCell>
+              {interventions.filter(intervention => intervention.conversation).map(intervention => (
+                <TableRow key={intervention.id}>
+                  <TableCell>{intervention.conversation.title}</TableCell>
+                  <TableCell className="tableCell">
+                    <Link to={`/conversation/${intervention.conversation.id}/citoyen/${localStorage.getItem('userId')}`} onClick={handleLinkClick}>
+                      <ChatBubbleOutlineOutlinedIcon />
+                      {intervention.conversation.title}
+                    </Link>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Close</Button>
+          <Button onClick={handleClose}>Fermer</Button>
         </DialogActions>
       </Dialog>
     </div>
   );
 };
-
+ 
 export default MessagePopupCitoyen;

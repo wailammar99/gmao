@@ -7,6 +7,7 @@ import { Button } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import Pagination from '@mui/material/Pagination';
 import PopupMessage from '../message';
+import { useNavigate } from 'react-router-dom';
 
 const UserListPage = () => {
   const [users, setUsers] = useState([]);
@@ -19,6 +20,9 @@ const UserListPage = () => {
   const [message, setMessage] = useState("");
   const [color, setColor] = useState("");
   const [showPop, setShowPop] = useState(false);
+  const token =localStorage.getItem("token");
+  const role =localStorage.getItem("role");
+  const navigate=useNavigate();
 
   const fetchUsers = async () => {
     try {
@@ -40,8 +44,16 @@ const UserListPage = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    if (token && role ==="admin")
+      {
+        fetchUsers();
+      }
+      else 
+      {
+        navigate("/login");
+      }
+    
+  }, [token,role]);
 
   const handleModifyClick = (user) => {
     setModifiedUser(user);
@@ -54,6 +66,8 @@ const UserListPage = () => {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`,
+           
         }
       });
       if (response.ok) {
@@ -104,10 +118,10 @@ const UserListPage = () => {
   };
 
   const columns = [
-    { field: 'username', headerName: 'Username', width: 200 },
-    { field: 'first_name', headerName: 'prenom', width: 200 },
-    { field: 'last_name', headerName: 'nom', width: 200 },
-    { field: 'email', headerName: 'Email', width: 200 },
+    { field: 'username', headerName: 'Username', width: 150 },
+    { field: 'first_name', headerName: 'prenom', width: 150 },
+    { field: 'last_name', headerName: 'nom', width: 150 },
+    { field: 'email', headerName: 'Email', width: 150 },
     { field: 'service_nom', headerName: 'Service', width: 150 },
     {
       field: 'actions',

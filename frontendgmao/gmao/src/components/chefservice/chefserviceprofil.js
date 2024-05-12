@@ -7,6 +7,8 @@ import Sidebar from './chefservicedesign/sidebar/sidebar';
 import Navbar from './chefservicedesign/navbar/navbar';
 
 const Chefserviceprofil = () => {
+ const role =localStorage.getItem("role");
+
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState('');
@@ -23,10 +25,18 @@ const Chefserviceprofil = () => {
   const[service,setservice]=useState('');
   const [color,setcolor]=useState('');
   const navigate = useNavigate();
-
+ const token=localStorage.getItem("token");
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (token && role==="chefservice")
+      {
+        fetchData(); 
+      }
+      else 
+      {
+        navigate("/login");
+      }
+    
+  }, [token,role]);
 
   const fetchData = async () => {
     try {

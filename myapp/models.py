@@ -3,7 +3,12 @@ from django.db import models
 from django import forms
 from django.contrib.auth.models import AbstractUser, Group,User
 from datetime import *
+from django.http import FileResponse
 from django.utils.timezone import *
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from django.http import HttpResponse
 
 class service (models.Model):
     nom=models.CharField(max_length=150)
@@ -128,15 +133,60 @@ class Contact (models.Model):
     sujet_type = models.CharField(max_length=1100, choices=SUJET_TYPE, default='autre')
     message=models.TextField(max_length=2500)
 class Rapport(models.Model):
-    date_rapport=models.DateField(auto_now_add=True)
-   
+    date_rapport = models.DateField(auto_now_add=True)
     date_debut = models.DateField(null=True, blank=True)
     date_fin = models.DateField(null=True, blank=True)
-    intevetions=models.ManyToManyField(interven)
-    def generate_rapport (self):
-       return interven.objects.filter(date_debut=self.data_debut,date_fin=self.date_fin)
-        
+    interventions = models.ManyToManyField(interven,null=True,blank=True)
 
+    def generate_rapport(self):
+        interventions = interven.objects.filter(date_debut__range=[self.date_debut, self.date_fin],date_fin__range=[self.date_debut, self.date_fin])
+        
+        return interventions
+
+    def generate_pdf(self):
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="rapport.pdf"'
+
+        doc = SimpleDocTemplate(response, pagesize=letter)
+        data = []
+
+        # Add header row
+        header = ['Date début', 'Date fin', 'Description', 'Citoyen', 'Technicien', 'Service']
+        data.append(header)
+
+        # Add data rows
+        for intervention in self.interventions.all():
+            row = [
+                intervention.date_debut,
+                intervention.date_fin,
+                intervention.description,
+                intervention.technicien,
+                
+                
+                
+                
+            ]
+            data.append(row)
+
+        # Create table and style
+        table = Table(data)
+        style = TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ])
+
+        # Apply style
+        table.setStyle(style)
+
+        # Build PDF
+        doc.build([table])
+
+        return response
 
 
 

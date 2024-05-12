@@ -50,3 +50,8 @@ class ContactSerialize(serializers.ModelSerializer):
     class Meta :
         model=Contact
         fields='__all__'
+class RapportSerialize(serializers.ModelSerializer):
+    interventions = IntervetionSerializers(many=True)
+    class Meta :
+        model=Rapport
+        fields="__all__"

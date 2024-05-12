@@ -12,6 +12,7 @@ const PieChartComponent = () => {
   const [nouveau, setNouveau] = useState(0);
   const [enAttente, setEnAttente] = useState(0);
   const [annule, setAnnule] = useState(0);
+  const token=localStorage.getItem("token");
 
   useEffect(() => {
     fetchData();
@@ -19,7 +20,13 @@ const PieChartComponent = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api_intervetion_chefservice/${localStorage.getItem('userId')}/`);
+      const response = await fetch(`http://127.0.0.1:8000/api_intervetion_chefservice/${localStorage.getItem('userId')}/`,
+      {
+        method:"GET",
+        headers: {
+          Authorization: `Token ${token}`, // Include the token in the request headers
+        },
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }

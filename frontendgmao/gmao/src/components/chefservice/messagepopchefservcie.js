@@ -8,14 +8,21 @@ const MessagePopup = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [interventions, setInterventions] = useState([]);
   const userId = localStorage.getItem('userId');
+  const token=localStorage.getItem('token');
+  
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [token]);
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api_intervetion_chefservice/${userId}/`);
+      const response = await fetch(`http://127.0.0.1:8000/api_intervetion_chefservice/${userId}/`,
+      {
+        headers: {
+          Authorization: `TOKEN ${token}`,
+        }
+      });
       if (response.ok) {
         const data = await response.json();
         const interventionsWithConversation = data.filter(intervention => intervention.conversation);

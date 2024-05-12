@@ -3,15 +3,29 @@ import Sidebar from './sidebar/sidebar';
 import Navbar from './navbar/navbar';
 import { DataGrid } from '@mui/x-data-grid';
 import Pagination from '@mui/material/Pagination';
+import { useNavigate } from 'react-router-dom';
+
  
 const Listtechnicien = () => {
   const [technicienData, setTechnicienData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [interventionsPerPage] = useState(7);
+  const token=localStorage.getItem("token");
+  const role =localStorage.getItem("role");
+  const navigate =useNavigate();
  
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (token)
+      {
+        fetchData();
+
+      }
+      else {
+        navigate("/login");
+      }
+
+   
+  }, [token]);
  
   const fetchData = async () => {
     try {

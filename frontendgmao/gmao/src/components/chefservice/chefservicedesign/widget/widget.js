@@ -4,14 +4,15 @@ import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 
 const Widget = ({ type }) => {
   const [interventionData, setInterventionData] = useState([]);
+  const token=localStorage.getItem("token");
 
   useEffect(() => {
     fetchInterventionData();
-  }, []); // Fetch data only once when the component mounts
+  }, [token]); // Fetch data only once when the component mounts
 
   const fetchInterventionData = async () => {
     try {
-      const token = localStorage.getItem("token");
+    
       const userId = localStorage.getItem("userId");
 
       if (!token || !userId) {
@@ -24,8 +25,8 @@ const Widget = ({ type }) => {
         {
           method: "GET",
           headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+          
+            Authorization: `TOKEN ${token}`,
           },
         }
       );

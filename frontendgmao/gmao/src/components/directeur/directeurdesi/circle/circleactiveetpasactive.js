@@ -6,9 +6,13 @@ const Circleactivenoactive = () => {
   const [error, setError] = useState(null);
   const [active, setActive] = useState(0);
   const [noActive, setNoActive] = useState(0);
-
+  
   useEffect(() => {
-    fetchData();
+    
+      
+        fetchData();
+      
+    
   }, []);
 
   const fetchData = async () => {

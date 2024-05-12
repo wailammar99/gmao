@@ -7,6 +7,7 @@ const Enattendecom = () => {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const token=localStorage.getItem("token");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -18,8 +19,7 @@ const Enattendecom = () => {
         const response = await fetch(`http://127.0.0.1:8000/api_intervetion_chefservice/${userId}/`, {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Token ${token}`, // Include the token in the request headers
           },
         });
 
@@ -40,7 +40,7 @@ const Enattendecom = () => {
     };
 
     fetchData();
-  }, []);
+  }, [token]);
 
   if (isLoading) {
     return <div>Loading...</div>;

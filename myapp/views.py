@@ -318,8 +318,9 @@ def activer(request):
         
 #rest full api test Customer    
 
-
-@csrf_exempt
+@api_view(["GET"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def CustomerListe(request):
     if request.method == 'GET':
         users = CustomUser.objects.all().select_related('service')
@@ -593,6 +594,9 @@ def loginn(request):
 def logout_view(request):
     logout(request)
     return Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
+@api_view(["GET"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def Serviceliste(request):
     if request.method == 'GET':
         s = service.objects.filter()
@@ -985,7 +989,9 @@ def sendmessage(request, conversation_id,user_id):
             return JsonResponse({'error': 'Failed to create message: {}'.format(str(e))}, status=400)
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
-
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def api_intervetion_chefservice(request, user_id):
     if request.method == "GET":
         try:
@@ -1598,22 +1604,112 @@ def api_delete_contact(request,contact_id):
 
 
 @csrf_exempt
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def api_post_contact(request):
     if request.method == "POST":
         try:
-            admin=CustomUser.objects.filter(is_admin=True)
-            serializer = ContactSerialize(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                message="vous avze nouveux coonatc "
-                for i in admin :
-                    Notification.objects.create(recipient=i,message=message,is_read=False)
-                return Response({"message": "Le contact est créé avec succès"}, status=status.HTTP_200_OK)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            admin = CustomUser.objects.filter(is_admin=True)
+            data = json.loads(request.body)
+            email=data.get("email")
+            nom=data.get("nom")
+            telephone=data.get("telephone")
+            sujet_type=data.get("sujet_type")
+            message=data.get("message")
+            contact = Contact.objects.create(
+                email=email,
+                nom=nom,
+                telephone=telephone,
+                sujet_type=sujet_type,
+                message=message
+            )
+            
+            message = "Vous avez un nouveau contact"
+            
+            for i in admin:
+                    Notification.objects.create(recipient=i, message=message, is_read=False)
+            return JsonResponse({"message": "Le contact est créé avec succès"}, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"error": "An error occurred: {}".format(str(e))}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JsonResponse({"error": "An error occurred: {}".format(str(e))}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
-        return Response({"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return JsonResponse({"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+def api_get_rapport(request):
+    if request.method=="GET" :
+        try :
+           queryset=Rapport.objects.all()
+           serializer=RapportSerialize(queryset,many=True)
+           return JsonResponse(serializer.data,status=200)
+        except Exception as e :
+            return JsonResponse({"error": "An error occurred: {}".format(str(e))}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return JsonResponse({"eroor":"method not allow"},status=405)
+def api_get_rapport(request,rapport_id):
+    if request.method=="DELETE" :
+        try :
+            rapport=Rapport.objects.get(id=rapport_id)
+            rapport.delete()
+            return JsonResponse({"message":"le rapport est bien supprimer "},status=200)
+        except Rapport.DoesNotExist :
+            return JsonResponse({"eroor":"le rapport id do not existe "},status=404)
+        except Exception as e :
+            return JsonResponse({"error": "An error occurred: {}".format(str(e))}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else :
+        return JsonResponse({"erooor":"method not allow "},status=405)
+@csrf_exempt
+@api_view(["GET"])
+def api_get_rapport(request):
+    if request.method=="GET" :
+        try :
+            setquery=Rapport.objects.all()
+            serializer=RapportSerialize(setquery,many=True)
+            return JsonResponse(serializer.data,status=200,safe=False)
+        except Rapport.DoesNotExist :
+            return JsonResponse({"eroor":"rapport not found"},status=404)
+    else :
+        return JsonResponse({"eroor":"method not allow"},status=405)
+@csrf_exempt
+def api_delete_rapport(request,rapport_id):
+    if request.method =="DELETE" :
+        try:
+            rapport_cible=Rapport.objects.get(id=rapport_id)
+            rapport_cible.delete()
+            return JsonResponse({"rapport est bien supprie"},status=200)
+        except Rapport.DoesNotExist:
+            return JsonResponse({"eror":"le rapport do not existe "},status=404)
+    else :
+        return JsonResponse({"eroor":"method nt allow "},status=405)
+@csrf_exempt
+def api_create_rapport(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            date_debut = data.get("date_debut")
+            date_fin = data.get("date_fin")
+            
+            if not date_fin or not date_debut:
+                return JsonResponse({"message": "Please provide both start and end dates."}, status=400)
+            
+            rapport_cible = Rapport.objects.create(date_debut=date_debut, date_fin=date_fin)
+            intervention_intervert = rapport_cible.generate_rapport()
+            rapport_cible.interventions.set(intervention_intervert)
+            
+            return JsonResponse({"message": "Rapport created successfully."}, status=200)
+        
+        except Exception as e:
+            return JsonResponse({"error": "An error occurred: {}".format(str(e))}, status=500)
+        
+    else:
+        return JsonResponse({"error": "Method not allowed."}, status=405)
+@csrf_exempt
+def api_generate_pdf(request,rapport_id):
+    if request.method=="GET" :
+        try :
+            rapport_cible=Rapport.objects.get(id=rapport_id)
+            pdf =rapport_cible.generate_pdf()
+            return pdf
+        except Rapport.DoesNotExist :
+            return JsonResponse({"eroror":"rapport do not existe "},status=404)
+        except Exception as e :
+            return JsonResponse({"error": "An error occurred: {}".format(str(e))}, status=500)
+    else :
+        return JsonResponse({"eoor":"method not allow"},status=405)
+

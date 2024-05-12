@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, pieArcLabelClasses } from '@mui/x-charts'; // Import pieArcLabelClasses
 import "./char.scss";
+import { useNavigate } from 'react-router-dom';
 
 const PieChartComponent = () => {
   const [loading, setLoading] = useState(true);
@@ -9,14 +10,33 @@ const PieChartComponent = () => {
   const [termine, setterminer] = useState(0);
   const [Cloture, setCloture] = useState(0);
   const [assige, setassigne] = useState(0);
-
+  const token=localStorage.getItem("token");
+  const role =localStorage.getItem("role");
+  const navigate=useNavigate();
   useEffect(() => {
-    fetchData();
+    if (token && role==="admin")
+      {
+        fetchData();
+      }
+      else 
+      {
+        navigate("/login");
+      }
+    
   }, []);
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/listecustomer/`);
+      const response = await fetch(`http://127.0.0.1:8000/listecustomer/`,
+      {
+        method:"GET",
+        headers:{
+          'Authorization': `Token ${token}`,
+
+        }
+        
+
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }

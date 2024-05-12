@@ -22,10 +22,16 @@ const Adminprofil = () => {
   const [password2, setPassword2] = useState('');
   const [color,setcolor]=useState('');
   const navigate = useNavigate();
+  const token =localStorage.getItem("token");
+  const role =localStorage.getItem('role');
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (token)
+      {
+        fetchData();
+      }
+    
+  }, [token]);
 
   const fetchData = async () => {
     try {
@@ -38,7 +44,7 @@ const Adminprofil = () => {
 
       const response = await fetch(`http://127.0.0.1:8000/user_infoo/${localStorage.getItem('userId')}/`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Token ${token}`,
         },
       });
 

@@ -12,6 +12,8 @@ import AddIcon from '@mui/icons-material/Add';
 import ListIcon from '@mui/icons-material/List';
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import { Link } from "react-router-dom";
+import SummarizeIcon from '@mui/icons-material/Summarize';
+import CreateIcon from '@mui/icons-material/Create';
 
 
 const Sidebar = () => {
@@ -103,6 +105,23 @@ const Sidebar = () => {
             <span>Notifications</span>
           </li>
           </Link>
+          <p className="title">RAPPORT</p>
+          <Link to={"/listerapport"} style={{ textDecoration: "none" }} >
+          <li>
+          <SummarizeIcon className="icon"></SummarizeIcon>
+         
+          <span>liste rapport </span>
+          </li>
+          </Link>
+
+        
+          <Link to={"/RaportForm"} style={{ textDecoration: "none" }} >
+          <li>
+          <CreateIcon className="icon"></CreateIcon>
+          <span>Cree Repport</span>
+          </li>
+          </Link>
+
            
           
         

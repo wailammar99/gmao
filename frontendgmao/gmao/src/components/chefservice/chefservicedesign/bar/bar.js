@@ -22,11 +22,18 @@ const BarsDataset = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [interventionsParMois, setInterventionsParMois] = useState({});
-
+  const token =localStorage.getItem("token");
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api_intervetion_chefservice/${localStorage.getItem('userId')}/`);
+        const response = await fetch(`http://127.0.0.1:8000/api_intervetion_chefservice/${localStorage.getItem('userId')}/`,
+        {
+          method:"GET",
+          headers: {
+            Authorization: `Token ${token}`, // Include the token in the request headers
+          },
+
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch data');
         }
@@ -56,7 +63,7 @@ const BarsDataset = () => {
     };
 
     fetchData();
-  }, []);
+  }, [token]);
 
   // Créer le dataset pour le BarChart
   const dataset = Object.entries(interventionsParMois).map(([mois, interventions]) => ({

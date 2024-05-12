@@ -12,6 +12,7 @@ import AddIcon from '@mui/icons-material/Add';
 import ListIcon from '@mui/icons-material/List';
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import { Link } from "react-router-dom";
+import ContactMailIcon from '@mui/icons-material/ContactMail';
 
 
 const Sidebar = () => {
@@ -96,6 +97,23 @@ const Sidebar = () => {
             <span>Liste Service</span>
           </li>
            </Link>
+           <p className="title">USEFUL</p>
+         
+        
+        <Link to={"/Notificationadmin"} style={{ textDecoration: "none" }}>
+        <li>
+            <NotificationsNoneIcon className="icon" />
+            <span>Notifications</span>
+          </li>
+
+        </Link>
+        <Link to={"/contactadmin"} style={{ textDecoration: "none" }}>
+          <li>
+            <ContactMailIcon className="icon" />
+            <span>Contact</span>
+          </li>
+            </Link>
+
         
           <p className="title">USER</p>
           <Link to={"/adminprofil"} style={{ textDecoration: "none" }}>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, Button, Box, Typography, Select, MenuItem } from '@mui/material';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
+import PopupMessage from './message';
  
 const Contact = () => {
   const [email, setEmail] = useState('');
@@ -9,10 +10,37 @@ const Contact = () => {
   const [message, setMessage] = useState('');
   const [phone, setPhone] = useState('');
  
-  const handleSubmit = (e) => {
+ 
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Logique pour gérer l'envoi du formulaire
-  };
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/CreateContact/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          nom: name,
+          telephone: phone,
+          sujet_type: reason,
+          message: message,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message); // Show success message
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error); // Show error message
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+      alert('An error occurred. Please try again later.');
+    }
+  }; 
  
   return (
     <Box
@@ -40,12 +68,15 @@ const Contact = () => {
           type="email"
           autoFocus
           margin="normal"
+          required
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)
+          }
         />
          <TextField
           fullWidth
           id="phone"
+          required
           label="Numéro de téléphone"
           name="phone"
           type="tel"
@@ -56,6 +87,7 @@ const Contact = () => {
         />
         <TextField
           fullWidth
+          required
           id="name"
           label="Nom"
           name="name"
@@ -68,6 +100,7 @@ const Contact = () => {
         <Select
           fullWidth
           id="reason"
+          required
           label="Raison"
           value={reason}
           onChange={(e) => setReason(e.target.value)}
@@ -84,6 +117,7 @@ const Contact = () => {
           label="Message"
           name="message"
           type="text"
+          required
           autoFocus
           margin="normal"
           multiline

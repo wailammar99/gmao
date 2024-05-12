@@ -18,19 +18,14 @@ const Navbar = () => {
     <div className="navbar">
       <div className="wrapper">
         <div className="search">
-          <input type="text" placeholder="Search..." />
-          <SearchOutlinedIcon />
+         
+        
         </div>
         <div className="items">
+         
+          
           <div className="item">
-            <LanguageOutlinedIcon className="icon" />
-            English
-          </div>
-          <div className="item">
-            <DarkModeOutlinedIcon className="icon" />
-          </div>
-          <div className="item">
-            <FullscreenExitOutlinedIcon className="icon" />
+           
           </div>
           <NotificationPopup /> {/**/}
           <div className="item">
@@ -38,7 +33,7 @@ const Navbar = () => {
             
           </div>
           <div className="item">
-            <ListOutlinedIcon className="icon" />
+            
           </div>
         </div>
       </div>

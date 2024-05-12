@@ -7,6 +7,7 @@ import { Button } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import PopupMessage from '../message';
 import Pagination from '@mui/material/Pagination';
+import { useNavigate } from 'react-router-dom';
 
 
 function ListService() {
@@ -17,14 +18,34 @@ function ListService() {
   const [servicesPerPage] = useState(5);
   const [showForm, setShowForm] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
+  const token=localStorage.getItem("token");
+  const role =localStorage.getItem("role");
+  const navigate=useNavigate();
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (token && role==="admin")
+      {
+        fetchData();    
+      }
+      else
+      {
+        navigate("/login");
+      }
+    
+  }, [token,role]);
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/Serviceliste/');
+      const response = await fetch('http://127.0.0.1:8000/Serviceliste/',
+      {
+        method:"GET",
+        
+        
+          headers: {
+            'Authorization': `token ${token}`,
+        
+
+      }});
       if (response.ok) {
         const data = await response.json();
         setServices(data);

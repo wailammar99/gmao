@@ -85,6 +85,10 @@ urlpatterns = [
                     path("CreateContact/",views.api_post_contact),
                     path("DeleteConatct/<int:contact_id>/",views.api_delete_contact),
                     path("GetAllConatct/",views.api_get_contact),
+                    path("allrapport/",views.api_get_rapport),
+                    path("delete/rapport/<int:rapport_id>/",views.api_delete_rapport),
+                    path("create/rapport/",views.api_create_rapport),
+                    path("generate/rapport/<int:rapport_id>/",views.api_generate_pdf)
 
 
                 

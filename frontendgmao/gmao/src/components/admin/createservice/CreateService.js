@@ -16,13 +16,16 @@ const CreateService = ({ onServiceCreated }) => {
   const[messageee,setmessageee]=useState("");
   const[color,setcolor]=useState("");
   const navigate = useNavigate();
+  
+const token=localStorage.getItem("token");
+const role =localStorage.getItem("role");
 
   const handleCreateService = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Authentication token not found');
+      
+      if (!token || role!="admin") {
+        navigate("/login");
       }
       const response = await fetch('http://127.0.0.1:8000/api_create_service/', {
         method: 'POST',
