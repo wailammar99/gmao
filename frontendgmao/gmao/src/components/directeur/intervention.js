@@ -5,6 +5,8 @@ import Paper from "@mui/material/Paper";
 import Sidebar from './directeurdesi/Sidebar/Sidebardic';
 import Navbar from './directeurdesi/Navbar/navbardic';
 import { Link } from 'react-router-dom';
+import { Tooltip, IconButton, Stack } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 
 import Pagination from '@mui/material/Pagination';
 
@@ -74,7 +76,11 @@ const Intervention = () => {
       headerName: 'Actions',
       width: 150,
       renderCell: (params) => (
-        <Button onClick={() => handleOpenDialog(params.row)} variant="outlined">Voir Plus</Button>
+        <Tooltip title="Voir Plus" arrow>
+        <IconButton onClick={() => handleOpenDialog(params.row)} color="primary">
+          <AddIcon />
+        </IconButton>
+      </Tooltip>
       ),
     },
   ];

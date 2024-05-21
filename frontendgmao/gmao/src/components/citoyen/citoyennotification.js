@@ -5,6 +5,11 @@ import Navbar from './cityoendesign/navbar/navbar';
 import Sidebar from './cityoendesign/sidebar/sidebar';
 import PopupMessage from '../message';
 import { Pagination } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Tooltip, IconButton } from '@mui/material';
+
+
 
 const Notificationcitoyen = () => {
   const [notifications, setNotifications] = useState([]);
@@ -13,9 +18,16 @@ const Notificationcitoyen = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
   const [popupColor, setPopupColor] = useState('');
+  const token=localStorage.getItem("token");
+  const role =localStorage.getItem("role");
+  const navigate=useNavigate();
 
   useEffect(() => {
     fetchNotifications();
+    if (!token || role!="citoyen")
+      {
+        navigate("/login");
+      }
   }, [currentPage]); // Fetch notifications whenever currentPage changes
 
   const fetchNotifications = async () => {
@@ -81,7 +93,17 @@ const Notificationcitoyen = () => {
       headerName: 'Action',
       width: 200,
       renderCell: (params) => (
-        <Button variant="contained" color="secondary" onClick={() => deleteNotification(params.row.id)}>Delete</Button>
+        <div>
+        <Tooltip title="Supprimée" arrow>
+          <IconButton
+            variant="contained"
+            sx={{ color: 'red', cursor: 'pointer' }}
+            onClick={() => deleteNotification(params.row.id)}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </Tooltip>
+      </div>
       ),
     },
   ];

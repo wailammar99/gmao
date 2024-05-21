@@ -18,12 +18,18 @@ const Directeurprofil = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false); // State to control the dialog visibility
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [old_password, setOldpassword] = useState('');
+  const token=localStorage.getItem("token");
+  const role=localStorage.getItem("role");
   const [password1, setPassword1] = useState('');
   const [password2, setPassword2] = useState('');
   const [color,setcolor]=useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!token || role!="directeur")
+      {
+        navigate("/login");
+      }
     fetchData();
   }, []);
 
@@ -144,6 +150,9 @@ const Directeurprofil = () => {
         setSuccessMessage('Le mot de passe a été modifié avec succès.');
         setcolor("success");
         fetchData();
+        setTimeout(() => {
+          setShowPasswordForm(false);
+        }, 1500);
       } else if (response.status === 400) {
         setSuccessMessage("L'ancien mot de passe n'est pas correct.");
         setcolor("warning");
@@ -201,12 +210,12 @@ const Directeurprofil = () => {
                       <p className="text-muted mb-4">{userData ? userData.location : 'Loading...'}</p>
                       <div className="d-flex justify-content-center mb-2">
                         <Button variant="contained" color="primary" onClick={openDialog}>
-                          Modify User Information
+                        Modifier les informations 
                         </Button>
                       </div>
                       <div className="d-flex justify-content-center mb-2">
                         <Button variant="contained" color="secondary" onClick={handleTogglePasswordForm}>
-                          Modify Password
+                        Modifier le mot de passe
                         </Button>
                       </div>
                     </div>
@@ -217,7 +226,7 @@ const Directeurprofil = () => {
                     <div className="card-body">
                       <div className="row">
                         <div className="col-sm-3">
-                          <p className="mb-0">First Name</p>
+                          <p className="mb-0">Nom</p>
                         </div>
                         <div className="col-sm-9">
                           <p className="text-muted mb-0">{userData ? userData.first_name : 'Loading...'}</p>
@@ -235,7 +244,7 @@ const Directeurprofil = () => {
                       <hr />
                       <div className="row">
                         <div className="col-sm-3">
-                          <p className="mb-0">Last Name</p>
+                          <p className="mb-0">Prenom</p>
                         </div>
                         <div className="col-sm-9">
                           <p className="text-muted mb-0">{userData ? userData.last_name : 'Loading...'}</p>
@@ -252,7 +261,7 @@ const Directeurprofil = () => {
 
       {/* Dialog for user information form */}
       <Dialog open={isDialogOpen} onClose={closeDialog}>
-        <DialogTitle>Modify User Information</DialogTitle>
+        <DialogTitle>Modifier les informations </DialogTitle>
         <DialogContent>
           <form onSubmit={handleFormSubmit}>
             <TextField
@@ -295,9 +304,9 @@ const Directeurprofil = () => {
               margin="normal"
             />
             <DialogActions>
-              <Button onClick={closeDialog}>Cancel</Button>
+              <Button onClick={closeDialog}>Annule</Button>
               <Button type="submit" variant="contained" color="primary">
-                Save Changes
+              Sauvegarder 
               </Button>
             </DialogActions>
           </form>
@@ -306,7 +315,7 @@ const Directeurprofil = () => {
 
       {/* Dialog for password form */}
       <Dialog open={showPasswordForm} onClose={handleTogglePasswordForm}>
-        <DialogTitle>Modify Password</DialogTitle>
+        <DialogTitle>Modifier le mot de passe</DialogTitle>
         <DialogContent>
           <form onSubmit={handlePasswordFormSubmit}>
             <TextField
@@ -340,9 +349,9 @@ const Directeurprofil = () => {
               type='password'
             />
             <DialogActions>
-              <Button onClick={handleTogglePasswordForm}>Cancel</Button>
+              <Button onClick={handleTogglePasswordForm}>Annule</Button>
               <Button type="submit" variant="contained" color="primary">
-                Save Changes
+              Sauvegarder les modifications
               </Button>
             </DialogActions>
           </form>

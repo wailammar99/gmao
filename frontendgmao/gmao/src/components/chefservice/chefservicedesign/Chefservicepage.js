@@ -79,7 +79,7 @@ const Chefservicepage = () => {
  
   const fetchEquipmentData = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/liste_equipment/');
+      const response = await fetch(`http://127.0.0.1:8000/liste_equipment/${localStorage.getItem('userId')}/`);
       if (response.ok) {
         const equipmentData = await response.json();
         setEquipments(equipmentData);
@@ -186,6 +186,8 @@ const Chefservicepage = () => {
     // Close the conversation modal if it's open
     setShowModalConversation(false);
   };
+  
+
  
   const handleCloseModall = () => {
     setShowModall(false);
@@ -212,11 +214,21 @@ const Chefservicepage = () => {
       headerName: 'Conversation',
       width: 150,
       renderCell: (params) => (
-        <Link to={`/conversation/${params.row.conversation?.id}/chefservice/${localStorage.getItem('userId')}`}>
-          {params.row.conversation ? params.row.conversation.title : 'Unknown'}
-        </Link>
-      ),
+        params.row.conversation ? (
+          <Link to={`/conversation/${params.row.conversation.id}/chefservice/${localStorage.getItem('userId')}`}>
+            {params.row.conversation.title}
+          </Link>
+        ) : (
+          <Button onClick={() => handleStartConversation(params.row.id)} variant="contained" color="primary">
+            démarrer
+          </Button>
+        )
+      )
+
+      
     },
+    
+    
     {
       field: 'actions',
       headerName: 'Actions',
@@ -288,9 +300,9 @@ const Chefservicepage = () => {
                 </div>
                 <div className="modal-body">
                   {isNoService ? (
-                    <InterventionForm interventionId={selectedIntervention.id} onSubmit={handleFormSubmit} onClose={() => setShowModal(false)}/>
+                    <InterventionForm interventionId={selectedIntervention.id} onSubmit={handleFormSubmit} onClose={() => setShowModal(false)} />
                   ) : (
-                    <InterventionFormTechnician interventionId={selectedIntervention.id} onSubmit={handleFormSubmit} onClose={() => setShowModal(false)} />
+                    <InterventionFormTechnician interventionId={selectedIntervention.id} onSubmit={handleFormSubmit} onClose={() => setShowModal(false)}  />
                   )}
                 </div>
               </div>
@@ -327,9 +339,9 @@ const Chefservicepage = () => {
                 <p>Date de début : {selectedIntervention.date_debut}</p>
                 <p>Date de fin : {selectedIntervention.date_fin}</p>
                 <p>État : {selectedIntervention.etat}</p>
-                <p>Citoyen : {selectedIntervention.citoyen?.email ? selectedIntervention.citoyen.email : "null"}</p>
-                <p>Service : {selectedIntervention.service?.nom ? selectedIntervention.service.nom : "NULL"}</p>
-                <p>tehcnicne id  : {selectedIntervention.technicien ? selectedIntervention.technicien : "NULL"}</p>
+                <p>Citoyen : {selectedIntervention.citoyen?.email ? selectedIntervention.citoyen.email : "il a pas email "}</p>
+                <p>Service : {selectedIntervention.service?.nom ? selectedIntervention.service.nom : "no service "}</p>
+                <p>tehcnicne id  : {selectedIntervention.technicien ? selectedIntervention.technicien : "intervetion est pas assigné au technicien"}</p>
                 <p>Équipements :
                   <ul>
                     {selectedIntervention.equipements && selectedIntervention.equipements.map((equipementId) => {
@@ -342,7 +354,7 @@ const Chefservicepage = () => {
                     })}
                   </ul>
                 </p>
-                <p>Raison : {selectedIntervention.raison ? selectedIntervention.raison.description : "No raison"}</p>
+                <p>Raison : {selectedIntervention.raison ? selectedIntervention.raison.description : "intervetion est pas en attend "}</p>
                 {/* Ajoutez d'autres détails de l'intervention ici */}
               </div>
             )}

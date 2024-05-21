@@ -5,7 +5,7 @@ import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutline
 import { Link } from 'react-router-dom';
  
  
-const MessagePopupCitoyen = () => {
+const  MMessagePopupCitoyen= () => {
   const [isOpen, setIsOpen] = useState(false);
   const [interventions, setInterventions] = useState([]);
  
@@ -71,7 +71,7 @@ const MessagePopupCitoyen = () => {
             <TableBody>
               {interventions.filter(intervention => intervention.conversation).map(intervention => (
                 <TableRow key={intervention.id}>
-                  <TableCell>{intervention.conversation.title}</TableCell>
+                  <TableCell>{intervention.id}</TableCell>
                   <TableCell className="tableCell">
                     <Link to={`/conversation/${intervention.conversation.id}/citoyen/${localStorage.getItem('userId')}`} onClick={handleLinkClick}>
                       <ChatBubbleOutlineOutlinedIcon />
@@ -91,4 +91,4 @@ const MessagePopupCitoyen = () => {
   );
 };
  
-export default MessagePopupCitoyen;
+export default MMessagePopupCitoyen;

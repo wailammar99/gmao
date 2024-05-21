@@ -1,0 +1,63 @@
+body{margin-top:20px;}
+
+.chat-online {
+    color: #34ce57
+}
+
+.chat-offline {
+    color: #e4606d
+}
+
+.chat-messages {
+    display: flex;
+    flex-direction: column;
+    max-height: 1500px;
+    overflow-y: scroll
+}
+
+.chat-message-left,
+.chat-message-right {
+    display: flex;
+    flex-shrink: 0
+}
+
+.chat-message-left {
+    margin-right: auto
+}
+
+.chat-message-right {
+    flex-direction: row-reverse;
+    margin-left: auto
+}
+.fixed-container {
+  position: fixed;
+  bottom: 20px; /* Ajustez selon vos besoins */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 95%; /* Augmentez la largeur */
+  max-width: 800px; /* Ajustez selon vos besoins */
+  max-height: 80%; /* Ajustez la hauteur maximale */
+  background-color: #fff;
+  padding: 20px; /* Ajustez selon vos besoins */
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  overflow-y: auto; /* Ajoutez un défilement vertical si nécessaire */
+}
+.fixed-container-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.scrolling-container {
+  max-height: 300px; /* Augmentez la hauteur maximale */
+  overflow-y: auto;
+  width: 95%; /* Ajustez selon vos besoins */
+  max-width: 800px; /* Augmentez la largeur maximale */
+  margin: 20px auto; /* Ajustez selon vos besoins */
+  background-color: #f9f9f9; /* Couleur d'arrière-plan pour le défilement */
+  padding: 20px; /* Ajustez selon vos besoins */
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}

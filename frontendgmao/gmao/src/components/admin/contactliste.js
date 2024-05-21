@@ -6,6 +6,12 @@ import Navbar from './admindesign/home/navbar/navbar';
 import Sidebar from './admindesign/home/sidebar/sidebar';
 import PopupMessage from '../message';
 import { useNavigate } from 'react-router-dom';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Tooltip, IconButton } from '@mui/material';
+import ModeIcon from '@mui/icons-material/Mode';
+import Stack from '@mui/material/Stack';
+import AddIcon from '@mui/icons-material/Add';
+
 
 function Contactadmin() {
     const [userData, setUserData] = useState([]);
@@ -92,9 +98,7 @@ function Contactadmin() {
     }
 
     // Vérifie si userData est vide ou non défini avant de rendre le composant
-    if (!userData || userData.length === 0) {
-        return <div>Loading...</div>;
-    }
+    
     
     
     const columns = [
@@ -103,11 +107,33 @@ function Contactadmin() {
         {
             field: 'actions',
             headerName: 'Actions',
-            width: 350,
+            width: 400,
             renderCell: (params) => (
                 <>
-                 <Button onClick={() => handleDeleteContact(params.row.id)} variant="outlined" color="error">Supprimer</Button>
-                <Button onClick={() => handleOpenDialog(params.row)} variant="contained" color="primary">Voir plus</Button>
+                  <Stack direction="row" spacing={2}>
+      {/* Delete Button */}
+      <Tooltip title="Supprimer" arrow>
+        <IconButton
+          onClick={() => handleDeleteContact(params.row.id)}
+          color="error"
+          sx={{ cursor: 'pointer' }}
+        >
+          <DeleteIcon />
+        </IconButton>
+      </Tooltip>
+
+      {/* View More Button */}
+      <Tooltip title="Voir plus" arrow>
+        <IconButton
+          onClick={() => handleOpenDialog(params.row)}
+          color="primary"
+          sx={{ cursor: 'pointer' }}
+        >
+          <AddIcon />
+        </IconButton>
+      </Tooltip>
+    </Stack>
+
                 </>
             ),
         },

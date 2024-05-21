@@ -7,10 +7,15 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
-import Stack from '@mui/material/Stack';
+
 import PopupMessage from '../message';
 import { useNavigate } from 'react-router-dom';
 import { Pagination } from '@mui/material';
+import { Tooltip, IconButton, Stack } from '@mui/material';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+
+
 
 
 const Listtechnicien = () => {
@@ -26,11 +31,23 @@ const Listtechnicien = () => {
   const usersPerPage = 5; // Number of users per page
   const [showMessage, setShowMessage] = useState(false);
   const [upgradeMessage, setUpgradeMessage] = useState('');
+  const token=localStorage.getItem("token");
+  const role =localStorage.getItem("role");
+  
+
 
   useEffect(() => {
-    fetchData();
-    fetchDropdownOptions();
-  }, []);
+    if (token && role =="directeur")
+      {
+        fetchData();
+        fetchDropdownOptions();
+     
+      }
+      else 
+      {
+        navigate("/login");
+      }
+     }, [token,role]);
 
   const fetchData = async () => {
     try {
@@ -130,8 +147,15 @@ const Listtechnicien = () => {
         setShowMessage(true);
         fetchData();
         setTimeout(() => setShowMessage(false), 3000);
-      } else {
-        console.error('Failed to upgrade technician');
+      } else if ( response.status===404)  {
+        console.log('on peut pas faire cetter action ');
+        setMessage("impossible de faire action , on a deja une chef service  ");
+        setMessageColor("warning");
+        setShowMessage(true);
+        fetchData();
+        setTimeout(() => setShowMessage(false), 3000);
+
+        
         // Handle the error or show an error message
       }
     } catch (error) {
@@ -160,9 +184,17 @@ const Listtechnicien = () => {
       width: 200,
       renderCell: (params) => (
         <Stack direction="row" spacing={1}>
-          <Button variant="outlined" color="warning" onClick={() => handleClick(params.row)} >Assigné </Button>
-          <Button variant="outlined" color="success" onClick={() => handleUpgrade(params.row.id)}>update</Button>
-        </Stack>
+        <Tooltip title="Assigné" arrow>
+          <IconButton onClick={() => handleClick(params.row)} color="warning">
+            <AssignmentTurnedInIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Update" arrow>
+          <IconButton onClick={() => handleUpgrade(params.row.id)} color="success">
+            <CheckCircleOutlineIcon />
+          </IconButton>
+        </Tooltip>
+      </Stack>
       ),
     },
   ];

@@ -1,11 +1,13 @@
 // ConversationForm.js
 import React, { useState } from 'react';
 import PopupMessage from '../message';
+import { useNavigate } from 'react-router-dom';
 
-const ConversationForm = ({ interventionId, onClose ,onSuccess }) => {
+const ConversationForm = ({ interventionId, onClose ,onSuccess ,onfetch}) => {
   const [title, setTitle] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState({ message: '', color: 'success' });
+  const navigate=useNavigate();
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
@@ -30,8 +32,11 @@ const ConversationForm = ({ interventionId, onClose ,onSuccess }) => {
         console.log(data.message);
         setShowPopup(true);
         setPopupMessage({ message: 'conversation est bien cree ', color: 'success' });
+        onfetch();
         setTimeout(() => {
          onClose();
+         setShowPopup(false);
+         navigate("/Chefservicepage");
         }, 1000); // 1000 milliseconds = 1 second
     
         
@@ -39,8 +44,15 @@ const ConversationForm = ({ interventionId, onClose ,onSuccess }) => {
         
          // Log success message
        // Close the form after successful submission
-      } else {
-        console.error('Failed to start conversation');
+      } else if (response.status===403){
+       
+        setShowPopup(true);
+        setPopupMessage({ message: 'il faut assigne techncine pour creé conversation  ', color: 'danger' });
+        setTimeout(() => {
+          setShowPopup(false);
+         
+        }, 1000); // 1000 milliseconds = 1 second
+        
       }
     } catch (error) {
       console.error('Error starting conversation:', error);

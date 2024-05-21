@@ -55,6 +55,9 @@ const Adminprofil = () => {
         setEmail(data.user_info.email);
         setFirstname(data.user_info.first_name);
         setLastname(data.user_info.last_name);
+        setTimeout(() => {
+          
+        }, 1500);
       } else {
         console.error('Failed to fetch user data');
       }
@@ -149,7 +152,12 @@ const Adminprofil = () => {
       if (response.ok) {
         setSuccessMessage('Le mot de passe a été modifié avec succès.');
         setcolor("success");
+        
         fetchData();
+        setTimeout(() => {
+          setShowPasswordForm(false);
+        }, 1500);
+     
       } else if (response.status === 400) {
         setSuccessMessage("L'ancien mot de passe n'est pas correct.");
         setcolor("warning");

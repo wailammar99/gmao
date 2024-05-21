@@ -7,6 +7,7 @@ import PopupMessage from '../../../message';
 import { Link, NavLink, Navigate, useHref, useNavigate,useLocation } from 'react-router-dom';
 
 
+
 import UserListPage from '../../userlistepage';
 
 
@@ -24,8 +25,10 @@ const CreateUser = ({ onUserCreated }) => {
   const [first_name, setfirst_name] = useState('');
   const [last_name, setlast_name] = useState('');
   const [phone, setPhone] = useState('');
+  const [is_chefservice_intervention,Setis_chefservice_intervention]=useState("");
   const [showMessage, setShowMessage] = useState(false);
   const[messagee,setmessage]=useState("");
+  
   const[success,setsucee]=useState("");
   const navigate = useNavigate();
   const locate=useLocation();
@@ -57,10 +60,11 @@ const CreateUser = ({ onUserCreated }) => {
           last_name: last_name,
           first_name: first_name,
           phone: phone,
+          is_chefservice_intervention:is_chefservice_intervention
         }),
       });
      
-      if (response.ok) {
+      if (response.status===201 ) {
         console.log('User created successfully');
         setmessage("utlisateur est bien cree");
         setsucee("success");
@@ -68,6 +72,7 @@ const CreateUser = ({ onUserCreated }) => {
         setTimeout(() => {
           navigate("/UserListPage");
         }, 3000);
+      
 
 
 
@@ -83,7 +88,14 @@ const CreateUser = ({ onUserCreated }) => {
         //navigate("/UserListPage");
         console.log('Navigating to UserListPage 2...')
 
-      } 
+      }
+      else if (response.status===408)
+        {
+          setmessage("il existe deja une compte dirceteur ,changer role ");
+          setsucee("warning");
+          setShowMessage(true);
+          
+        } 
       
       else if (response.status===401){
         console.error('need to chose role please ');
@@ -118,6 +130,14 @@ const CreateUser = ({ onUserCreated }) => {
         setShowMessage(true);
 
       }
+      else if (response.status===404)
+        {
+          console.error('ready have a directeur  ');
+          setmessage("L\'compte dercteur  existe déjà ");
+          setsucee("danger");
+          setShowMessage(true);
+
+        }
     } catch (error) {
       console.error('Error creating user:', error);
     }
@@ -128,7 +148,7 @@ const CreateUser = ({ onUserCreated }) => {
 
     
       
-    }, 5000);
+    }, 3000);
      
     
     return () => clearTimeout(timer);
@@ -145,7 +165,7 @@ const CreateUser = ({ onUserCreated }) => {
       <form onSubmit={handleCreateUser} method="post">
 
         <div className="formInput">
-          <label htmlFor="username" className="form-label">Username</label>
+          <label htmlFor="username" className="form-label">Nom d'utilisateur </label>
           <input type="text" className="form-control" id="username" value={username} onChange={(e) => setUsername(e.target.value)} required />
         </div>
         <div className="formInput">
@@ -161,11 +181,11 @@ const CreateUser = ({ onUserCreated }) => {
           <input type="email" className="form-control" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </div>
         <div className="formInput">
-          <label htmlFor="password1" className="form-label">Password</label>
+          <label htmlFor="password1" className="form-label">mot passe </label>
           <input type="password" className="form-control" id="password1" value={password1} onChange={(e) => setPassword1(e.target.value)} required />
         </div>
         <div className="formInput">
-          <label htmlFor="password2" className="form-label">Confirm Password</label>
+          <label htmlFor="password2" className="form-label">Confirmer mot passe </label>
           <input type="password" className="form-control" id="password2" value={password2} onChange={(e) => setPassword2(e.target.value)} required />
         </div>
         
@@ -200,6 +220,8 @@ const CreateUser = ({ onUserCreated }) => {
   <label className="form-check-label" htmlFor="is_chefservice"> Chef Service</label>
 
 </div>
+
+
 
 <div className="formcheck">
 

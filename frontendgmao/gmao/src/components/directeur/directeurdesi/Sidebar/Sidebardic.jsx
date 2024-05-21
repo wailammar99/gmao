@@ -11,10 +11,9 @@ import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import AddIcon from '@mui/icons-material/Add';
 import ListIcon from '@mui/icons-material/List';
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
-import { Link } from "react-router-dom";
 import SummarizeIcon from '@mui/icons-material/Summarize';
 import CreateIcon from '@mui/icons-material/Create';
-
+import { Link } from "react-router-dom";
 
 const Sidebar = () => {
   const handleLogout = async () => {
@@ -32,7 +31,7 @@ const Sidebar = () => {
         localStorage.removeItem('userId');
 
         // Redirect to the login page or any other desired route
-        window.location.href = '/login'; // Redirect to the login page
+        window.location.href = '/login'; // Rediriger vers la page de connexion
       } else {
         console.error('Failed to logout.');
         // Handle logout failure, display error message, etc.
@@ -58,7 +57,7 @@ const Sidebar = () => {
           <Link to="/directeur_dashboard" style={{ textDecoration: "none" }}>
           <li>
             <DashboardIcon className="icon" />
-            <span>Dashboard</span>
+            <span>Tableau de bord</span>
           </li>
           </Link>
 
@@ -80,7 +79,7 @@ const Sidebar = () => {
            <Link to="http://localhost:3000/comptenouveux" style={{ textDecoration: "none" }}>
             <li>
             <PersonOutlineIcon className="icon" />
-              <span> les nouveux compte </span>
+              <span> Les nouveaux comptes </span>
             </li>
            </Link>
 
@@ -90,7 +89,7 @@ const Sidebar = () => {
            <Link to="http://localhost:3000/intervention" style={{ textDecoration: "none" }}>
           <li>
             <CreditCardIcon className="icon" />
-            <span>intervention</span>
+            <span>Intervention</span>
           </li>
           </Link>
 
@@ -110,7 +109,7 @@ const Sidebar = () => {
           <li>
           <SummarizeIcon className="icon"></SummarizeIcon>
          
-          <span>liste rapport </span>
+          <span>Liste rapport </span>
           </li>
           </Link>
 
@@ -118,7 +117,7 @@ const Sidebar = () => {
           <Link to={"/RaportForm"} style={{ textDecoration: "none" }} >
           <li>
           <CreateIcon className="icon"></CreateIcon>
-          <span>Cree Repport</span>
+          <span>Créer rapport</span>
           </li>
           </Link>
 
@@ -131,7 +130,7 @@ const Sidebar = () => {
 
           <li>
             <AccountCircleOutlinedIcon className="icon" />
-            <span>Profile</span>
+            <span>Profil</span>
           </li>
           </Link>
         
@@ -139,7 +138,7 @@ const Sidebar = () => {
           <Link to="/" style={{ textDecoration: "none" }} onClick={handleLogout}>
            <li>
                 <ExitToAppIcon className="icon" />
-                  Logout
+                  Déconnexion
              </li>
            </Link>
         

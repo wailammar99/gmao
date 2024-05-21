@@ -39,7 +39,7 @@ const Login = ({ onLogin }) => {
         setMessage('Nom d\'utilisateur ou mot de passe incorrect.');
         setShowMessage(true);
       } else if (response.status === 403) {
-        setMessage('Votre compte n\'est pas activé. Contactez l\'administrateur.');
+        setMessage('Votre compte existe pas  . Contactez l\'administrateur.');
         setShowMessage(true);
       }
 
@@ -68,7 +68,7 @@ const Login = ({ onLogin }) => {
       // Hide the message after 1500 milliseconds (1.5 seconds)
       setTimeout(() => {
         setShowMessage(false);
-      }, 1500);
+      }, 3000);
     } catch (error) {
       console.error('Échec de la connexion:', error);
       setError('Échec de la connexion. Veuillez réessayer.');
@@ -141,7 +141,7 @@ const Login = ({ onLogin }) => {
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/contact" variant="body2">
                   {"Vous n'avez pas de compte ? Inscrivez-vous"}
                 </Link>
               </Grid>

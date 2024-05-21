@@ -10,9 +10,14 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import PopupMessage from '../message';
 import { Pagination } from '@mui/material';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import { Tooltip, IconButton } from '@mui/material';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { green, orange } from '@mui/material/colors';
 
 const CompteNoActive = () => {
   const [users, setUsers] = useState([]);
+  const token=localStorage.getItem("token");
   const [selectedUser, setSelectedUser] = useState(null);
   const [showMessage, setShowMessage] = useState(false);
   const [message, setMessage] = useState("");
@@ -24,11 +29,12 @@ const CompteNoActive = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(5); // Number of users per page
+ 
 
   useEffect(() => {
     fetchData();
     fetchDropdownOptions();
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -40,7 +46,15 @@ const CompteNoActive = () => {
 
   const fetchDropdownOptions = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/Serviceliste/');
+      const response = await fetch('http://127.0.0.1:8000/Serviceliste/',
+      {
+        method:"GET",
+        headers:
+        {
+          'Authorization': `Token ${token}`,
+        }
+      
+      });
       if (response.ok) {
         const data = await response.json();
         setDropdownOptions(data);
@@ -94,8 +108,12 @@ const CompteNoActive = () => {
         setShowMessage(true); // Show message for unauthorized access
         setMessage("Il faut assigner un service s'il vous plaît");
         setColor("warning");
-      } else {
-        throw new Error('Failed to activate user account');
+      } else if (response.status===402) {
+        setShowMessage(true); // Show message for unauthorized access
+        setMessage("impossible de");  
+        setColor("warning");
+
+        
       }
     } catch (error) {
       console.error('Error activating user account:', error);
@@ -131,8 +149,8 @@ const CompteNoActive = () => {
       }, 1500);
         setOpenDialog(false);
        
-      } else if (response.status===403){
-        setMessage("Choisir un service s'il vous plaît");
+      } else if (response.status===402){
+        setMessage("il existe deja une chef servcie ");
         setColor('warning');
         setShowMessage(true);
         setTimeout(() => {
@@ -178,10 +196,25 @@ const CompteNoActive = () => {
       headerName: 'Actions',
       width: 200,
       renderCell: (params) => (
-        <Stack direction="row" spacing={2}>
-          <Button onClick={() => handleActivate(params.row.id)} variant="outlined" color="success" >Activer</Button>
-          <Button onClick={() => handleAssignServiceClick(params.row)} variant="outlined" color="warning" >Assigné</Button>
-        </Stack>
+        <div>
+        <Stack direction="row" spacing={5}>
+        
+      {!params.row.is_active && (
+        <Tooltip title="Activer" arrow>
+          <CheckCircleOutlineIcon onClick={() => handleActivate(params.row.id)} style={{ color: green[500] }}/>
+           
+         
+        </Tooltip>
+      )}
+
+      <Tooltip title="Assigné Service" arrow>
+        <AssignmentTurnedInIcon onClick={() => handleAssignServiceClick(params.row)} style={{ color: orange[500] }}/>
+         
+       
+      </Tooltip>
+      </Stack>
+    </div>
+      
       ),
     },
   ];

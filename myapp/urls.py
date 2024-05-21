@@ -1,5 +1,6 @@
-from django.urls import path
+from django.urls import path,include
 from . import views
+
 #web socket 
 
 
@@ -27,8 +28,9 @@ urlpatterns = [
              path("listeservice",views.Serviceliste),
             path("createservice",views.create_service,name="createservice"),
              path('modify-service/', views.modify_service_page, name='modify_service_page'),
-             path('equipements/', views.equipement_list),
+             path('equipements/<int:user_id>/', views.equipement_list),
               path('equipements/<int:pk>/', views.equipement_detail),
+              path("api_create_equipment/<int:user_id>/",views.api_create_equipment),
               path("start_intervention",views.start_intervention,name="start_intervention"),
               path("finish_intervention",views.finish_intervention,name="finish_intervention"),
               path("intervention/<int:id>",views.cree_reason,name="raison"),
@@ -58,7 +60,7 @@ urlpatterns = [
                  path("liste_technicien/<int:id>/",views.liste_technicien),
                  path('liste_intervetion_technicien/<int:id>/',views.api_intervetion_techn),
                 
-                 path("liste_equipment/",views.api_liste_equipment),
+                 path("liste_equipment/<int:user_id>/",views.api_liste_equipment),
                  path("delete_service/<int:id>/",views.api_delete_service),
                   path('api/intervention/<int:intervention_id>/', views.intervention_detail_api),
                   path("api_refuse_intervention/<int:intervetion_id>/",views.api_refuse_intervetion),
@@ -77,7 +79,7 @@ urlpatterns = [
                    path("allconversation/",views.api_allconversation),
                    path("test_particement/<int:conversation>/citoyen/<int:user_id>/",views.test_perticement),
                    path("modifie_service/<int:service_id>/",views.api_put_service),
-                   path("create_equiment/",views.api_create_equipment),
+                   path("create_equiment/<int:user_id>",views.api_create_equipment),
                    path("delete_equiment/<int:eq_id>/",views.api_delete_equiment),
                    path("put_equimpetment/<int:equipment_id>/",views.api_update_equipment),
                     path("reset_password/",views.api_forget_password),
@@ -88,7 +90,8 @@ urlpatterns = [
                     path("allrapport/",views.api_get_rapport),
                     path("delete/rapport/<int:rapport_id>/",views.api_delete_rapport),
                     path("create/rapport/",views.api_create_rapport),
-                    path("generate/rapport/<int:rapport_id>/",views.api_generate_pdf)
+                    path("generate/rapport/<int:rapport_id>/",views.api_generate_pdf),
+                    
 
 
                 
@@ -102,3 +105,4 @@ urlpatterns = [
     
 
 ]
+

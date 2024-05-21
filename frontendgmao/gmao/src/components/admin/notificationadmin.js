@@ -6,6 +6,8 @@ import Sidebar from './admindesign/home/sidebar/sidebar';
 import PopupMessage from '../message';
 import { Pagination } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Tooltip, IconButton } from '@mui/material';
 
 const Notificationadmin = () => {
   const [notifications, setNotifications] = useState([]);
@@ -100,7 +102,18 @@ const Notificationadmin = () => {
       headerName: 'Action',
       width: 200,
       renderCell: (params) => (
-        <Button variant="contained" color="secondary" onClick={() => deleteNotification(params.row.id)}>Delete</Button>
+        <div>
+      <Tooltip title="Supprimer" arrow>
+        <IconButton
+          onClick={() => deleteNotification(params.row.id)}
+          color="secondary"
+          sx={{ color: 'red', cursor: 'pointer' }}
+         
+        >
+          <DeleteIcon />
+        </IconButton>
+      </Tooltip>
+    </div>
       ),
     },
   ];

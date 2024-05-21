@@ -65,9 +65,9 @@ const Listtechnicien = () => {
  
     { field: 'username', headerName: 'Username', width: 150 },
     { field: 'email', headerName: 'Email', width: 150 },
-    { field: 'first_name', headerName: 'First Name', width: 150 },
-    { field: 'last_name', headerName: 'Last Name', width: 150 },
-    { field: 'service_nom', headerName: 'Service', width: 150 },
+    { field: 'first_name', headerName: 'nom', width: 150 },
+    { field: 'last_name', headerName: 'prenom', width: 150 },
+    
   ]
  
   const indexOfLastIntervention = currentPage * interventionsPerPage;

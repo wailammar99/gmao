@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path,os
 import environ
-
+from channels.layers import get_channel_layer
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 AUTH_USER_MODEL = 'myapp.CustomUser'
@@ -29,6 +29,7 @@ SECRET_KEY = 'django-insecure-o4#yy4j-6&-8o!7dazke2k=mm4x9y9^_+2(erey&6xv$gf4z=+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+ASGI_APPLICATION='e.asgi.application'
 
 ALLOWED_HOSTS = []
 AUTHENTICATION_BACKENDS = [
@@ -40,6 +41,9 @@ AUTHENTICATION_BACKENDS = [
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+    'daphne',
+    "channels",
+    
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -53,7 +57,14 @@ INSTALLED_APPS = [
     
     
     
+    
 ]
+#channle config 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',  # Use In-Memory layer for development
+    },
+}
 APPEND_SLASH = False
 
 
@@ -111,7 +122,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'e.wsgi.application'
-ASGI_APPLICATION='e.asgi.apllication'
+
+
+
+
 
 
 # Database

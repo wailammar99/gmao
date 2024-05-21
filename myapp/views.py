@@ -2,6 +2,8 @@ import json
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .decorators import *
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from .serializers import *
 from django.contrib.auth.hashers import make_password
 from rest_framework.parsers import JSONParser,api_settings
@@ -318,9 +320,7 @@ def activer(request):
         
 #rest full api test Customer    
 
-@api_view(["GET"])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+
 def CustomerListe(request):
     if request.method == 'GET':
         users = CustomUser.objects.all().select_related('service')
@@ -405,16 +405,15 @@ def modify_service_page(request):
         return redirect('directeur')  # Redirect to the Directeur page after modifying service
     
 #api for equiment 
-@api_view(['GET', 'POST'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-def equipement_list(request):
+
+def equipement_list(request,user_id):
     
     if request.method == 'GET':
-        equipements = Equipement.objects.all()
+        user=CustomUser.objects.get(id=user_id)
+        equipements = Equipement.objects.filter(service=user.service)
         
         serializer = EquimenentSerializers(equipements, many=True)
-        return Response(serializer.data)
+        return JsonResponse(serializer.data,safe=False)
 
     elif request.method == 'POST':
         serializer = EquimenentSerializers(data=request.data)
@@ -554,13 +553,13 @@ def loginn(request):
         data = json.loads(request.body)
         username = data.get('username')
         password = data.get('password')
-        useractive=CustomUser.objects.get(username=username)
+        
         try:
             user = CustomUser.objects.get(username=username)
         except CustomUser.DoesNotExist:
             return JsonResponse({"message": "le compte n'existe pas"}, status=403)
       
-        if useractive.is_active== False :
+        if user.is_active== False :
             return JsonResponse({"message":"le compte est pas active voulez contact admistateur"},status=404)
         
         user = authenticate(request, username=username, password=password)
@@ -595,8 +594,8 @@ def logout_view(request):
     logout(request)
     return Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
 @api_view(["GET"])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+#@authentication_classes([TokenAuthentication])
+#@permission_classes([IsAuthenticated])
 def Serviceliste(request):
     if request.method == 'GET':
         s = service.objects.filter()
@@ -680,6 +679,8 @@ def api_create_user(request):
             is_chefservice = data.get('is_chefservice', False)
             is_admin = data.get('is_admin', False)
             is_citoyen = data.get('is_citoyen', False)
+            
+            
 
             if CustomUser.objects.filter(username=username).exists():
                 return JsonResponse({'error': 'Username already exists'}, status=400)
@@ -690,10 +691,14 @@ def api_create_user(request):
                 hashed_password = make_password(password1)
             
                   # Hash the password
-
-                if is_directeur:
-                    CustomUser.objects.create(username=username, first_name=first_name, last_name=last_name, password=hashed_password, email=email, is_directeur=True, is_active=True)
-                    return JsonResponse({'message': 'User created successfully'}, status=201)
+              
+                if is_directeur :
+                    
+                      if CustomUser.objects.filter(is_directeur=True) :
+                       return JsonResponse({"message":"existe deja direvteur"},status=408)
+                      else:
+                       CustomUser.objects.create(username=username, first_name=first_name, last_name=last_name, password=hashed_password, email=email, is_directeur=True, is_active=True)
+                       return JsonResponse({'message': 'User created successfully'}, status=201)
                 elif is_chefservice:
                     CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_chefservice=True, is_active=False)
                     for d in directeur :
@@ -779,6 +784,7 @@ def assign_service_or_technician(request, id):
             equipment_ids = data.get('equipment_ids')
             start_date = data.get('start_date')  # Assuming start_date is passed in the request
             end_date = data.get('end_date')  # Assuming equipment IDs are passed in the request
+          
             
             # Fetch the intervention instance using the ID
             intervention = interven.objects.get(id=id)
@@ -793,12 +799,19 @@ def assign_service_or_technician(request, id):
 
                 Notification.objects.create(recipient=chefservice,message=message,is_read=False)
                 
-            else:
-                if start_date > end_date :
-                    return JsonResponse({"eroor","La date de début est postérieure à la date de fin "},status=401)
+            else :
+                try:
+                    date_debut = datetime.strptime(start_date, '%Y-%m-%d')
+                    date_fin = datetime.strptime(end_date, '%Y-%m-%d')
+                    
+                    if date_debut > date_fin:
+                        return JsonResponse({"error": "La date de début est postérieure à la date de fin"}, status=401)
+                
+                except ValueError:
+                    return JsonResponse({"error": "Invalid date format. Please provide dates in the format YYYY-MM-DD."}, status=400)
                 technicien=CustomUser.objects.get(id=new_service_id)
                 
-                
+
                 intervention.technicien = new_service_id
              
 
@@ -912,6 +925,10 @@ def api_create_intervention(request,id):
             description = data.get('description')
             date_debut = data.get('date_debut')
             date_fin = data.get('date_fin')
+            titre=data.get("titre")
+            adresse=data.get("adresse")
+            longitude =data.get("longitude ")
+            latitude=data.get("latitude")
             user_id = id
             
 
@@ -928,7 +945,11 @@ def api_create_intervention(request,id):
                 etat="Nouveau",
                 citoyen=user,
                 service=noservice,
-                date_creation=datetime.now()
+                date_creation=datetime.now(),
+                adresse=adresse,
+                titre=titre,
+                latitude=latitude,
+                longitude =longitude ,
             )
             message = f"Nouvelle intervention créée - citoyen email: {user.email},"
             for user in chefnoservice:
@@ -943,7 +964,7 @@ def api_create_intervention(request,id):
  #api too see all conversattion            
 def conversationmessage(request, conversation_id):
     if request.method == "GET":
-        try:
+        try:    
             # Filter messages by conversation ID
             messages = message.objects.filter(converstation_id=conversation_id)
             # Serialize messages
@@ -983,6 +1004,21 @@ def sendmessage(request, conversation_id,user_id):
                 message_type=type_message,
                 horodatage=datetime.now()
             )
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f'conversation_{conversation_id}',
+                {
+                    'type': 'chat_message',
+                    'message': {
+                        'id': message_new.id,
+                        'contenu': message_new.contenu,
+                        'sender_id': message_new.sender.id,
+                        'sender_username': message_new.sender.username,
+                        'horodatage': message_new.horodatage.isoformat(),
+                    }
+                }
+            )
+                
 
             return JsonResponse({"message": "Message created successfully"}, status=200)
         except Exception as e:
@@ -1055,7 +1091,8 @@ def api_create_conversationn(request, id):
             technicien=CustomUser.objects
             data = json.loads(request.body)
             titre = data.get('title')
-            
+            if intervention_cible.technicien is None :
+                return JsonResponse({"message":"il faut assigne tehcnicine  "},status=403)
             # Create the conversation
             conversation = converstation.objects.create(title=titre)
             conversation.add_participant(intervention_cible.citoyen)
@@ -1063,9 +1100,18 @@ def api_create_conversationn(request, id):
             if intervention_cible.technicien :
                 technicien=CustomUser.objects.get(id=intervention_cible.technicien)
                 conversation.add_participant(technicien)
-           
+            
             intervention_cible.conversation = conversation
             intervention_cible.save()
+            serializer = ConversationSerializers(conversation)
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                   "conversation_group",  # Group name
+                    {
+             "type": "conversation.created",
+            "conversation": serializer.data  # 
+             }
+    )
             
             # Response message
          
@@ -1079,7 +1125,8 @@ def api_create_conversationn(request, id):
         return JsonResponse({"error": "La méthode n'est pas autorisée"}, status=405)
 def api_liste_equipment(request):
     if request.method == "GET":
-        eq = Equipement.objects.all()
+        user=CustomUser.objects.all()
+        eq = Equipement.objects.filter()
         serializer = EquimenentSerializers(eq, many=True)  # Use correct serializer and remove 'safe' argument
         return JsonResponse(serializer.data, status=200, safe=False)  # Specify safe=False here
     else:
@@ -1237,11 +1284,27 @@ def api_assigne_service_user(request, user_id):
         try:
             data = json.loads(request.body)
             service_id = data.get("service_id")
+
+            # Fetch the target service and user
             service_cible = service.objects.get(id=service_id)
             user = CustomUser.objects.get(id=user_id)
-            user.service = service_cible
-            user.save()
-            return JsonResponse({"message": "Le service est bien assigné"}, status=200)
+            
+            if user.is_technicien:
+                # If the user is a technician, assign the service directly
+                user.service = service_cible
+                user.save()
+                return JsonResponse({"message": "Le service est bien assigné"}, status=200)
+            else:
+                # Check if there is already a chefservice in the target service
+                chef_exists = CustomUser.objects.filter(service=service_cible, is_chefservice=True).exists()
+                if chef_exists:
+                    return JsonResponse({"message": "Il existe déjà un chef de service pour ce service"}, status=402)
+                else:
+                    # If no chefservice exists, assign the service to the user
+                    user.service = service_cible
+                    user.save()
+                    return JsonResponse({"message": "Le service est bien assigné"}, status=200)
+
         except CustomUser.DoesNotExist:
             return JsonResponse({"error": "Utilisateur non trouvé"}, status=404)
         except service.DoesNotExist:
@@ -1434,21 +1497,17 @@ def api_put_service(request,service_id):
     else :
         return JsonResponse({"eroor":"le method not allow"},status=405)
 @csrf_exempt
-def api_create_equipment(request):
+def api_create_equipment(request, user_id):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            service_id = data.get("service_id")
+            user_cible = CustomUser.objects.get(id=user_id)
 
-            # Check if service_id is provided
-            if service_id is None:
-                return JsonResponse({'error': 'Service ID is required'}, status=400)
+            # Check if the user has an associated service
+            if not hasattr(user_cible, 'service'):
+                return JsonResponse({'error': 'Service does not exist for the user'}, status=404)
 
-            # Check if the service with the provided ID exists
-            try:
-                service_instance = service.objects.get(id=service_id)
-            except service.DoesNotExist:
-                return JsonResponse({'error': 'Service does not exist'}, status=404)
+            service_instance = user_cible.service
 
             # Create the equipment
             equipment = Equipement.objects.create(
@@ -1464,11 +1523,13 @@ def api_create_equipment(request):
             )
 
             return JsonResponse({'message': 'Equipment created successfully', 'equipment_id': equipment.id}, status=200)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'error': 'User does not exist'}, status=404)
         except Exception as e:
-            return JsonResponse({"error": "An error occurred: {}".format(str(e))}, status=500)
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=500)
     else:
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
-
+        return JsonResponse({'error': 'Method not allowed'}, status=405)    
+@csrf_exempt
 def api_delete_equiment(request,eq_id) :
     
     if request.method=="DELETE" :
@@ -1525,9 +1586,8 @@ def api_update_equipment(request, equipment_id):
 
 def generate_random_password():
     """Generate a random password."""
-    password_length = 10  # You can adjust the length of the random password
-    characters = string.ascii_letters + string.digits
-    return ''.join(random.choice(characters) for i in range(password_length))
+    
+    return ''.join(random.choice(string.digits) for _ in range(6))
 
 
 
@@ -1564,6 +1624,10 @@ def updrade_technicien_to_chef_service(request,user_id):
     if request.method=="POST" :
         try :
             technicien=CustomUser.objects.get(id=user_id)
+            chefservice_exitse=CustomUser.objects.filter(service=technicien.service ,is_chefservice=True).exists()
+            if chefservice_exitse:
+                return JsonResponse({"message":"on a deja chef service ,on peut pas faire deux chefservice"},status=404)
+
             technicien.is_technicien=False 
             technicien.is_chefservice=True
             technicien.save()
@@ -1682,17 +1746,23 @@ def api_create_rapport(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body.decode('utf-8'))
-            date_debut = data.get("date_debut")
-            date_fin = data.get("date_fin")
+            date_debut_str = data.get("date_debut")
+            date_fin_str = data.get("date_fin")
+
+            try:
+                date_debut = datetime.strptime(date_debut_str, '%Y-%m-%d')
+                date_fin = datetime.strptime(date_fin_str, '%Y-%m-%d')
+            except ValueError:
+                return JsonResponse({"error": "Invalid date format. Please provide dates in the format YYYY-MM-DD."}, status=400)
             
-            if not date_fin or not date_debut:
-                return JsonResponse({"message": "Please provide both start and end dates."}, status=400)
+            if date_debut > date_fin:
+                return JsonResponse({"error": "The start date cannot be greater than the end date."}, status=401)
             
             rapport_cible = Rapport.objects.create(date_debut=date_debut, date_fin=date_fin)
             intervention_intervert = rapport_cible.generate_rapport()
             rapport_cible.interventions.set(intervention_intervert)
             
-            return JsonResponse({"message": "Rapport created successfully."}, status=200)
+            return JsonResponse({"message": "Rapport created successfully."}, status=201)
         
         except Exception as e:
             return JsonResponse({"error": "An error occurred: {}".format(str(e))}, status=500)

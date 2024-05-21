@@ -58,6 +58,9 @@ import WebSocketTest from './testwebsocketdjango';
 import Notificationadmin from './components/admin/notificationadmin';
 import Contactadmin from './components/admin/contactliste';
 import Listerapport from './components/directeur/listeRapport';
+import WebSocketComponent from './testwebsocketdjango';
+import ConversationChat from './testwebsocketdjango';
+import CreateEquipment from './components/chefservice/equimentform';
 
 
 
@@ -93,15 +96,15 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={isLoggedIn ? <AdminPage onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+            element={ <Login onLogin={handleLogin} />}
           />
           <Route
             path="/contact"
             element={<Contact></Contact>}
           />
             <Route
-            path="/testsocket"
-            element={<WebSocketTest/>}
+            path="/conversation/{id}/utilisateur/${userId}/"
+            element={<ConversationChat/>}
           />
           
             <Route
@@ -127,7 +130,7 @@ function App() {
           />
           <Route
           path="/CreateUser"
-          element={isLoggedIn ? <CreateUser /> : <Navigate to="/admin_dashboard" />}
+          element={ <CreateUser /> }
           />
             <Route
           path="/Notificationadmin"
@@ -156,21 +159,25 @@ function App() {
              <Route path="/conversation/:id/directeur/:int" element={<ConversationMessagesdir />} />
           <Route
             path="/profildirecteur"
-            element={isLoggedIn ? <Directeurprofil onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+            element={ <Directeurprofil onLogout={handleLogout} />  }
           />
 
              <Route
             path="/notificationdiracteur"
-            element={isLoggedIn ? <Notificationdirecteur onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+            element={ <Notificationdirecteur onLogout={handleLogout} /> }
           />
          
          <Route
           path="/listecostumer"
-          element={isLoggedIn ? <Listcostumer /> : <Navigate to="/directeur_dashboard" />}
+          element={ <Listcostumer /> }
           /> 
            <Route
           path="/comptenouveux"
-          element={isLoggedIn ? <CompteNoActive /> : <Navigate to="/directeur_dashboard" />}
+          element={ <CompteNoActive /> }
+          /> 
+           <Route
+          path="/createequiment"
+          element={ <CreateEquipment /> }
           /> 
         
          
@@ -179,34 +186,34 @@ function App() {
          
           <Route
             path="/citoyen_dashboard"
-            element={isLoggedIn ? <Pagecityoen onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+            element={ <Pagecityoen onLogout={handleLogout} /> }
           />
          <Route
         path='/citoyenprofil'
-        element={isLoggedIn ? <Citoyenprofil onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}>
+        element={ <Citoyenprofil onLogout={handleLogout} /> }>
 
          </Route>
          <Route path='/Notificationcitoyen'
-          element={isLoggedIn ? <Notificationcitoyen onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}>
+          element={ <Notificationcitoyen onLogout={handleLogout} /> }>
 
          </Route>
         <Route
             path="/technicien_dashboard/:Id"
-            element={isLoggedIn ? <Pagetechnicien onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+            element={ <Pagetechnicien onLogout={handleLogout} />  }
           />
         
            <Route
           path="/technicienpage"
-          element={isLoggedIn ? <Technicienpage /> : <Navigate to="/technicien_dashboard/:Id" />}
+          element={ <Technicienpage />}
           />
            <Route path="/conversation/:id/technicien/:int" element={<ConversationMessagesTechnicien />} />
-          <Route path="/calender/technien" element={isLoggedIn ? <Calendertechncien/> : <Navigate to="/technicien_dashboard/:Id" />}>
+          <Route path="/calender/technien" element={ <Calendertechncien/> }>
 
           </Route>
-          <Route path="/technicinenotificationpage" element={isLoggedIn ? <NotificationPageTechnicine/> : <Navigate to="/technicien_dashboard/:Id" />}>
+          <Route path="/technicinenotificationpage" element={<NotificationPageTechnicine/> }>
 
           </Route>
-          <Route path="/technicienprofil" element={isLoggedIn ? <Technicineprofil/> : <Navigate to="/technicien_dashboard/:Id" />}>
+          <Route path="/technicienprofil" element={ <Technicineprofil/> }>
 
              </Route>
           
@@ -222,7 +229,7 @@ function App() {
   
           />
          
-           <Route path="/create_user" element={<CreateUser />} />
+           <Route path="/CreateUser" element={<CreateUser />} />
            <Route path="/conversation/:id/citoyen/:int" element={<ConversationMessages />} />
            <Route
             path="/int"
@@ -231,7 +238,7 @@ function App() {
           />
            <Route
           path="/Listtechnicien"
-          element={isLoggedIn ? <Listtechnicien /> : <Navigate to="/directeur_dashboard" />}
+          element={ <Listtechnicien /> }
           />
           <Route
           path="/Listtechnicienparservice"
@@ -240,7 +247,7 @@ function App() {
 
           <Route
           path="/Listchefservice"
-          element={isLoggedIn ? <Listchefservice /> : <Navigate to="/directeur_dashboard" />}
+          element={ <Listchefservice /> }
           />
            <Route
             path="/listeequipement"
@@ -249,7 +256,7 @@ function App() {
 
         <Route
           path="/intervention"
-          element={isLoggedIn ? <Intervention /> : <Navigate to="/directeur_dashboard" />}
+          element={ <Intervention /> }
           />  
             <Route
             path="/chef_service_dashboard/:Id"
@@ -271,15 +278,15 @@ function App() {
 
            <Route
             path="/citoyen_dashboard/:Id"
-            element={isLoggedIn ? <Pagecityoen onLogout={handleLogout} /> : <Login onLogin={handleLogin} />}
+            element={ <Pagecityoen onLogout={handleLogout} /> }
           /> 
            <Route
           path="/Citoyenpage"
-          element={isLoggedIn ? <Citoyenpage /> : <Navigate to="/citoyen_dashboard/:Id" />}
+          element={ <Citoyenpage /> }
           />
           <Route
           path="/create_intervention"
-          element={isLoggedIn ? <CreateInterventionForm /> : <Navigate to="/citoyen_dashboard/:Id" />}
+          element={ <CreateInterventionForm /> }
           />
            <Route
           path="/passwordsetup"

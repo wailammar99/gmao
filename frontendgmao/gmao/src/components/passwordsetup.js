@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TextField, Button, Box, Typography } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
+
 const PasswordResetForm = () => {
   const [email, setEmail] = useState('');
 
@@ -17,8 +18,7 @@ const PasswordResetForm = () => {
       });
 
       if (response.ok) {
-        // Password reset email sent successfully
-        // You can show a success message or redirect the user to a confirmation page
+        
         console.log('Password reset email sent successfully');
       } else {
         // Handle errors if the password reset email fails to send

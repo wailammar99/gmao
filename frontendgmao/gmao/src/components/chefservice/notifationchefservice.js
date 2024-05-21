@@ -100,7 +100,7 @@ const NotificationPagechefservice = () => {
       headerName: 'Action',
       width: 200,
       renderCell: (params) => (
-        <Button variant="contained" color="secondary" onClick={() => deleteNotification(params.row.id)}>Delete</Button>
+        <Button variant="contained" color="secondary" onClick={() => deleteNotification(params.row.id)}>supprimée</Button>
       ),
     },
   ];

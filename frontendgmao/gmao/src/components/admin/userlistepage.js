@@ -3,11 +3,14 @@ import UserForm from './userform';
 import Sidebar from './admindesign/home/sidebar/sidebar';
 import Navbar from './admindesign/home/navbar/navbar';
 import Table from "@mui/material/Table";
-import { Button } from '@mui/material';
+import { Button, Stack } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import Pagination from '@mui/material/Pagination';
 import PopupMessage from '../message';
 import { useNavigate } from 'react-router-dom';
+import { Tooltip, IconButton } from '@mui/material';
+import ModeIcon from '@mui/icons-material/Mode'
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const UserListPage = () => {
   const [users, setUsers] = useState([]);
@@ -118,19 +121,43 @@ const UserListPage = () => {
   };
 
   const columns = [
-    { field: 'username', headerName: 'Username', width: 150 },
+    { field: 'username', headerName: 'surnom', width: 150 },
     { field: 'first_name', headerName: 'prenom', width: 150 },
     { field: 'last_name', headerName: 'nom', width: 150 },
     { field: 'email', headerName: 'Email', width: 150 },
-    { field: 'service_nom', headerName: 'Service', width: 150 },
+    { field: 'service_nom', headerName: 'Service', width: 150 ,    renderCell: (params) => params.row.service?.nom || 'pas de service',
+},
     {
       field: 'actions',
       headerName: 'Actions',
       width: 400,
       renderCell: (params) => (
         <>
-          <Button onClick={() => handleDelete(params.row.id)} variant="outlined" color="error">Supprimer</Button>
-          <Button onClick={() => handleModifyClick(params.row)} color="secondary" variant='outlined'>Modifier</Button>
+       
+          
+       
+       <div>
+      <Tooltip title="Modifier" arrow>
+        <IconButton
+          onClick={() => handleModifyClick(params.row)}
+          color="secondary"
+          sx={{ cursor: 'pointer' }}
+        >
+          <ModeIcon />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Supprimer" arrow>
+        <DeleteIcon
+          onClick={() => handleDelete(params.row.id)}
+          variant="outlined"
+          color="error"
+          sx={{ cursor: 'pointer' }}
+        >
+          Supprimer
+        </DeleteIcon>
+      </Tooltip>
+    </div>
+         
         </>
       ),
     },
@@ -159,12 +186,12 @@ const UserListPage = () => {
   return (
     <div className="list">
       <div className="listContainer">
-        <h1>Customer List</h1>
+        <h1>la liste des utilisateurs</h1>
         {showPop && <PopupMessage message={message} color={color} />}
         <div>
           {/* Add buttons for filtering users */}
-          <Button onClick={() => filterUsersByType('all')}>All</Button>
-          <Button onClick={() => filterUsersByType('admin')}>Admin</Button>
+          <Button onClick={() => filterUsersByType('all')}>Tout</Button>
+          <Button onClick={() => filterUsersByType('admin')}>Administrateur</Button>
           <Button onClick={() => filterUsersByType('technicien')}>Technicien</Button>
           <Button onClick={() => filterUsersByType('chefservice')}>Chef Service</Button>
           <Button onClick={() => filterUsersByType('directeur')}>Directeur</Button>

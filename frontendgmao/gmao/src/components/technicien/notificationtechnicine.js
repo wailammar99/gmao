@@ -5,6 +5,7 @@ import Navbar from './techniciendesign/navbar/navbar';
 import Sidebar from './techniciendesign/sidebar/sidebar';
 import PopupMessage from '../message';
 import { Pagination } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const NotificationPageTechnicine = () => {
   const [notifications, setNotifications] = useState([]);
@@ -13,10 +14,22 @@ const NotificationPageTechnicine = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
   const [popupColor, setPopupColor] = useState('');
+  const token =localStorage.getItem("token");
+  const role =localStorage.getItem("role");
+  const navigate=useNavigate();
 
   useEffect(() => {
-    fetchNotifications();
-  }, [currentPage]); // Fetch notifications whenever currentPage changes
+    if (token && role=="technicien")
+      {
+        fetchNotifications();
+    
+      }
+      else 
+      {
+        navigate("/login");
+      }
+      
+  }, [currentPage,token,role]); // Fetch notifications whenever currentPage changes
 
   const fetchNotifications = async () => {
     try {
@@ -81,7 +94,7 @@ const NotificationPageTechnicine = () => {
       headerName: 'Action',
       width: 200,
       renderCell: (params) => (
-        <Button variant="contained" color="secondary" onClick={() => deleteNotification(params.row.id)}>Delete</Button>
+        <Button variant="contained" color="secondary" onClick={() => deleteNotification(params.row.id)}>supprimée</Button>
       ),
     },
   ];

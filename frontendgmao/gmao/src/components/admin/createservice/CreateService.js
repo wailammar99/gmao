@@ -71,7 +71,7 @@ const role =localStorage.getItem("role");
   useEffect(() => {
     const timer = setTimeout(() => {
       setSuccessMessage(false);
-    }, 5000);
+    }, 2500);
     return () => clearTimeout(timer);
   }, [successMessage]);
  
@@ -81,14 +81,14 @@ const role =localStorage.getItem("role");
          <Sidebar/>
         <div className="listContainer">
          <Navbar/>
-      <h2>Create New Service</h2>
+      <h2>Créer un Nouveau Service </h2>
       <form onSubmit={handleCreateService} required>
         <div className="formInput">
-          <label htmlFor="serviceName" className="form-label">Service Name</label>
+          <label htmlFor="serviceName" className="form-label">Nom du Service</label>
           <input type="text" className="form-control" id="serviceName" value={serviceName} onChange={(e) => setServiceName(e.target.value)}  required/>
         </div>
         <div className="formInput">
-          <label htmlFor="serviceDescription" className="form-label">Service Description</label>
+          <label htmlFor="serviceDescription" className="form-label">Description du Service</label>
           <textarea className="form-control" id="serviceDescription" rows="3" value={serviceDescription} onChange={(e) => setServiceDescription(e.target.value)} required></textarea>
         </div>
         <div className='formInput'>

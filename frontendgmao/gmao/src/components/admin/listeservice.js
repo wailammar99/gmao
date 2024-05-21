@@ -8,6 +8,9 @@ import { DataGrid } from '@mui/x-data-grid';
 import PopupMessage from '../message';
 import Pagination from '@mui/material/Pagination';
 import { useNavigate } from 'react-router-dom';
+import { Tooltip, IconButton } from '@mui/material';
+import ModeIcon from '@mui/icons-material/Mode'
+import DeleteIcon from '@mui/icons-material/Delete';
 
 
 function ListService() {
@@ -132,9 +135,27 @@ function ListService() {
       flex: 1,
       renderCell: (params) => (
         <>
-          <Button onClick={() => handleDeleteService(params.row.id)} variant="outlined" color="error">Supprimer</Button>
-          
-          <Button onClick={() => handleOpenForm(params.row)} variant='outlined' color="secondary">Modifier</Button>
+          <Tooltip title="Supprimer" arrow>
+        <IconButton
+          onClick={() => handleDeleteService(params.row.id)}
+          color="error"
+          sx={{ cursor: 'pointer' }}
+        >
+          <DeleteIcon />
+        </IconButton>
+      </Tooltip>
+
+      {/* Edit Button */}
+      <Tooltip title="Modifier" arrow>
+        <ModeIcon
+          onClick={() => handleOpenForm(params.row)}
+          variant="outlined"
+          color="secondary"
+          sx={{ cursor: 'pointer' }}
+        >
+          Modifier
+        </ModeIcon>
+      </Tooltip>
         
         </>
         

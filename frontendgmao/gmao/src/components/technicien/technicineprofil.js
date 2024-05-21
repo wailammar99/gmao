@@ -20,11 +20,25 @@ const Technicineprofil = () => {
   const [password1, setPassword1] = useState('');
   const [password2, setPassword2] = useState('');
   const [color,setcolor]=useState('');
-  const navigate = useNavigate();
-
+  const navigate=useNavigate();
+  const token=localStorage.getItem("token");
+  const role =localStorage.getItem("role");
+  
+  
+  
+  
+  
   useEffect(() => {
-    fetchData();
-  }, []);
+  if (token && role=="technicien")
+    {
+      fetchData()
+  
+    }
+    else 
+    {
+     
+    }
+    }, [token,role]);
 
   const fetchData = async () => {
     try {
@@ -143,6 +157,9 @@ const Technicineprofil = () => {
         setSuccessMessage('Le mot de passe a été modifié avec succès.');
         setcolor("success");
         fetchData();
+        setTimeout(() => {
+          setShowPasswordForm(false);
+        }, 1500);
       } else if (response.status === 400) {
         setSuccessMessage("L'ancien mot de passe n'est pas correct.");
         setcolor("warning");

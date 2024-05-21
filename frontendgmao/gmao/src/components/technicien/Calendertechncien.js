@@ -9,6 +9,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
+import { useNavigate } from "react-router-dom";
+
 
 const localizer = momentLocalizer(moment);
 
@@ -17,11 +19,21 @@ const Calendertechncien = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedIntervention, setSelectedIntervention] = useState(null);
   const [equipments, setEquipments] = useState([]);
-
+  const token=localStorage.getItem("token");
+  const role =localStorage.getItem("role");
+  const navigate=useNavigate();
   useEffect(() => {
-    fetchInterventions();
-    fetchEquipmentData();
-  }, []);
+    if (token && role=="technicien")
+      {
+        fetchInterventions();
+        fetchEquipmentData();
+    
+      }
+      else 
+      {
+        navigate("/login");
+      }
+      }, [token,role]);
 
   const fetchInterventions = async () => {
     try {
@@ -75,7 +87,7 @@ const Calendertechncien = () => {
 
   const fetchEquipmentData = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/liste_equipment/');
+      const response = await fetch(`http://127.0.0.1:8000/equipements/${localStorage.getItem('userId')}/`);
       if (response.ok) {
         const equipmentData = await response.json();
         setEquipments(equipmentData);

@@ -11,12 +11,19 @@ import PopupMessage from '../message';
 import { useNavigate } from 'react-router-dom';
 import { Pagination } from '@mui/material';
 import Stack from '@mui/material/Stack';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import { Tooltip, IconButton } from '@mui/material';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { green, orange } from '@mui/material/colors';
+
 
 const Listtechnicien = () => {
   const [technicienData, setTechnicienData] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const[showMessage,setshowmessage]=useState(false);
+  const token=localStorage.getItem("token");
+  const role =localStorage.getItem("role"); 
   const [formData, setFormData] = useState({
     selectedOption: '',
   });
@@ -29,9 +36,17 @@ const Listtechnicien = () => {
   const [totalUsers, setTotalUsers] = useState(0);
 
   useEffect(() => {
-    fetchData();
-    fetchDropdownOptions();
-  }, []);
+    if (token && role =="directeur")
+      {
+        fetchData();
+        fetchDropdownOptions(); 
+      }
+      else 
+      {
+        navigate("/login");
+      }
+    
+  }, [token,role]);
 
   const fetchData = async () => {
     try {
@@ -118,6 +133,15 @@ const Listtechnicien = () => {
           setshowmessage(false);
         }, 1500);
       }
+      else if (response.status===402)
+        {
+          setMessage("il existe deja une chefservice ");
+          setMessageColor('warning');
+          setshowmessage(true);
+          setTimeout(() => {
+            setshowmessage(false);
+          }, 1500);
+        }
     } catch (error) {
       console.error('Error assigning service:', error);
       setMessage('Error assigning service');
@@ -168,20 +192,28 @@ const Listtechnicien = () => {
    
     { field: 'username', headerName: 'Username', width: 150 },
     { field: 'email', headerName: 'Email', width: 200 },
-    { field: 'first_name', headerName: 'First Name', width: 150 },
-    { field: 'last_name', headerName: 'Last Name', width: 150 },
+    { field: 'first_name', headerName: 'nom', width: 150 },
+    { field: 'last_name', headerName: 'prenom', width: 150 },
     { field: 'service_nom', headerName: 'Service', width: 150 },
-    { field: 'is_active', headerName: 'Is Active', width: 120 },
+    
     {
       field: 'action',
       headerName: 'Action',
       width: 200,
       renderCell: (params) => (
-        <Stack direction="row" spacing={2}>
-          {!params.row.is_active && (
-            <Button onClick={() => handleActivate(params.row.id)} variant="contained" color="success">Activer</Button>
-          )}
-          <Button onClick={() => handleClick(params.row)} variant="outlined" color="warning">Assigné Service</Button>
+        <Stack direction="row" spacing={1}>
+          <div>
+     
+
+      <Tooltip title="Assigné Service" arrow>
+      <IconButton onClick={() => handleClick(params.row)} style={{ color: orange[500] }}>
+      <AssignmentTurnedInIcon />
+      </IconButton>
+       
+         
+      
+      </Tooltip>
+    </div>
         </Stack>
       ),
     },

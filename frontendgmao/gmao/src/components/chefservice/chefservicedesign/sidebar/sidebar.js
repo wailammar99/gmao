@@ -16,6 +16,7 @@ import MessageIcon from '@mui/icons-material/Message';
 import ConstructionIcon from '@mui/icons-material/Construction';
 
 
+
 const Sidebar = () => {
   const handleLogout = async () => {
     try {
@@ -93,13 +94,13 @@ const Sidebar = () => {
             <span>Equipements</span>
           </li>
           </Link>
-          <Link to={"/chefservicenotificationpage"}  style={{ textDecoration: "none" }}>
+          <Link to="/createequiment" style={{ textDecoration: "none" }}>
           <li>
-            <NotificationsNoneIcon className="icon" />
-            <span>Notifications</span>
+            <AddIcon className="icon" />
+            <span>ajouter equiment </span>
           </li>
           </Link>
-           
+          
 
        
           
@@ -113,6 +114,13 @@ const Sidebar = () => {
             <span>Profile</span>
           </li>
           </Link>
+          <Link to={"/chefservicenotificationpage"}  style={{ textDecoration: "none" }}>
+          <li>
+            <NotificationsNoneIcon className="icon" />
+            <span>Notifications</span>
+          </li>
+          </Link>
+           
           
           
           <Link to="/" style={{ textDecoration: "none" }} onClick={handleLogout}>

@@ -21,8 +21,14 @@ const Citoyenprofil = () => {
   const [password2, setPassword2] = useState('');
   const [color,setcolor]=useState('');
   const navigate = useNavigate();
-
+  const token=localStorage.getItem("token");
+  const role =localStorage.getItem("role");
+ 
   useEffect(() => {
+    if (!token || role!="citoyen")
+      {
+        navigate("/login");
+      }
     fetchData();
   }, []);
 
@@ -105,12 +111,13 @@ const Citoyenprofil = () => {
       });
       if (response.ok) {
         setSuccessMessage('les infomation est bien modifie avec succes.');
-        setIsDialogOpen(false);
+        
         setcolor("success");
         fetchData();
+        setIsDialogOpen(false);
         setTimeout(() => {
           setSuccessMessage('');
-        }, 5000);
+        }, 1500);
         setTimeout(() => {
           navigate('/citoyenprofil');
         }, 2000);
@@ -142,7 +149,11 @@ const Citoyenprofil = () => {
       if (response.ok) {
         setSuccessMessage('Le mot de passe a été modifié avec succès.');
         setcolor("success");
+        setTimeout(() => {
+          setShowPasswordForm(false);
+        }, 1500);
         fetchData();
+        
       } else if (response.status === 400) {
         setSuccessMessage("L'ancien mot de passe n'est pas correct.");
         setcolor("warning");

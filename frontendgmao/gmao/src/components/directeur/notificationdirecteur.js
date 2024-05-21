@@ -5,6 +5,9 @@ import Navbar from './directeurdesi/Navbar/navbardic';
 import Sidebar from './directeurdesi/Sidebar/Sidebardic';
 import PopupMessage from '../message';
 import { Pagination } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Tooltip, IconButton } from '@mui/material';
 
 const Notificationdirecteur = () => {
   const [notifications, setNotifications] = useState([]);
@@ -13,9 +16,18 @@ const Notificationdirecteur = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
   const [popupColor, setPopupColor] = useState('');
-
+  const role =localStorage.getItem("role");
+  const token =localStorage.getItem("token");
+  const navigate=useNavigate("");
   useEffect(() => {
-    fetchNotifications();
+    if (token && role =="directeur")
+      {
+        fetchNotifications();
+      }
+      else {
+        navigate("/login");
+      }
+    
   }, [currentPage]); // Fetch notifications whenever currentPage changes
 
   const fetchNotifications = async () => {
@@ -81,7 +93,11 @@ const Notificationdirecteur = () => {
       headerName: 'Action',
       width: 200,
       renderCell: (params) => (
-        <Button variant="contained" color="secondary" onClick={() => deleteNotification(params.row.id)}>Delete</Button>
+        <Tooltip title="supprimé" arrow>
+  <IconButton onClick={() => deleteNotification(params.row.id)} color="error">
+    <DeleteIcon />
+  </IconButton>
+</Tooltip>
       ),
     },
   ];

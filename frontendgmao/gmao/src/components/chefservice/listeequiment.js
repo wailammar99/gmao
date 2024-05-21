@@ -6,6 +6,7 @@ import { Button, Dialog, DialogContent, DialogTitle, Typography } from '@mui/mat
 import PopupMessage from '../message';
 import { Navigate, useNavigate } from 'react-router-dom';
 
+
 const ListEquipement = () => {
   const [equipements, setEquipements] = useState([]);
   const [selectedEquipement, setSelectedEquipement] = useState(null);
@@ -15,6 +16,7 @@ const ListEquipement = () => {
   const [messageColor, setMessageColor] = useState('');
   const token = localStorage.getItem('token');
   const role =localStorage.getItem("role");
+  const userid=localStorage.getItem("userId");
   const navigate=useNavigate("");
  console.log("tokennnnnnnnnnnnn",token);
  const sesion =sessionStorage.getItem("sesion");
@@ -37,7 +39,7 @@ const ListEquipement = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/equipements/',
+      const response = await fetch(`http://127.0.0.1:8000/equipements/${userid}/`,
       {
         method:"GET",
         headers: {

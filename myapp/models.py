@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser, Group,User
 from datetime import *
 from django.http import FileResponse
 from django.utils.timezone import *
+
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
@@ -71,6 +72,10 @@ class interven(models.Model):
     service=models.ForeignKey('service',on_delete=models.CASCADE)
     equipements = models.ManyToManyField(Equipement, blank=True)
     raison=models.ForeignKey(enatte,on_delete=models.CASCADE,null=True ,blank=True)
+    adresse=models.CharField("adresse ",blank=True,null=True,max_length=500)
+    titre=models.CharField("titre",blank=True,null=True,max_length=50)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     conversation = models.ForeignKey(converstation, on_delete=models.CASCADE, null=True, blank=True)
 
     # Define choices for the state
@@ -151,23 +156,29 @@ class Rapport(models.Model):
         data = []
 
         # Add header row
-        header = ['Date début', 'Date fin', 'Description', 'Citoyen', 'Technicien', 'Service']
+        header = ['Date début', 'Date fin', 'Description',"etat", 'Citoyen', 'Technicien', 'Service']
         data.append(header)
 
         # Add data rows
-        for intervention in self.interventions.all():
+        for intervention in self.interventions.all().select_related("service").select_related("citoyen"):
             row = [
                 intervention.date_debut,
                 intervention.date_fin,
                 intervention.description,
-                intervention.technicien,
+                intervention.etat,
+                intervention.technicien if intervention.technicien else "",  # Accessing technicien
+                intervention.service.nom if intervention.service else "",  # Accessing service name
+                intervention.citoyen.email if intervention.citoyen else "",
+                
+               
+                
                 
                 
                 
                 
             ]
             data.append(row)
-
+       
         # Create table and style
         table = Table(data)
         style = TableStyle([
@@ -187,6 +198,7 @@ class Rapport(models.Model):
         doc.build([table])
 
         return response
+
 
 
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TextField, Button, Box, Typography, Select, MenuItem } from '@mui/material';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
 import PopupMessage from './message';
+import { useNavigate } from 'react-router-dom';
  
 const Contact = () => {
   const [email, setEmail] = useState('');
@@ -9,6 +10,7 @@ const Contact = () => {
   const [reason, setReason] = useState('');
   const [message, setMessage] = useState('');
   const [phone, setPhone] = useState('');
+  const navigate=useNavigate();
  
  
   const handleSubmit = async (e) => {
@@ -32,6 +34,7 @@ const Contact = () => {
       if (response.ok) {
         const data = await response.json();
         alert(data.message); // Show success message
+        navigate('/login');
       } else {
         const errorData = await response.json();
         alert(errorData.error); // Show error message

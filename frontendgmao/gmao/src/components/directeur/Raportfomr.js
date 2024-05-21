@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Navbar from './directeurdesi/Navbar/navbardic';
 import Sidebar from './directeurdesi/Sidebar/Sidebardic';
 import PopupMessage from '../message';
+import { useNavigate } from 'react-router-dom';
 
 const Rapportform = ({ onInterventionCreated }) => {
   const [startDate, setStartDate] = useState('');
@@ -9,6 +10,7 @@ const Rapportform = ({ onInterventionCreated }) => {
   const [showPopup, setShowPopup] = useState(false); // State to manage popup visibility
   const [popupMessage, setPopupMessage] = useState('');
   const [popupColor, setPopupColor] = useState('');
+  const navigate=useNavigate();
 
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
@@ -38,12 +40,30 @@ const Rapportform = ({ onInterventionCreated }) => {
         setShowPopup(true);
         setTimeout(() => {
           setShowPopup(false);
+          navigate("/listerapport");
         }, 1500);
 
         setStartDate('');
         setEndDate('');
       
       }
+      
+        else if (response.status===401)
+          {
+            setPopupMessage('enter les dates correctement');
+        setPopupColor('danger');
+       
+        setShowPopup(true);
+        setTimeout(() => {
+          setShowPopup(false);
+       
+        
+        }, 1500);
+      
+
+
+       
+          }
     
   };
 

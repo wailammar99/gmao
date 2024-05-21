@@ -126,10 +126,10 @@ const Chefserviceprofil = () => {
         fetchData();
         setTimeout(() => {
           setSuccessMessage('');
-        }, 5000);
+        }, 1500);
         setTimeout(() => {
-          navigate('/chefservice/profil');
-        }, 2000);
+          setShowPasswordForm(false);
+        }, 1500);
       } else {
         throw new Error('Failed to update user');
       }
@@ -159,6 +159,9 @@ const Chefserviceprofil = () => {
         setSuccessMessage('Le mot de passe a été modifié avec succès.');
         setcolor("success");
         fetchData();
+        setTimeout(() => {
+          setShowPasswordForm(false);
+        }, 1500);
       } else if (response.status === 400) {
         setSuccessMessage("L'ancien mot de passe n'est pas correct.");
         setcolor("warning");

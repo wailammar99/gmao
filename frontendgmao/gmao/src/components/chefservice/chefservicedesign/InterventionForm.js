@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PopupMessage from '../../message';
 
-const InterventionForm = ({ interventionId, onSubmit,onClose }) => {
+const   InterventionForm = ({ interventionId, onSubmit,onClose }) => {
   const [formData, setFormData] = useState({
     selectedOption: '', // State for the selected service
   });
@@ -61,6 +61,8 @@ const InterventionForm = ({ interventionId, onSubmit,onClose }) => {
         });
         setTimeout(() => {
           onClose();
+          onSubmit(); 
+          
         }, 2000); 
       } else {
         console.error('Failed to assign service');

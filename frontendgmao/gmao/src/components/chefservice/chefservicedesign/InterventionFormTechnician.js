@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PopupMessage from '../../message';
 import { Navigate, useNavigate } from 'react-router-dom';
  
-const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose }) => {
+const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose,onfetch }) => {
   const [formData, setFormData] = useState({
     selectedOption: '',
     selectedEquipment: [], // State for selected equipment IDs as an array
@@ -11,11 +11,13 @@ const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose }) => {
     endDate: '',
   });
 
- 
+  const userid=localStorage.getItem("userId");
   const [equipmentOptions, setEquipmentOptions] = useState([]);
   const [selectedEquipmentsDetails, setSelectedEquipmentsDetails] = useState([]);
   const [showMessage, setShowMessage] = useState(false);
   const navigate = useNavigate();
+  const [message,setmessage]=useState("");
+  const [color,setcolor]=useState("");
  
   useEffect(() => {
     fetchDropdownOptions();
@@ -24,7 +26,7 @@ const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose }) => {
   const fetchDropdownOptions = async () => {
     try {
       const serviceResponse = await fetch(`http://127.0.0.1:8000/liste_technicien/${interventionId}/`);
-      const equipmentResponse = await fetch(`http://127.0.0.1:8000/liste_equipment/`);
+      const equipmentResponse = await fetch(`http://127.0.0.1:8000/equipements/${userid}/`);
       const intervention_info = await fetch(`http://127.0.0.1:8000/api/intervention/${interventionId}/`);
  
       if (serviceResponse.ok && equipmentResponse.ok) {
@@ -67,10 +69,14 @@ const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose }) => {
  
       if (response.ok) {
         setShowMessage(true);
+        setcolor("success");
+        setmessage("L'intervention est bien assignée.");
+       
         setTimeout(() => {
-          navigate("/Chefservicepage");
+          
           setShowMessage(false);
           onClose();
+          navigate('/Chefservicepage');
         }, 1500);
         setFormData({
           selectedOption: '',
@@ -87,8 +93,17 @@ const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose }) => {
         setSelectedEquipmentsDetails(selectedEquipmentsDetails);
  
         onSubmit(formData);
-      } else {
-        console.error('Failed to assign service or technician');
+      } else if (response.status===401) {
+        setShowMessage(true);
+        setcolor("danger");
+        setmessage("enter les date correctement ");
+        
+        setTimeout(() => {
+        
+          setShowMessage(false);
+          
+        }, 1500);
+        
       }
     } catch (error) {
       console.error('Error assigning service or technician:', error);
@@ -122,8 +137,8 @@ const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose }) => {
     <>
       {showMessage && (
         <PopupMessage
-          message="L'intervention est bien assignée."
-          color="success"
+          message={message}
+          color={color}
         />
       )}
  
@@ -160,6 +175,7 @@ const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose }) => {
                   className="form-check-input"
                   checked={formData.selectedEquipment.includes(option.id.toString())}
                   onChange={handleCheckboxChange}
+                 
                 />
                 <label htmlFor={`equipment-${option.id}`} className="form-check-label">{option.equipmentName || option.nom}</label>
               </div>

@@ -6,14 +6,15 @@ import Navbar from './techniciendesign/navbar/navbar';
 import EnAttenteForm from './EnAttenteForm';
 import ConversationForm from '../citoyen/ConversationForm';
 import PopupMessage from '../message';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
 const Technicienpage = () => {
   const [interventions, setInterventions] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedIntervention, setSelectedIntervention] = useState(null);
   const [isNoService, setIsNoService] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
- 
+   
   const [currentPage, setCurrentPage] = useState(1);
   const [interventionsPerPage] = useState(4);
   const [showModalConversation, setShowModalConversation] = useState(false);
@@ -25,15 +26,28 @@ const Technicienpage = () => {
   const [popupMessage, setPopupMessage] = useState({ message: '', color: 'success' });
   const [selectedStatus, setSelectedStatus] = useState('');
   const[FilteredInterventions,setFilteredInterventions]=useState('');
-
-
+  const token =localStorage.getItem("token");
+  const role =localStorage.getItem("role");
+  const userid=localStorage.getItem("userId");
+  const navigate=useNavigate();
   useEffect(() => {
-    fetchData();
-    fetchEquipmentData();
-  }, []);
+    if (token && role =="technicien")
+      {
+        fetchData();
+        fetchEquipmentData();
+      }
+      else 
+      {
+        navigate("/login");
+      }
+    
+  }, [token,role]);
+  useEffect(() => {
+    setFilteredInterventions(interventions); // Initialize FilteredInterventions with the full list
+  }, [interventions]);
   const fetchEquipmentData = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/liste_equipment/');
+      const response = await fetch(`http://127.0.0.1:8000/equipements/${localStorage.getItem('userId')}/`);
       if (response.ok) {
         const equipmentData = await response.json();
         setEquipments(equipmentData);
@@ -78,9 +92,10 @@ const Technicienpage = () => {
       if (response.ok) {
         setShowPopup(true);
         setPopupMessage({ message: 'intervention est bien démarrée avec succès', color: 'success' });
+        fetchData();
         setTimeout(() => {
           setShowPopup(false);
-          fetchData();
+          
         }, 1500);
       } else {
         throw new Error('Failed to start intervention');
@@ -98,12 +113,13 @@ const Technicienpage = () => {
       });
       if (response.ok) {
         setShowPopup(true);
-        setPopupMessage({ message: 'intervention est bien terminée avec succès', color: 'success' });
+        setPopupMessage({ message: 'intervent ion est bien terminée avec succès', color: 'success' });
+        fetchData();
         setTimeout(() => {
           setPopupMessage(false);
-          fetchData();
+          
         }, 1500);
-        fetchData();
+        
       } else {
         throw new Error('Failed to finish intervention');
       }
@@ -222,11 +238,12 @@ const Technicienpage = () => {
         <Navbar onSearch={handleSearch} />
         <h1>Interventions</h1>
         <div className="filterButtons">
+          <Button onClick={() => filterInterventionsByStatus('')}>Tous</Button>
           <Button onClick={() => filterInterventionsByStatus('En cours')}>En cours</Button>
           <Button onClick={() => filterInterventionsByStatus('En attente')}>En attente</Button>
           <Button onClick={() => filterInterventionsByStatus('Terminé')}>Terminé</Button>
           <Button onClick={() => filterInterventionsByStatus('Assigné')}>Assigné</Button>
-          <Button onClick={() => filterInterventionsByStatus('')}>Tous</Button>
+        
         </div>
         {showEnAttenteForm && (
                       <EnAttenteForm
