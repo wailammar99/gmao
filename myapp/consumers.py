@@ -48,7 +48,7 @@ class ConversationChat(AsyncWebsocketConsumer):
     @database_sync_to_async
     def create_message(self, data):
         room = converstation.objects.get(id=self.scope['url_route']['kwargs']['conversation_id'])
-        user = CustomUser.objects.get(id=self.user_id)
+        user = CustomUser.objects.get(id=data['sender'])
         new_message = message(converstation=room, sender=user, contenu=data['message'], message_type=data["type"])
         new_message.save()
         return new_message

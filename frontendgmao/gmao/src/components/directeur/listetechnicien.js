@@ -189,7 +189,7 @@ const Listtechnicien = () => {
             <AssignmentTurnedInIcon />
           </IconButton>
         </Tooltip>
-        <Tooltip title="Update" arrow>
+        <Tooltip title="Mise a jour "  arrow>
           <IconButton onClick={() => handleUpgrade(params.row.id)} color="success">
             <CheckCircleOutlineIcon />
           </IconButton>

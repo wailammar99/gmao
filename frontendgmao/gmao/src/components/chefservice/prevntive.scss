@@ -1,0 +1,42 @@
+.form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: space-between;
+
+  .formInput {
+    width: calc(50% - 15px); // Adjusted width to accommodate two inputs side by side
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    input,
+    textarea
+     {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-bottom: 1px solid gray;
+      margin-bottom: 10px; // Added margin to separate inputs
+    }
+    .equipment-selection {
+      max-height: 200px; /* Adjust the max-height as needed */
+      overflow-y: auto;
+    }
+    .equipment-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+
+   
+  }
+
+  .formButton {
+    width: 100%; // Make the button full width
+  }
+}

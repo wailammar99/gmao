@@ -15,8 +15,6 @@ import { Link } from "react-router-dom";
 import MessageIcon from '@mui/icons-material/Message';
 import ConstructionIcon from '@mui/icons-material/Construction';
 
-
-
 const Sidebar = () => {
   const handleLogout = async () => {
     try {
@@ -44,97 +42,86 @@ const Sidebar = () => {
     }
   };
   
-  
   return (
     <div className="sidebar">
       <div className="top">
-        
-          <span className="logo">Chef Service</span>
-       
+        <span className="logo">Chef de Service</span>
       </div>
       <hr />
       <div className="center">
         <ul>
-          <p className="title">MAIN</p>
+          <p className="title">PRINCIPAL</p>
           <Link to="http://localhost:3000/chef_service_dashboard/Id:" style={{ textDecoration: "none" }}>
-          <li>
-            <DashboardIcon className="icon" />
-            <span>Dashboard</span>
-          </li>
-          </Link>
-
-          <p className="title">USER</p>
-          
-           
             <li>
-             
-          <Link  to="http://localhost:3000/ListtechnicienParservice" style={{ textDecoration: "none" }}>
-          <PersonOutlineIcon className="icon" />
-          <span>technicien</span>
-          </Link>
-             
+              <DashboardIcon className="icon" />
+              <span>Tableau de bord</span>
             </li>
-          
+          </Link>
 
-         
-           
+          <p className="title">UTILISATEUR</p>
+          <li>
+            <Link to="http://localhost:3000/ListtechnicienParservice" style={{ textDecoration: "none" }}>
+              <PersonOutlineIcon className="icon" />
+              <span>Technicien</span>
+            </Link>
+          </li>
 
-         
-          <p className="title">USEFUL</p>
-         <Link to="http://localhost:3000/Chefservicepage" style={{ textDecoration: "none" }}>
-          <li>
-            <InsertChartIcon className="icon" />
-            <span>tout les intervetion </span>
-          </li>
-          </Link> 
-          <p className="title">les equipements</p>
-         <Link to="http://localhost:3000/listeequipement" style={{ textDecoration: "none" }}>
-          <li>
-            <ConstructionIcon className="icon" />
-            <span>Equipements</span>
-          </li>
+          <p className="title">UTILE</p>
+          <Link to="http://localhost:3000/Chefservicepage" style={{ textDecoration: "none" }}>
+            <li>
+              <InsertChartIcon className="icon" />
+              <span>Toutes les interventions</span>
+            </li>
+          </Link>
+          <Link to="http://localhost:3000/intevetion/map/" style={{ textDecoration: "none" }}>
+            <li>
+              <InsertChartIcon className="icon" />
+              <span>intervention vue geo</span>
+            </li>
+          </Link>
+          <Link to="http://localhost:3000/create/intevention/preventive/" style={{ textDecoration: "none" }}>
+            <li>
+            <AddIcon className="icon" />  
+              <span>Creé intevention preventive </span>
+            </li>
+          </Link>
+          <p className="title">ÉQUIPEMENTS</p>
+          <Link to="http://localhost:3000/listeequipement" style={{ textDecoration: "none" }}>
+            <li>
+              <ConstructionIcon className="icon" />
+              <span>Équipements</span>
+            </li>
           </Link>
           <Link to="/createequiment" style={{ textDecoration: "none" }}>
-          <li>
-            <AddIcon className="icon" />
-            <span>ajouter equiment </span>
-          </li>
+            <li>
+              <AddIcon className="icon" />
+              <span>Ajouter un équipement</span>
+            </li>
           </Link>
-          
 
-       
-          
-       
-           
-     
-          <p className="title">USER</p>
+          <p className="title">UTILISATEUR</p>
           <Link to={"/chefservice/profil"} style={{ textDecoration: "none" }}>
-          <li>
-            <AccountCircleOutlinedIcon className="icon" />
-            <span>Profile</span>
-          </li>
+            <li>
+              <AccountCircleOutlinedIcon className="icon" />
+              <span>Profil</span>
+            </li>
           </Link>
           <Link to={"/chefservicenotificationpage"}  style={{ textDecoration: "none" }}>
-          <li>
-            <NotificationsNoneIcon className="icon" />
-            <span>Notifications</span>
-          </li>
+            <li>
+              <NotificationsNoneIcon className="icon" />
+              <span>Notifications</span>
+            </li>
           </Link>
-           
-          
-          
+
           <Link to="/" style={{ textDecoration: "none" }} onClick={handleLogout}>
-           <li>
-                <ExitToAppIcon className="icon" />
-                  Logout
-             </li>
-           </Link>
-        
+            <li>
+              <ExitToAppIcon className="icon" />
+              <span>Déconnexion</span>
+            </li>
+          </Link>
         </ul>
       </div>
-      
-      </div>
-   
+    </div>
   );
 };
 

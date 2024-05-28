@@ -58,18 +58,24 @@ const Intervention = () => {
 
   const columns = [
     // { field: 'date_creation', headerName: 'Date de création', width: 200 },
-    { field: 'date_debut', headerName: 'Date de début', width: 200 },
-    { field: 'date_fin', headerName: 'Date de fin', width: 200 },
+    { field: 'date_debut', headerName: 'Date de début', width: 200 ,renderCell: (params) => (
+      params.value ? params.value : 'Intervention pas assignée'
+  )},
+    { field: 'date_fin', headerName: 'Date de fin', width: 200 ,renderCell: (params) => (
+      params.value ? params.value : 'Intervention pas assignée'
+  )},
     { field: 'etat', headerName: 'État', width: 200 },
     {
       field: 'conversation',
       headerName: 'Conversation',
       width: 200,
       renderCell: (params) => (
+        params.row.conversation ?(
         <Link to={`/conversation/${params.row.conversation ? params.row.conversation.id : ''}/directeur/${localStorage.getItem('userId')}`}>
-          {params.row.conversation ? params.row.conversation.title : ''}
+          {params.row.conversation ? params.row.conversation.title : ' '}
         </Link>
-      ),
+      ):"no conversation "
+    )
     },
     {
       field: 'actions',
@@ -132,19 +138,22 @@ const Intervention = () => {
       
       {/* Dialog pour afficher plus d'informations sur l'intervention */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Intervention Details</DialogTitle>
+        <DialogTitle>details de intervention </DialogTitle>
         <DialogContent>
           {selectedIntervention && (
             <>
-              {selectedIntervention.description && <p>Description: {selectedIntervention.description}</p>}
-              {selectedIntervention.date_creation && <p>Date de création: {selectedIntervention.date_creation}</p>}
-              {selectedIntervention.date_debut && <p>Date de début: {selectedIntervention.date_debut}</p>}
-              {selectedIntervention.date_fin && <p>Date de fin: {selectedIntervention.date_fin}</p>}
-              {selectedIntervention.etat && <p>État: {selectedIntervention.etat}</p>}
-              {selectedIntervention.service && selectedIntervention.service.nom && <p>Service : {selectedIntervention.service.nom}</p>}
-              {selectedIntervention.technicien && <p>Technicien : {selectedIntervention.technicien}</p>}
-              {selectedIntervention.raison && selectedIntervention.raison.description && <p>En attente : {selectedIntervention.raison.description}</p>}
-              {selectedIntervention.citoyen && selectedIntervention.citoyen.email && <p>Citoyen: {selectedIntervention.citoyen.email}</p>}
+            {selectedIntervention.description && <p>Description: {selectedIntervention.description}</p>}
+{ <p>titre: {selectedIntervention.titre ? selectedIntervention.titre : "sans titre"}</p>}
+{ <p>adresse: {selectedIntervention.adresse ? selectedIntervention.adresse : "sans adresse "}</p>}
+{ <p>Date de création: {selectedIntervention.date_creation}</p>}
+{ <p>Date de début: {selectedIntervention.date_debut ? selectedIntervention.date_debut : "intervention pas assignée"}</p>}
+{<p>Date de fin: {selectedIntervention.date_fin ? selectedIntervention.date_fin : "intervention pas assignée"}</p>}
+{ <p>État: {selectedIntervention.etat}</p>}
+{  <p>Service : {selectedIntervention.service.nom }</p>}
+{ <p>Technicien : {selectedIntervention.technicien ? selectedIntervention.technicien :"pas assigné"}</p>}
+{  <p>En attente : {selectedIntervention.raison ? selectedIntervention.raison.description :"le intervention pas en attende"}</p>}
+{  <p>Citoyen: {selectedIntervention.citoyen.email}</p>}
+
             </>
           )}
         </DialogContent>

@@ -61,6 +61,13 @@ import Listerapport from './components/directeur/listeRapport';
 import WebSocketComponent from './testwebsocketdjango';
 import ConversationChat from './testwebsocketdjango';
 import CreateEquipment from './components/chefservice/equimentform';
+import Forminterventionpreventive from './components/chefservice/formintervetionpreventive';
+import InterventionMap from './components/chefservice/inteevntionmap';
+
+import InterventionMapTechncicien from './components/technicien/interventionmaptechnicien';
+import Index from './components/page auure';
+//new page d auecce 
+
 
 
 
@@ -95,9 +102,11 @@ function App() {
       <div className="App">
         <Routes>
           <Route
-            path="/"
+            path="/login"
             element={ <Login onLogin={handleLogin} />}
           />
+       
+          
           <Route
             path="/contact"
             element={<Contact></Contact>}
@@ -201,6 +210,10 @@ function App() {
             path="/technicien_dashboard/:Id"
             element={ <Pagetechnicien onLogout={handleLogout} />  }
           />
+            <Route
+            path="/map/technien/"
+            element={ <InterventionMapTechncicien onLogout={handleLogout} />  }
+          />
         
            <Route
           path="/technicienpage"
@@ -216,6 +229,10 @@ function App() {
           <Route path="/technicienprofil" element={ <Technicineprofil/> }>
 
              </Route>
+             <Route path="/index.page" element={<Index/> }>
+
+          </Route>
+             
           
 
        
@@ -253,6 +270,15 @@ function App() {
             path="/listeequipement"
             element={ <ListEquipement onLogout={handleLogout} />   }
           />
+          <Route
+          path='/create/intevention/preventive/'
+          element={<Forminterventionpreventive></Forminterventionpreventive>}
+          ></Route>
+             <Route
+          path='/intevetion/map/'
+          element={<InterventionMap/>}
+          ></Route>
+
 
         <Route
           path="/intervention"

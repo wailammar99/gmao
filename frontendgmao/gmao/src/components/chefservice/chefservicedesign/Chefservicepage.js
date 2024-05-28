@@ -9,6 +9,14 @@ import InterventionFormTechnician from './InterventionFormTechnician';
 import PopupMessage from '../../message';
 import ConversationForm from '../../citoyen/ConversationForm';
 import { DataGrid } from '@mui/x-data-grid';
+import ClearIcon from '@mui/icons-material/Clear';
+import CheckIcon from '@mui/icons-material/Check';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import ModeIcon from '@mui/icons-material/Mode'
+
+import { Tooltip, IconButton } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+
 import Pagination from '@mui/material/Pagination';
  
 const Chefservicepage = () => {
@@ -26,9 +34,11 @@ const Chefservicepage = () => {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [filteredInterventions, setFilteredInterventions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const[techncien,settechncien]=useState([])
   const [interventionsPerPage] = useState(6);
   const token =localStorage.getItem("token");
-  const role =localStorage.getItem("role")
+  const role =localStorage.getItem("role");
+  const userid=localStorage.getItem("userId");
   const navigate=useNavigate();
  
   useEffect(() => {
@@ -36,6 +46,7 @@ const Chefservicepage = () => {
       {
         fetchData();
         fetchEquipmentData();
+        fetchtechdata();
         console.log("autorise ");
       }
       else
@@ -61,12 +72,13 @@ const Chefservicepage = () => {
  
       const response = await fetch(`http://127.0.0.1:8000/api_intervetion_chefservice/${localStorage.getItem('userId')}/`, {
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `TOKEN ${token}`,
         },
       });
  
       if (response.ok) {
         const data = await response.json();
+      
         setInterventions(data || []);
         setFilteredInterventions(data || []); // Initially, set filtered interventions to all interventions
       } else {
@@ -77,12 +89,26 @@ const Chefservicepage = () => {
     }
   };
  
+  
   const fetchEquipmentData = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/liste_equipment/${localStorage.getItem('userId')}/`);
+      const response = await fetch(`http://127.0.0.1:8000/equipements/${localStorage.getItem('userId')}/`);
       if (response.ok) {
         const equipmentData = await response.json();
         setEquipments(equipmentData);
+      } else {
+        console.error('Failed to fetch equipment data');
+      }
+    } catch (error) {
+      console.error('Error fetching equipment data:', error);
+    }
+  };
+  const fetchtechdata = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/listecustomer/is_technicine');
+      if (response.ok) {
+        const techData = await response.json();
+        settechncien(techData);
       } else {
         console.error('Failed to fetch equipment data');
       }
@@ -151,6 +177,7 @@ const Chefservicepage = () => {
  
   const handleFormSubmit = (formData) => {
     console.log('Form submitted:', formData);
+    fetchData();
   };
  
   const handleStartConversation = (interventionId) => {
@@ -205,8 +232,14 @@ const Chefservicepage = () => {
  
   const columns = [
  
-    { field: 'date_debut', headerName: 'Date de début', width: 150 },
-    { field: 'date_fin', headerName: 'Date de fin', width: 150 },
+    { field: 'date_debut', headerName: 'Date de début', width: 150 , renderCell: (params) => {
+      const dateDebut = params.value;
+      return dateDebut ? dateDebut : 'Date  non disponible';
+    }},
+    { field: 'date_fin', headerName: 'Date de fin', width: 150 , renderCell: (params) => {
+      const dateDebut = params.value;
+      return dateDebut ? dateDebut : 'Date  non disponible';
+    }},
    
     { field: 'etat', headerName: 'État', width: 150 },
     {
@@ -234,21 +267,123 @@ const Chefservicepage = () => {
       headerName: 'Actions',
       width: 400,
       renderCell: (params) => (
-        <>
-       
-          <button type="button" className="btn btn-outline-warning" onClick={() => toggleModal(params.row)}>Assigner </button>
-          {params.row.etat !== 'Cloture' && ( // Vérifiez si l'intervention n'est pas déjà clôturée
+        params.row.service.nom === "noservice" ? (
+          // Afficher "Assigner" et "Plus" lorsque service est égal à "noservice"
+          <>
+            <Tooltip title="Assigner">
+              <IconButton
+                color="warning"
+                onClick={() => toggleModal(params.row)}
+              >
+                <AssignmentTurnedInIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Plus">
+              <IconButton
+                color="info"
+                onClick={() => handleOpenModall(params.row)}
+              >
+                <AddIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Annuler">
+                  <IconButton
+                    color="error"
+                    onClick={() => handleRefuseIntervention(params.row.id)}
+                  >
+                    <ClearIcon />
+                  </IconButton> 
+                </Tooltip>
+          </>
+        ) : (
+          // Afficher tous les boutons lorsque service n'est pas égal à "noservice"
+          <>
+          {params.row.etat === 'Nouveau' && (
             <>
-              <button className="btn btn-danger" onClick={() => handleRefuseIntervention(params.row.id)}>Annule </button>
-              <button className="btn btn-success" onClick={() => hadllecloture(params.row.id)}>Cloturer</button>
+              <Tooltip title="Assigner">
+                <IconButton
+                  color="warning"
+                  onClick={() => toggleModal(params.row)}
+                >
+                  <AssignmentTurnedInIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Annuler">
+                <IconButton
+                  color="error"
+                  onClick={() => handleRefuseIntervention(params.row.id)}
+                >
+                  <ClearIcon />
+                </IconButton>
+              </Tooltip>
             </>
           )}
-        
-          <button className="btn btn-info" onClick={() => handleOpenModall(params.row)}> Plus </button>
+          {params.row.etat === 'Assigné' && (
+            <>
+            
+              <Tooltip title="Annuler">
+                <IconButton
+                  color="error"
+                  onClick={() => handleRefuseIntervention(params.row.id)}
+                >
+                  <ClearIcon />
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
          
+          {params.row.etat === 'Terminé' && (
+            <Tooltip title="Cloturer">
+              <IconButton
+                color="success"
+                onClick={() => hadllecloture(params.row.id)}
+              >
+                <CheckIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+          <>
+          {params.row.etat === 'En attente' && (
+            <>
+            <Tooltip title="Assigner">
+                <IconButton
+                  color="warning"
+                  onClick={() => toggleModal(params.row)}
+                >
+                  <AssignmentTurnedInIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Annuler">
+                <IconButton
+                  color="error"
+                  onClick={() => handleRefuseIntervention(params.row.id)}
+                >
+                  <ClearIcon />
+                </IconButton>
+              </Tooltip>
+            </>
+           
+          )}
+            </>
+          
+          <Tooltip title="Plus">
+              <IconButton
+                color="info"
+                onClick={() => handleOpenModall(params.row)}
+              >
+                <AddIcon />
+              </IconButton>
+            </Tooltip>
         </>
+        
+        )
+        
+      )
+      
+         
+      
 
-      ),
+     
      
     },
   ];
@@ -293,14 +428,14 @@ const Chefservicepage = () => {
             <div className="modal-dialog" role="document">
               <div className="modal-content">
                 <div className="modal-header">
-                  <h5 className="modal-title">Add Intervention</h5>
+                  <h5 className="modal-title"> Intervention</h5>
                   <button type="button" className="close" onClick={() => setShowModal(false)} aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
                 <div className="modal-body">
                   {isNoService ? (
-                    <InterventionForm interventionId={selectedIntervention.id} onSubmit={handleFormSubmit} onClose={() => setShowModal(false)} />
+                    <InterventionForm interventionId={selectedIntervention.id} onSubmit={handleFormSubmit} onClose={() => setShowModal(false)} fetchData={()=>fetchData()} />
                   ) : (
                     <InterventionFormTechnician interventionId={selectedIntervention.id} onSubmit={handleFormSubmit} onClose={() => setShowModal(false)}  />
                   )}
@@ -313,8 +448,9 @@ const Chefservicepage = () => {
         {showModalConversation && (
           <ConversationForm
             show={showModalConversation}
-            onClose={() => setShowModalConversation(false)}
+            onClose={() => setShowModalConversation(false) }
             interventionId={conversationInterventionId}
+            onfetch={()=>fetchData()}
           />
         )}
         <DataGrid
@@ -334,20 +470,29 @@ const Chefservicepage = () => {
           <DialogContent>
             {selectedIntervention && (
               <div>
+              <p>titre : {selectedIntervention.titre ? selectedIntervention.titre :"sans titre"}</p>
                 <p>Description : {selectedIntervention.description}</p>
                 <p>Date de création : {selectedIntervention.date_creation}</p>
-                <p>Date de début : {selectedIntervention.date_debut}</p>
-                <p>Date de fin : {selectedIntervention.date_fin}</p>
+                <p>Date de début : {selectedIntervention.date_debut ? selectedIntervention.date_debut :"la date pas assigné"}</p>
+                <p>Date de fin : {selectedIntervention.date_fin ? selectedIntervention.date_fin :"la date pas assigné"}</p>
                 <p>État : {selectedIntervention.etat}</p>
+                <p>Adresse : {selectedIntervention.adresse ? selectedIntervention.adresse :"sans adresse"}</p>
                 <p>Citoyen : {selectedIntervention.citoyen?.email ? selectedIntervention.citoyen.email : "il a pas email "}</p>
                 <p>Service : {selectedIntervention.service?.nom ? selectedIntervention.service.nom : "no service "}</p>
-                <p>tehcnicne id  : {selectedIntervention.technicien ? selectedIntervention.technicien : "intervetion est pas assigné au technicien"}</p>
+                <p>Technician: {selectedIntervention.technicien ? (
+  techncien.map(tech => {
+    if (tech.id === selectedIntervention.technicien) {
+      return <a href="http://localhost:3000/ListtechnicienParservice">{`${tech.first_name} ${tech.last_name}` }</a>;
+    }
+    return "Intervention is not assigned to a technician";
+  })
+) : "Intervention is not assigned to a technician"}</p>
                 <p>Équipements :
                   <ul>
                     {selectedIntervention.equipements && selectedIntervention.equipements.map((equipementId) => {
                       const equipment = equipments.find(equip => equip.id === equipementId);
                       return (
-                        <li key={equipment.id}>
+                        <li key={equipment.id }>
                           {equipment ? equipment.nom : 'Unknown equipment'}
                         </li>
                       );

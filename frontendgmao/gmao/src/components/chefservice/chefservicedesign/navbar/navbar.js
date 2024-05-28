@@ -18,7 +18,7 @@ const Navbar = () => {
       <div className="wrapper">
         <div className="search">
          
-          <SearchOutlinedIcon />
+              
         </div>
         <div className="items">
       

@@ -43,10 +43,11 @@ const Login = ({ onLogin }) => {
         setShowMessage(true);
       }
 
-      const { token, role, userId } = await response.json();
+      const { token, role, userId,user_username } = await response.json();
       
       localStorage.setItem('token', token);
       localStorage.setItem('userId', userId);
+      localStorage.setItem("username",user_username)
      
       localStorage.setItem('role', role); 
       sessionStorage.setItem("sesion",token);

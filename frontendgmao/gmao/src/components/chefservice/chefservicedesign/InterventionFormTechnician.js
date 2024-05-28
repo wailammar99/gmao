@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import PopupMessage from '../../message';
 import { Navigate, useNavigate } from 'react-router-dom';
  
-const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose,onfetch }) => {
+const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose,fetchData  }) => {
+  console.log("Intervention ID:", interventionId);
   const [formData, setFormData] = useState({
     selectedOption: '',
     selectedEquipment: [], // State for selected equipment IDs as an array
@@ -75,8 +76,12 @@ const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose,onfetch 
         setTimeout(() => {
           
           setShowMessage(false);
+          onSubmit();
           onClose();
-          navigate('/Chefservicepage');
+         
+         
+
+         
         }, 1500);
         setFormData({
           selectedOption: '',
@@ -143,7 +148,7 @@ const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose,onfetch 
       )}
  
       <div className="intervention-form">
-        <h2>Assign Service and Equipment</h2>
+        <h2>Attribuer le technique et l'équipement</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <div className="mb-3">
@@ -155,9 +160,9 @@ const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose,onfetch 
               <label htmlFor="endDate" className="form-label">Date de fin:</label>
               <input type="date" name="endDate" id="endDate" className="form-control" value={formData.endDate} onChange={handleChange} required/>
             </div>
-            <label htmlFor="selectedOption" className="form-label">Select Service:</label>
+            <label htmlFor="selectedOption" className="form-label">Sélect Technicien:</label>
             <select name="selectedOption" id="selectedOption" className="form-control" value={formData.selectedOption} onChange={handleChange} required>
-              <option value="">Select a service</option>
+              <option value="">Sélect Technicien</option>
               {formData.serviceOptions && formData.serviceOptions.map(option => (
                 <option key={option.id} value={option.id}>{option.username}</option>
               ))}
@@ -165,7 +170,7 @@ const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose,onfetch 
           </div>
          
           <div className="mb-3">
-            <label className="form-label">Select Equipment:</label>
+            <label className="form-label">Sélect Equipment:</label>
             {equipmentOptions.map(option => (
               <div key={option.id} className="form-check">
                 <input
@@ -181,7 +186,7 @@ const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose,onfetch 
               </div>
             ))}
           </div>
-          <button type="submit" className="btn btn-primary">Assign Service and Equipment</button>
+          <button type="submit" className="btn btn-primary">Valider technicien et  equiment</button>
         </form>
  
         {/* Display selected equipments */}

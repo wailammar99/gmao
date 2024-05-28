@@ -22,10 +22,11 @@ const CreateUser = ({ onUserCreated }) => {
   const [ischefservice, setIschefservice] = useState(false);
   const [isadmin, setIsadmin] = useState(false);
   const [is_citoyen, setiscitoyen] = useState(false);
+  const [is_maiteance,set_maiteance]=useState(false);
   const [first_name, setfirst_name] = useState('');
   const [last_name, setlast_name] = useState('');
   const [phone, setPhone] = useState('');
-  const [is_chefservice_intervention,Setis_chefservice_intervention]=useState("");
+  
   const [showMessage, setShowMessage] = useState(false);
   const[messagee,setmessage]=useState("");
   
@@ -60,7 +61,7 @@ const CreateUser = ({ onUserCreated }) => {
           last_name: last_name,
           first_name: first_name,
           phone: phone,
-          is_chefservice_intervention:is_chefservice_intervention
+          is_maitenant:is_maiteance,
         }),
       });
      
@@ -138,6 +139,14 @@ const CreateUser = ({ onUserCreated }) => {
           setShowMessage(true);
 
         }
+        else if (response.status===420)
+          {
+            console.error('ready have a directeur  ');
+            setmessage("compte chef service responsable a maiteance   existe déjà ");
+            setsucee("danger");
+            setShowMessage(true);
+  
+          }
     } catch (error) {
       console.error('Error creating user:', error);
     }
@@ -218,6 +227,13 @@ const CreateUser = ({ onUserCreated }) => {
   <input type="radio" className="form-check-input" id="is_chefservice" name="role" checked={ischefservice} onChange={(e) => setIschefservice(true)} />
 
   <label className="form-check-label" htmlFor="is_chefservice"> Chef Service</label>
+
+</div>
+<div className="formcheck">
+
+<input type="radio" className="form-check-input" id="is_maitenace" name="role" checked={is_maiteance} onChange={(e) => set_maiteance(true)} />
+
+<label className="form-check-label" htmlFor="is_chefservice"> Chef Service maitenance </label>
 
 </div>
 

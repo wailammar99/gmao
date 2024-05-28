@@ -47,6 +47,11 @@ class CustomUser(AbstractUser):
     is_directeur = models.BooleanField('directeur', default=False)
     is_citoyen=  models.BooleanField('citoyen', default=False)
     service = models.ForeignKey('service', null=True, blank=True,on_delete=models.CASCADE)
+    telephone = models.CharField(max_length=20,blank=True,null=True)
+
+    date_de_naissance=models.DateField(blank=True,null=True)
+    adresse=models.CharField(max_length=500,blank=True,null=True)
+    
     def __str__(self):
         return self.username
 
@@ -77,6 +82,7 @@ class interven(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     conversation = models.ForeignKey(converstation, on_delete=models.CASCADE, null=True, blank=True)
+    
 
     # Define choices for the state
     ETAT_CHOICES = (
@@ -154,6 +160,7 @@ class Rapport(models.Model):
 
         doc = SimpleDocTemplate(response, pagesize=letter)
         data = []
+        
 
         # Add header row
         header = ['Date début', 'Date fin', 'Description',"etat", 'Citoyen', 'Technicien', 'Service']
@@ -162,13 +169,13 @@ class Rapport(models.Model):
         # Add data rows
         for intervention in self.interventions.all().select_related("service").select_related("citoyen"):
             row = [
-                intervention.date_debut,
-                intervention.date_fin,
-                intervention.description,
-                intervention.etat,
-                intervention.technicien if intervention.technicien else "",  # Accessing technicien
-                intervention.service.nom if intervention.service else "",  # Accessing service name
-                intervention.citoyen.email if intervention.citoyen else "",
+                            intervention.date_debut,
+                            intervention.date_fin,
+                            intervention.description,
+                            intervention.etat,
+                            intervention.technicien if intervention.technicien else "",  # Accessing technicien
+                            intervention.service.nom if intervention.service else "",  # Accessing service name
+                            intervention.citoyen.email if intervention.citoyen else "",
                 
                
                 

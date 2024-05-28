@@ -342,10 +342,10 @@ def CustomerListe(request):
 @csrf_exempt
 def CustomerListet(request):
     if request.method == 'GET':
-        users = CustomUser.objects.filter(is_technicien=True)
+        users = CustomUser.objects.filter(is_technicien=True).select_related("service")
         # Serialize queryset to JSON data
-        serialized_users = serializers('json', users)
-        return HttpResponse(serialized_users, content_type='application/json')
+        serialized_users = CustomeUserSerializers(users, many=True)
+        return JsonResponse(serialized_users.data,safe=False)
     elif request.method == 'PUT':
         
         pass
@@ -584,7 +584,7 @@ def loginn(request):
             else:
                 role = 'unknown'
 
-            return JsonResponse({'message': 'login success','role': role, 'userId': user.id,'token': token.key})
+            return JsonResponse({'message': 'login success','role': role, 'userId': user.id,'token': token.key,"user_username":user.username})
         else:
             return JsonResponse({'error': 'invalid password or username'}, status=400)
     else:
@@ -679,18 +679,32 @@ def api_create_user(request):
             is_chefservice = data.get('is_chefservice', False)
             is_admin = data.get('is_admin', False)
             is_citoyen = data.get('is_citoyen', False)
-            
+            is_maitenant=data.get('is_maitenant',False)
+            Service, created = service.objects.get_or_create(nom="noservice")
+
             
 
             if CustomUser.objects.filter(username=username).exists():
                 return JsonResponse({'error': 'Username already exists'}, status=400)
             if CustomUser.objects.filter(email=email).exists():
                 return JsonResponse({'error': 'email   already exists'}, status=403)
+            
+                
+
                 
             if password1 == password2:
                 hashed_password = make_password(password1)
             
-                  # Hash the password
+                if is_maitenant :
+                    if CustomUser.objects.filter(is_chefservice=True,service=Service):
+                        return JsonResponse({'message':"il existe deja une chef service de maitencace  "},status=420)
+                    else :
+                       CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_chefservice=True, is_active=False,service=Service)
+                       for d in directeur :
+                        Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type chefservice",is_read=False)
+
+                       return JsonResponse({'message': 'User created successfully'}, status=201)
+
               
                 if is_directeur :
                     
@@ -712,7 +726,7 @@ def api_create_user(request):
 
                     return JsonResponse({'message': 'User created successfully'}, status=201)
                 elif is_citoyen:
-                    CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_citoyen=True, is_active=False)
+                    CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_citoyen=True, is_active=True)
                     for d in directeur :
                      Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type citoyen",is_read=False)
                     return JsonResponse({'message': 'User created successfully'}, status=201)
@@ -900,7 +914,9 @@ def api_mofifie_profil(request, id):
             user.email = data.get('email', user.email)
             user.first_name = data.get('firstname', user.first_name) 
             user.last_name = data.get('lastname', user.last_name) 
-          
+            user.date_de_naissance=data.get("date_de_naissance",user.date_de_naissance)
+            user.telephone=data.get("telephone",user.telephone)
+            user.adresse=data.get("adresse",user.adresse)
         # Update other fields as needed
         
         # Save the updated user object
@@ -927,7 +943,7 @@ def api_create_intervention(request,id):
             date_fin = data.get('date_fin')
             titre=data.get("titre")
             adresse=data.get("adresse")
-            longitude =data.get("longitude ")
+            longitude =data.get("longitude")
             latitude=data.get("latitude")
             user_id = id
             
@@ -1025,9 +1041,7 @@ def sendmessage(request, conversation_id,user_id):
             return JsonResponse({'error': 'Failed to create message: {}'.format(str(e))}, status=400)
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
-@api_view(['GET'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+
 def api_intervetion_chefservice(request, user_id):
     if request.method == "GET":
         try:
@@ -1089,6 +1103,7 @@ def api_create_conversationn(request, id):
             intervention_cible = interven.objects.get(id=id)
             user=CustomUser.objects.get(service=intervention_cible.service,is_chefservice=True)
             technicien=CustomUser.objects
+            directeur=CustomUser.objects.get(is_directeur=True)
             data = json.loads(request.body)
             titre = data.get('title')
             if intervention_cible.technicien is None :
@@ -1097,6 +1112,8 @@ def api_create_conversationn(request, id):
             conversation = converstation.objects.create(title=titre)
             conversation.add_participant(intervention_cible.citoyen)
             conversation.add_participant(user)
+            conversation.add_participant(directeur)
+
             if intervention_cible.technicien :
                 technicien=CustomUser.objects.get(id=intervention_cible.technicien)
                 conversation.add_participant(technicien)
@@ -1783,3 +1800,51 @@ def api_generate_pdf(request,rapport_id):
     else :
         return JsonResponse({"eoor":"method not allow"},status=405)
 
+
+
+
+@csrf_exempt
+def api_create_intervention_preventive(request, user_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            titre = data.get("titre")
+            date_debut = data.get("date_debut")
+            date_fin = data.get("date_fin")
+            technicien = data.get("technicien")
+            adresse = data.get("adresse")
+            description = data.get("description")
+            equipment_ids = data.get("equipment_ids")
+
+            chefservcie = CustomUser.objects.get(id=user_id)
+            service_obj = service.objects.get(id=chefservcie.service.id)
+            interven_obj = interven.objects.create(
+                titre=titre,
+                date_debut=date_debut,
+                date_fin=date_fin,
+                technicien=technicien,
+                service=service_obj,
+                citoyen=None,  # You can change this to an actual citoyen if needed
+                adresse=adresse,
+                etat="Assigné",
+                description=description
+            )
+
+            if equipment_ids:
+                equipment_objects = Equipement.objects.filter(id__in=equipment_ids)
+                interven_obj.equipements.set(equipment_objects)
+
+            interven_obj.save()
+            Notification.objects.create(recipient=CustomUser.objects.get(id=technicien),message="vous avez nouveux intevetion preventive assigné",is_read=False)
+
+            return JsonResponse({"message": "Intervention created successfully."}, status=201)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"error": "User not found."}, status=404)
+        except service.DoesNotExist:
+            return JsonResponse({"error": "Service not found."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid HTTP method."}, status=405)
+            
+            

@@ -52,12 +52,12 @@ const Sidebar = () => {
       <hr />
       <div className="center">
         <ul>
-          <p className="title">MAIN</p>
+          <p className="title">PRINCIPAL</p>
           
           <li>
           <Link to="/citoyen_dashboard" style={{ textDecoration: "none" }}>
             <DashboardIcon className="icon" />
-            <span>Dashboard</span>
+            <span>Tableau de bord</span>
             </Link>
           </li>
          
@@ -69,20 +69,20 @@ const Sidebar = () => {
            <Link to="/Citoyenpage" style={{ textDecoration: "none" }}>
           <li>
             <CreditCardIcon className="icon" />
-            <span>intervention</span>
+            <span>Intervention</span>
           </li>
 
           </Link>
           <Link to="/create_intervention"  style={{ textDecoration: "none" }}>
           <li>
             <CreateIcon className="icon" />
-            <span>cree intervention</span>
+            <span>Créer une intervention</span>
           </li>
           </Link>
          
 
           
-          <p className="title">USEFUL</p>
+          <p className="title">UTILE</p>
          
         
         <Link to={"/Notificationcitoyen"} style={{ textDecoration: "none" }}>
@@ -96,11 +96,11 @@ const Sidebar = () => {
         
       
          
-          <p className="title">USER</p>
+          <p className="title">UTILISATEUR</p>
           <li>
           <Link to={"/citoyenprofil"} style={{ textDecoration: "none" }}>
           <AccountCircleOutlinedIcon className="icon" />
-            <span>Profile</span>
+            <span>Profil</span>
             </Link>
           
           </li>
@@ -108,7 +108,7 @@ const Sidebar = () => {
           <Link to="/" style={{ textDecoration: "none" }} onClick={handleLogout}>
            <li>
                 <ExitToAppIcon className="icon" />
-                  Logout
+                  Déconnexion
              </li>
            </Link>
         

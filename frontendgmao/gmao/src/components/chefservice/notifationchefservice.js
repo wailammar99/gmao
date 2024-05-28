@@ -6,6 +6,8 @@ import Sidebar from './chefservicedesign/sidebar/sidebar';
 import PopupMessage from '../message';
 import { Pagination } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Tooltip, IconButton } from '@mui/material';
 
 const NotificationPagechefservice = () => {
   const [notifications, setNotifications] = useState([]);
@@ -100,7 +102,11 @@ const NotificationPagechefservice = () => {
       headerName: 'Action',
       width: 200,
       renderCell: (params) => (
-        <Button variant="contained" color="secondary" onClick={() => deleteNotification(params.row.id)}>supprimée</Button>
+        <Tooltip title="supprimé" arrow>
+  <IconButton onClick={() => deleteNotification(params.row.id)} color="error">
+    <DeleteIcon />
+  </IconButton>
+</Tooltip>
       ),
     },
   ];

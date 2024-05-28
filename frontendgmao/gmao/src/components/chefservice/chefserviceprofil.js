@@ -7,14 +7,14 @@ import Sidebar from './chefservicedesign/sidebar/sidebar';
 import Navbar from './chefservicedesign/navbar/navbar';
 
 const Chefserviceprofil = () => {
- const role =localStorage.getItem("role");
-
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [firstname, setFirstname] = useState('');
   const [lastname, setLastname] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [telephone, setTelephone] = useState('');
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false); // State to control the dialog visibility
@@ -22,20 +22,16 @@ const Chefserviceprofil = () => {
   const [old_password, setOldpassword] = useState('');
   const [password1, setPassword1] = useState('');
   const [password2, setPassword2] = useState('');
-  const[service,setservice]=useState('');
-  const [color,setcolor]=useState('');
+  const [adresse,setAdresse]=useState('');
+  const [color, setColor] = useState('');
   const navigate = useNavigate();
- const token=localStorage.getItem("token");
+  const token =localStorage.getItem("token");
+  const role =localStorage.getItem('role');
+
   useEffect(() => {
-    if (token && role==="chefservice")
-      {
-        fetchData(); 
-      }
-      else 
-      {
-        navigate("/login");
-      }
-    
+    if (token && role=="chefservice") {
+      fetchData();
+    }
   }, [token,role]);
 
   const fetchData = async () => {
@@ -49,7 +45,7 @@ const Chefserviceprofil = () => {
 
       const response = await fetch(`http://127.0.0.1:8000/user_infoo/${localStorage.getItem('userId')}/`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Token ${token}`,
         },
       });
 
@@ -60,7 +56,10 @@ const Chefserviceprofil = () => {
         setEmail(data.user_info.email);
         setFirstname(data.user_info.first_name);
         setLastname(data.user_info.last_name);
-        setservice(data.user.service.nom);
+        setDateOfBirth(data.user_info.date_de_naissance);
+        setTelephone(data.user_info.telephone);
+        setAdresse(data.user_info.adresse);
+        setTimeout(() => {}, 1500);
       } else {
         console.error('Failed to fetch user data');
       }
@@ -73,6 +72,9 @@ const Chefserviceprofil = () => {
 
   const handleUsernameChange = (e) => {
     setUsername(e.target.value);
+  };
+  const handleAdresse = (e) => {
+    setAdresse(e.target.value);
   };
 
   const handleFirstnameChange = (e) => {
@@ -87,6 +89,14 @@ const Chefserviceprofil = () => {
     setEmail(e.target.value);
   };
 
+  const handleDateOfBirthChange = (e) => {
+    setDateOfBirth(e.target.value);
+  };
+
+  const handleTelephoneChange = (e) => {
+    setTelephone(e.target.value);
+  };
+
   const handleOldpasswordChange = (e) => {
     setOldpassword(e.target.value);
   };
@@ -97,9 +107,6 @@ const Chefserviceprofil = () => {
 
   const handlePassword2Change = (e) => {
     setPassword2(e.target.value);
-  };
-  const handleserviceChange = (e) => {
-    setservice(e.target.value);
   };
 
   const handleFormSubmit = async (e) => {
@@ -116,20 +123,23 @@ const Chefserviceprofil = () => {
           username: username,
           email: email,
           firstname: firstname,
-          lastname: lastname
+          lastname: lastname,
+          date_de_naissance: dateOfBirth,
+          telephone: telephone,
+          adresse:adresse
         }),
       });
       if (response.ok) {
         setSuccessMessage('les infomation est bien modifie avec succes.');
         setIsDialogOpen(false);
-        setcolor("success");
+        setColor("success");
         fetchData();
         setTimeout(() => {
           setSuccessMessage('');
-        }, 1500);
+        }, 5000);
         setTimeout(() => {
-          setShowPasswordForm(false);
-        }, 1500);
+          navigate('/chefservice/profil');
+        }, 2000);
       } else {
         throw new Error('Failed to update user');
       }
@@ -157,17 +167,17 @@ const Chefserviceprofil = () => {
       });
       if (response.ok) {
         setSuccessMessage('Le mot de passe a été modifié avec succès.');
-        setcolor("success");
+        setColor("success");
         fetchData();
         setTimeout(() => {
           setShowPasswordForm(false);
         }, 1500);
       } else if (response.status === 400) {
         setSuccessMessage("L'ancien mot de passe n'est pas correct.");
-        setcolor("warning");
+        setColor("warning");
       } else if (response.status === 401) {
         setSuccessMessage("Les nouveaux mots de passe ne correspondent pas.");
-        setcolor("warning");
+        setColor("warning");
       }
     } catch (error) {
       console.error('Error updating password:', error);
@@ -213,18 +223,18 @@ const Chefserviceprofil = () => {
                 <div className="col-lg-4">
                   <div className="card mb-4">
                     <div className="card-body text-center">
-                      <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar" className="rounded-circle img-fluid" style={{ width: '150px' }} />
+                      <img src="service-de-gestion.pngp" alt="avatar" className="rounded-circle img-fluid" style={{ width: '150px' }} />
                       <h5 className="my-3">{userData ? userData.name : 'Loading...'}</h5>
                       <p className="text-muted mb-1">{userData ? userData.role : 'Loading...'}</p>
                       <p className="text-muted mb-4">{userData ? userData.location : 'Loading...'}</p>
                       <div className="d-flex justify-content-center mb-2">
                         <Button variant="contained" color="primary" onClick={openDialog}>
-                          Modify User Information
+                          Modifie les information
                         </Button>
                       </div>
                       <div className="d-flex justify-content-center mb-2">
                         <Button variant="contained" color="secondary" onClick={handleTogglePasswordForm}>
-                          Modify Password
+                          Modifie mot passe 
                         </Button>
                       </div>
                     </div>
@@ -235,7 +245,7 @@ const Chefserviceprofil = () => {
                     <div className="card-body">
                       <div className="row">
                         <div className="col-sm-3">
-                          <p className="mb-0">First Name</p>
+                          <p className="mb-0">nom</p>
                         </div>
                         <div className="col-sm-9">
                           <p className="text-muted mb-0">{userData ? userData.first_name : 'Loading...'}</p>
@@ -253,24 +263,38 @@ const Chefserviceprofil = () => {
                       <hr />
                       <div className="row">
                         <div className="col-sm-3">
-                          <p className="mb-0">Last Name</p>
+                          <p className="mb-0">Prenom</p>
                         </div>
                         <div className="col-sm-9">
                           <p className="text-muted mb-0">{userData ? userData.last_name : 'Loading...'}</p>
                         </div>
-                        
-                      
                       </div>
-                      <hr/>
+                      <hr />
                       <div className="row">
                         <div className="col-sm-3">
-                          <p className="mb-0">service</p>
+                          <p className="mb-0">Date  De Naissance</p>
                         </div>
                         <div className="col-sm-9">
-                          <p className="text-muted mb-0">{userData ? userData.service.nom : 'Loading...'}</p>
+                          <p className="text-muted mb-0">{userData ? userData.date_de_naissance : 'Loading...'}</p>
                         </div>
-                        
-                      
+                      </div>
+                      <hr />
+                      <div className="row">
+                        <div className="col-sm-3">
+                          <p className="mb-0">Telephone</p>
+                        </div>
+                        <div className="col-sm-9">
+                          <p className="text-muted mb-0">{userData ? userData.telephone : 'Loading...'}</p>
+                        </div>
+                      </div>
+                      <hr />
+                      <div className="row">
+                        <div className="col-sm-3">
+                          <p className="mb-0">Adresse</p>
+                        </div>
+                        <div className="col-sm-9">
+                          <p className="text-muted mb-0">{userData ? userData.adresse : 'Loading...'}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -283,7 +307,7 @@ const Chefserviceprofil = () => {
 
       {/* Dialog for user information form */}
       <Dialog open={isDialogOpen} onClose={closeDialog}>
-        <DialogTitle>Modify User Information</DialogTitle>
+        <DialogTitle>Modifie les information</DialogTitle>
         <DialogContent>
           <form onSubmit={handleFormSubmit}>
             <TextField
@@ -299,7 +323,7 @@ const Chefserviceprofil = () => {
               }}
             />
             <TextField
-              label="First Name"
+              label="nom"
               value={firstname}
               onChange={handleFirstnameChange}
               fullWidth
@@ -308,7 +332,7 @@ const Chefserviceprofil = () => {
               margin="normal"
             />
             <TextField
-              label="Last Name"
+              label="Prenom"
               value={lastname}
               onChange={handleLastnameChange}
               fullWidth
@@ -325,10 +349,41 @@ const Chefserviceprofil = () => {
               variant="outlined"
               margin="normal"
             />
+            <TextField
+              label="Date De Naissance"
+              type="date"
+              value={dateOfBirth}
+              onChange={handleDateOfBirthChange}
+              fullWidth
+              required
+              variant="outlined"
+              margin="normal"
+              InputLabelProps={{
+    shrink: true,
+  }}
+            />
+             <TextField
+              label="Adresse"
+              value={adresse}
+              onChange={handleAdresse}
+              fullWidth
+              required
+              variant="outlined"
+              margin="normal"
+            />
+            <TextField
+              label="Telephone"
+              value={telephone}
+              onChange={handleTelephoneChange}
+              fullWidth
+              required
+              variant="outlined"
+              margin="normal"
+            />
             <DialogActions>
-              <Button onClick={closeDialog}>Cancel</Button>
+              <Button onClick={closeDialog}>annulé</Button>
               <Button type="submit" variant="contained" color="primary">
-                Save Changes
+                Sauvgarder
               </Button>
             </DialogActions>
           </form>
@@ -341,7 +396,7 @@ const Chefserviceprofil = () => {
         <DialogContent>
           <form onSubmit={handlePasswordFormSubmit}>
             <TextField
-              label="Old Password"
+              label="votre mot passe"
               value={old_password}
               onChange={handleOldpasswordChange}
               fullWidth
@@ -351,7 +406,7 @@ const Chefserviceprofil = () => {
               type='password'
             />
             <TextField
-              label="New Password"
+              label="Nouveux mot passe"
               value={password1}
               onChange={handlePassword1Change}
               fullWidth
@@ -361,7 +416,7 @@ const Chefserviceprofil = () => {
               type='password'
             />
             <TextField
-              label="Confirm Password"
+              label="confirmer mot passe"
               value={password2}
               onChange={handlePassword2Change}
               fullWidth
@@ -373,7 +428,7 @@ const Chefserviceprofil = () => {
             <DialogActions>
               <Button onClick={handleTogglePasswordForm}>Cancel</Button>
               <Button type="submit" variant="contained" color="primary">
-                Save Changes
+                Sauvgarder 
               </Button>
             </DialogActions>
           </form>
@@ -384,3 +439,4 @@ const Chefserviceprofil = () => {
 };
 
 export default Chefserviceprofil;
+

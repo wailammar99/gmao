@@ -91,6 +91,7 @@ urlpatterns = [
                     path("delete/rapport/<int:rapport_id>/",views.api_delete_rapport),
                     path("create/rapport/",views.api_create_rapport),
                     path("generate/rapport/<int:rapport_id>/",views.api_generate_pdf),
+                    path("api_create_intervention_preventive/<int:user_id>/",views.api_create_intervention_preventive),
                     
 
 

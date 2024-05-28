@@ -1,34 +1,57 @@
-body{margin-top:20px;}
-
-.chat-online {
-    color: #34ce57
-}
-
-.chat-offline {
-    color: #e4606d
-}
-
-.chat-messages {
-    display: flex;
-    flex-direction: column;
-    max-height: 1500px;
-    overflow-y: scroll
-}
-
-.chat-message-left,
-.chat-message-right {
-    display: flex;
-    flex-shrink: 0
-}
-
-.chat-message-left {
-    margin-right: auto
-}
-
-.chat-message-right {
+.chat-message {
+  display: flex;
+  margin-bottom: 10px;
+  cursor: pointer; // Add cursor pointer to indicate clickability
+ 
+  &.right {
     flex-direction: row-reverse;
-    margin-left: auto
+ 
+    .bg-blue {
+      background-color: #d1e7ff;
+      color: #000;
+    }
+  }
+ 
+  &.left {
+    flex-direction: row;
+ 
+    .bg-gray {
+      background-color: #f1f1f1;
+      color: #000;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+  }
+ 
+  .text-muted {
+    font-size: 0.85rem;
+    display: none; // Hide by default
+  }
+ 
+  &.show-details .text-muted {
+    display: block; // Show on click
+  }
+ 
+  .rounded {
+    border-radius: 10px;
+  }
+ 
+  .font-weight-bold {
+    font-weight: 700;
+  }
 }
+ 
+.chat-messages {
+  overflow-y: auto;
+  height: 400px; // Adjust based on your layout
+}
+ 
+.fixed-container-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+ 
 .fixed-container {
   position: fixed;
   bottom: 20px; /* Ajustez selon vos besoins */
@@ -42,22 +65,5 @@ body{margin-top:20px;}
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   z-index: 999;
-  overflow-y: auto; /* Ajoutez un défilement vertical si nécessaire */
-}
-.fixed-container-wrapper {
-  display: flex;
-  flex-direction: column;
-}
-
-
-.scrolling-container {
-  max-height: 300px; /* Augmentez la hauteur maximale */
   overflow-y: auto;
-  width: 95%; /* Ajustez selon vos besoins */
-  max-width: 800px; /* Augmentez la largeur maximale */
-  margin: 20px auto; /* Ajustez selon vos besoins */
-  background-color: #f9f9f9; /* Couleur d'arrière-plan pour le défilement */
-  padding: 20px; /* Ajustez selon vos besoins */
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }

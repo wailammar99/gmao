@@ -31,10 +31,10 @@ const Sidebar = () => {
     }
   };
 
-  return (
+  return (    
     <div className="sidebar">
       <div className="top">
-        <span className="logo">Administrator</span>
+        <span className="logo">Administrateur</span>
       </div>
       <hr />
       <div className="center">

@@ -7,6 +7,19 @@ import EnAttenteForm from './EnAttenteForm';
 import ConversationForm from '../citoyen/ConversationForm';
 import PopupMessage from '../message';
 import { Link, useNavigate } from 'react-router-dom';
+import ClearIcon from '@mui/icons-material/Clear';
+import CheckIcon from '@mui/icons-material/Check';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import ModeIcon from '@mui/icons-material/Mode'
+
+
+import { Tooltip, IconButton } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import PauseCircleOutlineIcon from '@mui/icons-material/PauseCircleOutline';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+
 
 const Technicienpage = () => {
   const [interventions, setInterventions] = useState([]);
@@ -211,17 +224,33 @@ const Technicienpage = () => {
       width: 300,
       renderCell: (params) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {params.row.etat === 'Assigné' && (
-            <Button onClick={() => handleStartIntervention(params.row.id)} variant="contained" color="primary">démarrer</Button>
-          )}
-          {params.row.etat === 'En cours' && (
-            <>
-              <Button onClick={() => handleFinishIntervention(params.row.id)} variant="contained" color="success">terminé</Button>
-              <Button onClick={() => handleToggleEnAttenteForm(params.row.id)} variant="outlined" color="error">En attente</Button>
-            </>
-          )}
-          <Button onClick={() => handleOpenModal(params.row)} variant="outlined" className='primary'>Voir plus</Button>
-        </div>
+        {params.row.etat === 'Assigné' && (
+          <Tooltip title="Démarrer">
+            <IconButton onClick={() => handleStartIntervention(params.row.id)} color="primary">
+              <PlayCircleOutlineIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+        {params.row.etat === 'En cours' && (
+          <>
+            <Tooltip title="Terminer">
+              <IconButton onClick={() => handleFinishIntervention(params.row.id)} color="success">
+                <CheckCircleOutlineIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="En attente">
+              <IconButton onClick={() => handleToggleEnAttenteForm(params.row.id)} color="error">
+                <PauseCircleOutlineIcon />
+              </IconButton>
+            </Tooltip>
+          </>
+        )}
+        <Tooltip title="Voir plus">
+          <IconButton onClick={() => handleOpenModal(params.row)} className='primary'>
+            <AddIcon color='primary' />
+          </IconButton>
+        </Tooltip>
+      </div>
       ),
     },
   ];

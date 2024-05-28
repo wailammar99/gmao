@@ -53,11 +53,11 @@ const Sidebar = () => {
       <hr />
       <div className="center">
         <ul>
-          <p className="title">MAIN</p>
+          <p className="title">PRINCIPAL</p>
           <Link to="/technicien_dashboard/:Id" style={{ textDecoration: "none" }}>
           <li>
             <DashboardIcon className="icon" />
-            <span>Dashboard</span>
+            <span>Tableau de bord</span>
           </li>
           </Link>
 
@@ -67,7 +67,7 @@ const Sidebar = () => {
            <Link to="/technicienpage" style={{ textDecoration: "none" }}>
           <li>
             <CreditCardIcon className="icon" />
-            <span>intervention</span>
+            <span>Intervention</span>
           </li>
           </Link>
 
@@ -77,18 +77,23 @@ const Sidebar = () => {
           <Link  to={"/calender/technien" } style={{ textDecoration: "none" }}>
           <li>
           <CalendarMonthIcon className="icon" />
-            <span>calendrier </span>
+            <span>Calendrier </span>
           </li>
           </Link>
-           
+          <Link  to={"/map/technien" } style={{ textDecoration: "none" }}>
+          <li>
+          <CalendarMonthIcon className="icon" />
+            <span>vue goalocalisation  </span>
+          </li>
+          </Link>
          
          
 
-          <p className="title">USER</p>
+          <p className="title">UTILISATEUR</p>
           <Link to={"/technicienprofil"} style={{ textDecoration: "none" }}>
           <li>
             <AccountCircleOutlinedIcon className="icon" />
-            <span>Profile</span>
+            <span>Profil</span>
           </li>
           </Link>
           <Link to={"/technicinenotificationpage"}  style={{ textDecoration: "none" }}>
@@ -100,7 +105,7 @@ const Sidebar = () => {
           <Link to="/login" style={{ textDecoration: "none" }} onClick={handleLogout}>
            <li>
                 <ExitToAppIcon className="icon" />
-                  Logout
+                  Déconnexion
              </li>
            </Link>
         

@@ -62,15 +62,15 @@ const Widget = ({ type }) => {
   // Set title and count based on the type
   switch (type) {
     case "encour":
-      title = "Interventions en cours";
+      title = " En cours";
       count = countInProgress;
       break;
     case "termine":
-      title = "Interventions terminées";
+      title = " terminées";
       count = countCompleted;
       break;
     case "enattend":
-      title = "enattend";
+      title = "En attend";
       count = countenatte;
       break;
       case "Assigné":

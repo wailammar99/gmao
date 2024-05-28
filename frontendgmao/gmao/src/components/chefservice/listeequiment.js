@@ -5,47 +5,41 @@ import { DataGrid } from '@mui/x-data-grid';
 import { Button, Dialog, DialogContent, DialogTitle, Typography } from '@mui/material';
 import PopupMessage from '../message';
 import { Navigate, useNavigate } from 'react-router-dom';
-
+import { Tooltip, IconButton } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ModeIcon from '@mui/icons-material/Mode';
+import AddIcon from '@mui/icons-material/Add';
+import { Pagination } from '@mui/material';
 
 const ListEquipement = () => {
   const [equipements, setEquipements] = useState([]);
   const [selectedEquipement, setSelectedEquipement] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [message, setMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [showMessage, setShowMessage] = useState(false);
   const [messageColor, setMessageColor] = useState('');
-  const token = localStorage.getItem('token');
-  const role =localStorage.getItem("role");
-  const userid=localStorage.getItem("userId");
-  const navigate=useNavigate("");
- console.log("tokennnnnnnnnnnnn",token);
- const sesion =sessionStorage.getItem("sesion");
- 
-
-
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const role = localStorage.getItem("role");
+  const userid = localStorage.getItem("userId");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (token && role==="chefservice" )
-      {
-        fetchData(); 
-      }
-      else 
-      {
-        console.log ("vous pouver pas accces a cette page ")
-        navigate("/login")
-      }
-    
-  }, [token,role]);
+    if (!token || role !== "chefservice") {
+      console.log("Vous n'avez pas accès à cette page.");
+      navigate("/login");
+    } else {
+      fetchData();
+    }
+  }, [token, role]);
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/equipements/${userid}/`,
-      {
-        method:"GET",
+      const response = await fetch(`http://127.0.0.1:8000/equipements/${userid}/`, {
+        method: "GET",
         headers: {
-          Authorization: `Token ${token}`, // Include the token in the request headers
+          Authorization: `Token ${token}`,
         },
-
       });
       if (response.ok) {
         const data = await response.json();
@@ -64,6 +58,7 @@ const ListEquipement = () => {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Token ${token}`,
         }
       });
 
@@ -83,6 +78,7 @@ const ListEquipement = () => {
       console.error('Erreur lors de la suppression de l\'équipement :', error);
     }
   };
+
   const handleViewMore = (equipement) => {
     setSelectedEquipement(equipement);
     setOpenDialog(true);
@@ -90,24 +86,44 @@ const ListEquipement = () => {
 
   const columns = [
     { field: 'nom', headerName: 'Nom', width: 200 },
-    { field: 'marque', headerName: 'Description', width: 200 },
+    { field: 'marque', headerName: 'marque', width: 200 },
     {
       field: 'actions',
       headerName: 'Action',
       width: 400,
       renderCell: (params) => (
         <>
-            <Button onClick={() => handleDeleteEquipement(params.row.id)} variant="outlined" color="error">
-          Supprimer
-        </Button>
-        <Button onClick={() => handleViewMore(params.row)} variant="outlined" color="primary">
-          Voir Plus
-        </Button>
+          <Tooltip title="Supprimer">
+            <IconButton
+              onClick={() => handleDeleteEquipement(params.row.id)}
+              variant="outlined"
+              color="error"
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Voir Plus">
+            <IconButton
+              onClick={() => handleViewMore(params.row)}
+              variant="outlined"
+              color="primary"
+            >
+              <AddIcon />
+            </IconButton>
+          </Tooltip>
         </>
-        
       ),
     },
   ];
+
+  const pageSize = 5; // Nombre d'éléments par page
+  const indexOfLastEquipement = currentPage * pageSize;
+  const indexOfFirstEquipement = indexOfLastEquipement - pageSize;
+  const currentEquipements = equipements.slice(indexOfFirstEquipement, indexOfLastEquipement);
+
+  const paginate = (event, pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   return (
     <div className="list">
@@ -119,26 +135,34 @@ const ListEquipement = () => {
         </div>
         <div className="bottom">
           <DataGrid
-            rows={equipements}
+            rows={currentEquipements}
             columns={columns}
             pageSize={5}
             rowsPerPageOptions={[5]}
             autoHeight={true}
+            hideFooterPagination={true}
+            hideFooter={true}
           />
+                    <Pagination
+            count={Math.ceil(equipements.length / pageSize)}
+            page={currentPage}
+            onChange={paginate}
+          />
+
           <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
             <DialogTitle>Informations sur l'équipement</DialogTitle>
             <DialogContent>
               {selectedEquipement && (
                 <>
                   <Typography>Nom: {selectedEquipement.nom}</Typography>
-                  <Typography>Description: {selectedEquipement.marque}</Typography>
+                  <Typography>marque: {selectedEquipement.marque}</Typography>
                   <Typography>Prix: {selectedEquipement.prix}</Typography>
-        <Typography>Stock: {selectedEquipement.stock}</Typography>
-        <Typography>Date d'ajout: {selectedEquipement.date_ajout}</Typography>
-        <Typography>Statut: {selectedEquipement.statut ? 'Actif' : 'Inactif'}</Typography>
-        <Typography>Numéro de série: {selectedEquipement.numero_serie}</Typography>
-        <Typography>Date d'expiration: {selectedEquipement.date_expiration}</Typography>
-        <Typography>Caractéristiques techniques: {selectedEquipement.caracteristiques_techniques}</Typography>
+                  <Typography>Stock: {selectedEquipement.stock}</Typography>
+                  <Typography>Date d'ajout: {selectedEquipement.date_ajout}</Typography>
+                  <Typography>Statut: {selectedEquipement.statut ? 'Actif' : 'Inactif'}</Typography>
+                  <Typography>Numéro de série: {selectedEquipement.numero_serie}</Typography>
+                  <Typography>Date d'expiration: {selectedEquipement.date_expiration}</Typography>
+                  <Typography>Caractéristiques techniques: {selectedEquipement.caracteristiques_techniques}</Typography>
                 </>
               )}
             </DialogContent>
@@ -151,3 +175,4 @@ const ListEquipement = () => {
 };
 
 export default ListEquipement;
+
