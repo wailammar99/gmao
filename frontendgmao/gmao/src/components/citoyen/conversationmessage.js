@@ -10,6 +10,7 @@
     const [content, setContent] = useState('');
     const [typeMessage, setTypeMessage] = useState('');
     const userId = localStorage.getItem('userId');
+    const username=localStorage.getItem('username');
     const [ws1, setWs1] = useState(null);
     const [ws2, setWs2] = useState(null);
     const [authorized, setAuthorized] = useState(true);
@@ -163,15 +164,15 @@
                         {messages.map((message, index) => (
                           
                           <div
-                            className={`chat-message ${message.sender ==userId  ? 'left' : 'right'} ${visibleMessageId === index ? 'show-details' : ''} pb-4`}
+                            className={`chat-message ${message.sender.username ==username  ? 'right' : 'left'} ${visibleMessageId === index ? 'show-details' : ''} pb-4`}
                             key={index}
                             onClick={() => toggleMessageVisibility(index)}
-                          > {console.log('message.sender.id',message.sender.id)}
+                          > {console.log('message.sender.username',message.sender.username)}
                           
                             <div className="text-muted small text-nowrap mt-2">
                               {message.horodatage}, {message.type ? message.type : message.message_type}
                             </div>
-                            <div className={`flex-shrink-1 rounded py-2 px-3 mr-3 ${message.sender.id == userId ? 'bg-gray' : 'bg-blue'}`}>
+                            <div className={`flex-shrink-1 rounded py-2 px-3 mr-3 ${message.sender.username == username ? 'bg-blue' : 'bg-gray'}`}>
                               <div className="font-weight-bold mb-1">Sender: {message.sender.username ? message.sender.username :message.sender}</div>
                               Content: {message.contenu}
                             </div>

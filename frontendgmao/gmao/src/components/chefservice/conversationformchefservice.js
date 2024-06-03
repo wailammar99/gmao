@@ -13,6 +13,7 @@ const ConversationMessageschefservice = () => {
   const [ws1, setWs1] = useState(null);
   const [ws2, setWs2] = useState(null);
   const [authorized, setAuthorized] = useState(true);
+  const username=localStorage.getItem("username");
   const [visibleMessageId, setVisibleMessageId] = useState(null);
 
   useEffect(() => {
@@ -162,14 +163,14 @@ const ConversationMessageschefservice = () => {
                     <div className="chat-messages p-4">
                       {messages.map((message, index) => (
                         <div
-                          className={`chat-message ${message.sender.id == userId ? 'left' : 'right'} ${visibleMessageId === index ? 'show-details' : ''} pb-4`}
+                          className={`chat-message ${message.sender.username == username ? 'right' : 'left'} ${visibleMessageId === index ? 'show-details' : ''} pb-4`}
                           key={index}
                           onClick={() => toggleMessageVisibility(index)}
                         >
                           <div className="text-muted small text-nowrap mt-2">
                             {message.horodatage}, {message.type ? message.type : message.message_type}
                           </div>
-                          <div className={`flex-shrink-1 rounded py-2 px-3 mr-3 ${message.sender.id == userId ? 'bg-gray' : 'bg-blue'}`}>
+                          <div className={`flex-shrink-1 rounded py-2 px-3 mr-3 ${message.sender.username == username ? 'bg-blue' : 'bg-gray'}`}>
                             <div className="font-weight-bold mb-1">Sender: {message.sender.username ? message.sender.username :message.sender}</div>
                             Content: {message.contenu}
                           </div>

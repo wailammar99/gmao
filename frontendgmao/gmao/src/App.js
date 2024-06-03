@@ -65,8 +65,8 @@ import Forminterventionpreventive from './components/chefservice/formintervetion
 import InterventionMap from './components/chefservice/inteevntionmap';
 
 import InterventionMapTechncicien from './components/technicien/interventionmaptechnicien';
-import Index from './components/page auure';
-//new page d auecce 
+import Header from './components/page pricipale/pageh';
+
 
 
 
@@ -104,6 +104,10 @@ function App() {
           <Route
             path="/login"
             element={ <Login onLogin={handleLogin} />}
+          />
+            <Route
+            path="/"
+            element={<Header  />} 
           />
        
           
@@ -229,9 +233,7 @@ function App() {
           <Route path="/technicienprofil" element={ <Technicineprofil/> }>
 
              </Route>
-             <Route path="/index.page" element={<Index/> }>
-
-          </Route>
+     
              
           
 
