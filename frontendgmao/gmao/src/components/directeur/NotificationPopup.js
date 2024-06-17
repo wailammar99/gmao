@@ -8,6 +8,13 @@ const NotificationPopup = () => {
 
   useEffect(() => {
     fetchNotifications();
+    setupWebSocket();
+
+    return () => {
+      if (webSocket) {
+        webSocket.close();
+      }
+    };
   }, []);
 
   const fetchNotifications = async () => {
@@ -54,8 +61,26 @@ const NotificationPopup = () => {
   const handleClose = async () => {
     await markNotificationsAsRead();
     setIsOpen(false);
-   
     setNotifications([]); // Clear notifications after marking as read
+  };
+
+  let webSocket;
+
+  const setupWebSocket = () => {
+    webSocket = new WebSocket(`ws://127.0.0.1:8000/ws/notifications/${localStorage.getItem('userId')}/`);
+
+    webSocket.onmessage = (event) => {
+      const notification = JSON.parse(event.data);
+      setNotifications((prevNotifications) => [notification, ...prevNotifications]);
+    };
+
+    webSocket.onclose = (event) => {
+      console.log('WebSocket closed: ', event);
+    };
+
+    webSocket.onerror = (error) => {
+      console.error('WebSocket error: ', error);
+    };
   };
 
   return (
@@ -72,23 +97,16 @@ const NotificationPopup = () => {
               <TableRow>
                 <TableCell>Notification ID</TableCell>
                 <TableCell>Message</TableCell>
-                <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
-         
-          
             <TableBody>
-  {notifications.map(notification => (
-    <TableRow key={notification.id}>
-      <TableCell>{notification.id}</TableCell>
-      <TableCell>{notification.message}</TableCell>
-    
-    </TableRow>
-  ))}
-</TableBody>
-
-             
-            
+              {notifications.map(notification => (
+                <TableRow key={notification.id}>
+                  <TableCell>{notification.id}</TableCell>
+                  <TableCell>{notification.message}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
         </DialogContent>
         <DialogActions>

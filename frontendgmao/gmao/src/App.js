@@ -66,7 +66,7 @@ import InterventionMap from './components/chefservice/inteevntionmap';
 
 import InterventionMapTechncicien from './components/technicien/interventionmaptechnicien';
 import Header from './components/page pricipale/pageh';
-
+import './i18n/i18n';
 
 
 

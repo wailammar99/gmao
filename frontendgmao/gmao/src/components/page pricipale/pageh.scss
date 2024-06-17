@@ -1,14 +1,15 @@
-* {
+/* Scoping styles to .page-specific */
+.page-specific * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-body {
+.page-specific body {
   font-family: 'Century Gothic', sans-serif;
 }
 
-.nav {
+.page-specific .nav {
   display: flex;
   align-items: center;
   background: linear-gradient(to bottom, #fff, #ffffff);
@@ -18,13 +19,11 @@ body {
   margin: 10px 0;
 }
 
-/* Style for the logo */
-.nav .logo img {
+.page-specific .nav .logo img {
   height: 50px;
 }
 
-/* Style for the navigation list */
-.nav ul {
+.page-specific .nav ul {
   list-style: none;
   display: flex;
   gap: 15px;
@@ -32,13 +31,11 @@ body {
   padding: 0;
 }
 
-/* Style for the navigation list items */
-.nav ul li {
+.page-specific .nav ul li {
   position: relative;
 }
 
-/* Style for the navigation links */
-.nav ul li a {
+.page-specific .nav ul li a {
   text-decoration: none;
   color: #333;
   font-weight: bold;
@@ -47,25 +44,21 @@ body {
   border-radius: 5px;
 }
 
-/* 3D effect for the links */
-.nav ul li a:active {
+.page-specific .nav ul li a:active {
   transform: translateY(2px);
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2) inset;
 }
 
-/* Hover effect for the links */
-.nav ul li a:hover {
+.page-specific .nav ul li a:hover {
   color: #007bff;
 }
 
-/* Style for the active link */
-.nav ul li.active a {
+.page-specific .nav ul li.active a {
   color: #007bff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-/* Style for the list item before */
-.nav ul li::before {
+.page-specific .nav ul li::before {
   content: "";
   position: absolute;
   top: -5px;
@@ -80,40 +73,39 @@ body {
   transform: scale(0.9);
 }
 
-/* Hover effect for the list item before */
-.nav ul li:hover::before {
+.page-specific .nav ul li:hover::before {
   opacity: 1;
   transform: scale(1);
 }
 
-header {
+.page-specific header {
   background-color: white;
   color: white;
   padding: 20px 0;
 }
 
-.title {
+.page-specific .title {
   text-align: center;
   margin-top: 50px;
 }
 
-.title h1 {
+.page-specific .title h1 {
   font-size: 36px;
   color: #0062ff;
 }
 
-.title h6 {
+.page-specific .title h6 {
   font-size: 18px;
   margin-top: 10px;
   color: #0062ff;
 }
 
-.button {
+.page-specific .button {
   text-align: center;
   margin-top: 20px;
 }
 
-.btn {
+.page-specific .btn {
   display: inline-block;
   padding: 10px 20px;
   background-color: skyblue;
@@ -123,38 +115,40 @@ header {
   margin-right: 10px;
 }
 
-.btn:hover {
+.page-specific .btn:hover {
   background-color: white;
   color: skyblue;
 }
 
-section {
-  background-color: rgb(113, 166, 245);
+.page-specific section {
+  background-color: whitesmoke ;
   padding: 10px 10px;
   margin-top: 0px;
+ 
+  
   text-align: center;
 }
 
-section h1 {
+.page-specific section h1 {
   font-size: 36px;
 }
 
-section h6 {
+.page-specific section h6 {
   font-size: 18px;
   margin-top: 5px;
 }
 
-.service-container {
+.page-specific .service-container {
   transition: all 0.5s ease;
 }
 
-.service-container .icon {
+.page-specific .service-container .icon {
   margin-top: 5%;
   font-size: 38px;
   transition: all 0.5s ease;
 }
 
-.service-container .number-icon .icon-2 {
+.page-specific .service-container .number-icon .icon-2 {
   height: 70px;
   width: 70px;
   line-height: 80px;
@@ -163,11 +157,11 @@ section h6 {
   transition: all 0.5s ease;
 }
 
-.service-container .number-icon .icon-2 i {
+.page-specific .service-container .number-icon .icon-2 i {
   font-size: 30px;
 }
 
-.service-container .number-icon .number {
+.page-specific .service-container .number-icon .number {
   position: absolute;
   top: 0;
   right: 70px;
@@ -178,24 +172,24 @@ section h6 {
   transition: all 0.5s ease;
 }
 
-.service-container .number-icon .number span {
+.page-specific .service-container .number-icon .number span {
   line-height: 30px;
 }
 
-.service-container .content .number {
+.page-specific .service-container .content .number {
   font-size: 40px;
   color: #dee2e6;
 }
 
-.service-container .content .title {
+.page-specific .service-container .content .title {
   transition: all 0.5s ease;
 }
 
-.service-container.hover-bg {
+.page-specific .service-container.hover-bg {
   transition: all 0.5s ease;
 }
 
-.service-container.hover-bg .smooth-icon {
+.page-specific .service-container.hover-bg .smooth-icon {
   position: absolute;
   bottom: -40px;
   right: -20px;
@@ -204,56 +198,56 @@ section h6 {
   transition: all 0.8s ease;
 }
 
-.service-container.hover-bg:hover {
+.page-specific .service-container.hover-bg:hover {
   background-color: #f89d36;
 }
 
-.service-container.hover-bg:hover .content .title {
+.page-specific .service-container.hover-bg:hover .content .title {
   color: #ffffff !important;
 }
 
-.service-container.hover-bg:hover .content .serv-pera {
+.page-specific .service-container.hover-bg:hover .content .serv-pera {
   color: #fafafb !important;
 }
 
-.service-container.hover-bg:hover .smooth-icon {
+.page-specific .service-container.hover-bg:hover .smooth-icon {
   font-size: 100px;
   opacity: 0.2;
   bottom: -20px;
   right: 10px;
 }
 
-.service-container:hover {
+.page-specific .service-container:hover {
   background-color: #ffffff;
   box-shadow: 0 10px 25px rgba(47, 60, 78, 0.15) !important;
 }
 
-.service-container:hover .icon {
+.page-specific .service-container:hover .icon {
   color: #f89d36;
   animation: mover 1s infinite alternate;
 }
 
-.service-container:hover .number-icon .icon-2 {
+.page-specific .service-container:hover .number-icon .icon-2 {
   background-color: #f89d36;
   border-radius: 50% !important;
 }
 
-.service-container:hover .number-icon .icon-2 i {
+.page-specific .service-container:hover .number-icon .icon-2 i {
   color: #ffffff !important;
 }
 
-.service-container:hover .number-icon .number {
+.page-specific .service-container:hover .number-icon .number {
   color: #ffffff;
   background: #f89d36 !important;
   border-color: #ffffff !important;
 }
 
-.service-container:hover .content .title {
+.page-specific .service-container:hover .content .title {
   color: #f89d36;
 }
 
-.service-container a:hover,
-.service-container a .title:hover {
+.page-specific .service-container a:hover,
+.page-specific .service-container a .title:hover {
   color: #f89d36 !important;
 }
 
@@ -275,23 +269,24 @@ section h6 {
   }
 }
 
-.service-wrapper {
+.page-specific .service-wrapper {
   transition: all 0.5s ease;
+  height: 100%;
 }
 
-.service-wrapper .icon {
+.page-specific .service-wrapper .icon {
   width: 60px;
   height: 60px;
   line-height: 45px;
   transition: all 0.5s ease;
 }
 
-.service-wrapper .content .title {
+.page-specific .service-wrapper .content .title {
   transition: all 0.5s ease;
   font-weight: 500;
 }
 
-.service-wrapper .big-icon {
+.page-specific .service-wrapper .big-icon {
   position: absolute;
   right: 0;
   bottom: 0;
@@ -299,29 +294,29 @@ section h6 {
   transition: all 0.5s ease;
 }
 
-.service-wrapper:hover {
+.page-specific .service-wrapper:hover {
   box-shadow: 0 10px 25px rgba(47, 60, 78, 0.15) !important;
   background: #ffffff;
   transform: translateY(-8px);
   border-color: transparent !important;
 }
 
-.service-wrapper:hover .icon {
+.page-specific .service-wrapper:hover .icon {
   background: #0062ff !important;
   color: #ffffff !important;
 }
 
-.service-wrapper:hover .big-icon {
+.page-specific .service-wrapper:hover .big-icon {
   z-index: -1;
   opacity: 0.1;
   font-size: 160px;
 }
 
-.text-custom {
+.page-specific .text-custom {
   color: #0062ff !important;
 }
 
-.uim-svg {
+.page-specific .uim-svg {
   display: inline-block;
   height: 1em;
   vertical-align: -0.125em;
@@ -329,16 +324,16 @@ section h6 {
   fill: var(--uim-color, currentColor);
 }
 
-.css-qmvfe7 {
+.page-specific .css-qmvfe7 {
   position: inherit;
 }
 
-section.content {
+.page-specific section.content {
   position: relative;
   background-color: #333;
 }
 
-.contact-wrapper {
+.page-specific .contact-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -347,7 +342,7 @@ section.content {
   box-sizing: border-box;
 }
 
-.contact-paper {
+.page-specific .contact-paper {
   display: flex;
   flex-direction: row;
   max-width: 800px;
@@ -357,31 +352,53 @@ section.content {
   background-color: white; /* Paper background color */
 }
 
-#about {
+.page-specific #about {
   color: white;
   min-height: 100vh;
+  display: flex;
+ 
+  align-items: center;
+  left: 50px;
+   flex-grow: 1;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.page-specific .container {
+  width: 100%;
+  min-height: 50vh;
   display: flex;
   justify-content: center;
   align-items: center;
   left: 50px;
-
+  flex-direction: column;
+  padding: 0;
 }
 
-
-  .container {
-    width: 100%;
-    min-height: 50vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    left: 50px;
-    flex-direction: column;
-    padding: 0;
-  
-}
-
-.my-5 {
+.page-specific .my-5 {
   margin-top: 0rem !important;
   margin-bottom: 3rem !important;
 }
+.page-specific.description {
+  /* Limit the height and overflow of the description */
+  max-height: 60px; /* Set the desired fixed height */
+  overflow: hidden; /* Hide any overflowing content */
+  display: -webkit-box; /* Set the display to a WebKit-specific flexible box */
+  -webkit-line-clamp: 3; /* Limit the number of displayed lines */
+  -webkit-box-orient: vertical; /* Set the vertical direction */
+}
+.page-specific.footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 50vh; /* Adjust as needed */
+  background-color: #333;
+}
 
+#footer {
+  flex-shrink: 0;
+  background-color: black;
+}
+.border 
+{
+  color:"white"
+}

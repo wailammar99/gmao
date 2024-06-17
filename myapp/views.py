@@ -1846,5 +1846,34 @@ def api_create_intervention_preventive(request, user_id):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid HTTP method."}, status=405)
-            
+@csrf_exempt
+def api_update_intevetion_citoyen(request,intevtion_id):
+    if request.method=="PATCH":
+        try :
+         intevervetion_cible=interven.objects.get(id=intevtion_id)
+         data = json.loads(request.body)
+         title=data.get("title")
+         description=data.get("description")
+         adresse=data.get("adresse")
+         intevervetion_cible.titre=title
+         intevervetion_cible.description=description
+         intevervetion_cible.adresse=adresse
+         intevervetion_cible.save()
+         return JsonResponse({"message":"intervetion is updated succces"},status=200)
+        except interven.DoesNotExist :
+            return json({"eroor":"intevetiion do not existe "},status=404)
+        except Exception as e :
+            return JsonResponse({"error": str(e)}, status=400)
+    else :
+        return JsonResponse({"eroor":"methd not allloow "},status=405)
+def api_get_tech(request,tech_id):
+    if request.method=="GET" :
+     try :
+        tech=CustomUser.objects.get(id=tech_id)
+        serializer=CustomeUserSerializers(tech,many=True)
+        return JsonResponse(serializer.data,status=200)
+     except CustomUser.DoesNotExist :
+         return JsonResponse({"eroor":"tech do not existe "},status=404)
+    else :
+        return JsonResponse({"eoor":"method not allow "},status=405)
             

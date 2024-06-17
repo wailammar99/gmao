@@ -4,6 +4,11 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography }
 import Sidebar from './chefservicedesign/sidebar/sidebar';
 import Navbar from './chefservicedesign/navbar/navbar';
 const defaultPosition = [0, 0]; // Default position for the map
+const containerStyle = {
+  width: '100%',
+  height: '500px' // Adjust the height to make the map smaller
+};
+
 
 const InterventionMap = () => {
   const [interventions, setInterventions] = useState([]); // Store interventions
@@ -72,7 +77,7 @@ const InterventionMap = () => {
       <Sidebar />
       <div className="listContainer">
         <Navbar />
-      <Map center={position} zoom={12} height={300}>
+      <Map center={position} zoom={12} height={300} height={containerStyle.height}>
         {interventions.map((intervention) => {
           // Ensure latitude and longitude are valid numbers
           const lat = parseFloat(intervention.latitude);

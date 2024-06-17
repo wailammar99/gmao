@@ -4,6 +4,7 @@ from channels.layers import get_channel_layer
 from channels.db import *
 from .models import *
 from asgiref.sync import async_to_sync
+from asgiref.sync import sync_to_async
 
 class ConversationChat(AsyncWebsocketConsumer):
     async def connect(self):
@@ -114,3 +115,43 @@ class MessageCustomer(AsyncWebsocketConsumer):
                 "message": message,
             }
         )
+        #to delete if we have probleme 
+class NotificationConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.user_id = self.scope['url_route']['kwargs']['user_id']
+        self.group_name = f'notifications_{self.user_id}'
+
+        await self.channel_layer.group_add(
+            self.group_name,
+            self.channel_name
+        )
+
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name
+        )
+
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        notification_id = data['notification_id']
+
+        notification = await self.get_notification(notification_id)
+
+        await self.send(text_data=json.dumps({
+            'id': notification.id,
+            'message': notification.message,
+            'is_read': notification.is_read,
+            'created_at': str(notification.created_at),
+        }))
+
+    @sync_to_async
+    def get_notification(self, notification_id):
+        return Notification.objects.get(id=notification_id)
+
+    async def send_notification(self, event):
+        notification = event['notification']
+
+        await self.send(text_data=json.dumps(notification))

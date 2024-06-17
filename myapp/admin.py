@@ -3,7 +3,10 @@ from .models import *
 
 
 # Register your models here.
-admin.site.register(CustomUser)
+class Customeruseradmin(admin.ModelAdmin):
+    list_display = ('id', 'username','first_name',"last_name")
+    search_fields = ('id',)
+admin.site.register(CustomUser,Customeruseradmin)
 admin.site.register(Equipement)
 admin.site.register(interven)
 admin.site.register(enatte) 

@@ -3,11 +3,11 @@ import { TextField, Button, Box, Typography, Select, MenuItem, Paper, IconButton
 import ContactMailIcon from '@mui/icons-material/ContactMail';
 import { useNavigate } from 'react-router-dom';
 import { Map, Marker } from 'pigeon-maps';
+import { useTranslation } from 'react-i18next'; // Import the useTranslation hook for translation
 
 import PopupMessage from './message';
 
 const locations = [
- 
   { id: 2, lat: 35.086444, lng: -1.864806, address: 'Los Angeles, CA 90001, US' },
   { id: 1, lat: 35.086453, lng: -15.1533, address: 'ghazaouet ,tlecmen' },
   // Add more locations as needed
@@ -22,6 +22,8 @@ const MapComponent = ({ location }) => {
 };
 
 const Contact = () => {
+  const { t } = useTranslation(); // Use the useTranslation hook to access translation functions
+
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [reason, setReason] = useState('');
@@ -79,13 +81,13 @@ const Contact = () => {
         <Box flex="1" paddingRight="20px">
           <ContactMailIcon sx={{ fontSize: 48, mb: 2 }} />
           <Typography variant="h5" component="h1" gutterBottom>
-            Contactez-moi
+            {t('title')} 
           </Typography>
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
               id="email"
-              label="Adresse email"
+              label={t('email')} 
               name="email"
               type="email"
               autoFocus
@@ -98,7 +100,7 @@ const Contact = () => {
               fullWidth
               id="phone"
               required
-              label="Numéro de téléphone"
+              label={t('phone')} 
               name="phone"
               type="tel"
               autoFocus
@@ -110,7 +112,7 @@ const Contact = () => {
               fullWidth
               required
               id="name"
-              label="Nom"
+              label={t('name')} 
               name="name"
               type="text"
               autoFocus
@@ -122,21 +124,21 @@ const Contact = () => {
               fullWidth
               id="reason"
               required
-              label="Raison"
+              label={t('reason')} 
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               margin="normal"
             >
-              <MenuItem value="Probleme">Problème</MenuItem>
-              <MenuItem value="Publicite">Publicité</MenuItem>
-              <MenuItem value="Suggestion">Suggestion</MenuItem>
-              <MenuItem value="Abonnement">Abonnement</MenuItem>
-              <MenuItem value="Autre">Autre</MenuItem>
+              <MenuItem value="Probleme">{t('problem')}</MenuItem>
+              <MenuItem value="Publicite">{t('advertisement')}</MenuItem>
+              <MenuItem value="Suggestion">{t('suggestion')}</MenuItem>
+              <MenuItem value="Abonnement">{t('subscription')}</MenuItem>
+              <MenuItem value="Autre">{t('other')}</MenuItem>
             </Select>
             <TextField
               fullWidth
               id="message"
-              label="Message"
+              label={t('message')} 
               name="message"
               type="text"
               required
@@ -153,28 +155,28 @@ const Contact = () => {
               variant="contained"
               sx={{ mt: 2 }}
             >
-              Envoyer
+              {t('send')} {/* Use translation for the button text */}
             </Button>
           </form>
         </Box>
         <Box flex="1" paddingLeft="20px">
           <Typography variant="h6" component="h2" gutterBottom>
-            Informations de contact
+            {t('contactInfo')} {/* Use translation for the contact info title */}
           </Typography>
           <Typography variant="body1" gutterBottom>
-            <strong>Adresse:</strong><br />
+            <strong>{t('address')}:</strong><br />
             {currentLocation.address}
           </Typography>
           <Typography variant="body1" gutterBottom>
-            <strong>Email:</strong><br />
+            <strong>{t('emailLabel')}:</strong><br />
             info@example.com
           </Typography>
           <Typography variant="body1" gutterBottom>
-            <strong>Téléphone:</strong><br />
+            <strong>{t('phoneLabel')}:</strong><br />
             +01 234 567 88
           </Typography>
           <Typography variant="body1" gutterBottom>
-            <strong>Fax:</strong><br />
+            <strong>{t('faxLabel')}:</strong><br />
             +01 234 567 89
           </Typography>
           <MapComponent location={currentLocation} />

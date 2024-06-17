@@ -6,8 +6,8 @@ import PopupMessage from '../message';
 import { useNavigate } from 'react-router-dom';
 
 const containerStyle = {
-  width: '100%',
-  height: '300px' // Adjust the height to make the map smaller
+  width: '50%',
+  height: '150px' // Adjust the height to make the map smaller
 };
 
 const defaultPosition = [0, 0]; // Default position for the map
@@ -120,16 +120,8 @@ const CreateInterventionForm = ({ onInterventionCreated }) => {
       <Sidebar />
       <div className="listContainer">
         <Navbar />
-        <div style={containerStyle}>
-          <Map
-            center={position}
-            height={containerStyle.height}
-            onClick={({ latLng }) => setPosition([latLng[0], latLng[1]])} // Update position when map is clicked
-          >
-            <Marker anchor={position} />
-          </Map>
-        </div>
-        <form onSubmit={handleSubmit} style={{ maxWidth: '400px', margin: '0 auto', padding: '20px', border: '1px solid #ccc', borderRadius: '5px' }}>
+        
+        <form onSubmit={handleSubmit} style={{ maxWidth: '400px', margin: '0 auto', padding: '20px', border: '1px solid #ccc', borderRadius: '5px', }}>
           <div>
             <label>Titre:</label>
             <input type="text" value={titre} onChange={handleTitreChange} style={{ width: '100%', padding: '8px', marginBottom: '10px' }} required />
@@ -142,6 +134,13 @@ const CreateInterventionForm = ({ onInterventionCreated }) => {
             <label>Description:</label>
             <textarea value={description} onChange={handleDescriptionChange} style={{ width: '100%', padding: '8px', marginBottom: '10px' }} required />
           </div>
+          <Map
+            center={position}
+            height={containerStyle.height}
+            onClick={({ latLng }) => setPosition([latLng[0], latLng[1]])} // Update position when map is clicked
+          >
+            <Marker anchor={position} />
+          </Map>
           <button type="submit" style={{ backgroundColor: '#007bff', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Créer une intervention</button>
         </form>
         {showPopup && <PopupMessage message={popupMessage} color={popupColor} />}
