@@ -3,14 +3,18 @@ import { DataGrid } from '@mui/x-data-grid';
 import Navbar from './directeurdesi/Navbar/navbardic';
 import Sidebar from './directeurdesi/Sidebar/Sidebardic';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@mui/material';
+import { Button, IconButton, Tooltip } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { Pagination } from '@mui/material';
+import PopupMessage from '../message';
 
 const Listerapport = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(5); // Number of users per page
+  const [showMessage, setShowMessage] = useState(false); // State for controlling pop-up message
+  const [messageContent, setMessageContent] = useState(""); // State for pop-up message content
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,6 +58,26 @@ const Listerapport = () => {
     }
   };
 
+  const deleteRapport = async (rapportId) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/delete/rapport/${rapportId}/`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete rapport');
+      }
+      setData(data.filter((rapport) => rapport.id !== rapportId));
+      setMessageContent("Le rapport a été supprimé avec succès.");
+      setShowMessage(true); // Show pop-up message
+    } catch (error) {
+      console.error('Error deleting rapport:', error);
+    }
+  };
+
+  const handleCloseMessage = () => {
+    setShowMessage(false);
+  };
+
   const columns = [
     { field: 'id', headerName: 'ID', width: 150 },
     { field: 'date_rapport', headerName: 'Date de création', width: 200 },
@@ -64,7 +88,14 @@ const Listerapport = () => {
       headerName: 'Actions',
       width: 200,
       renderCell: (params) => (
-        <Button onClick={() => generatePDF(params.row.id)} variant="outlined">Générer PDF</Button>
+        <>
+          <Button onClick={() => generatePDF(params.row.id)} variant="outlined">Générer PDF</Button>
+          <Tooltip title="Supprimer">
+            <IconButton onClick={() => deleteRapport(params.row.id)}>
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        </>
       ),
     }
   ];
@@ -107,6 +138,13 @@ const Listerapport = () => {
           )}
         </div>
       </div>
+      {showMessage && (
+        <PopupMessage 
+          message={messageContent} 
+          color="success" 
+          onClose={handleCloseMessage} 
+        />
+      )}
     </div>
   );
 };

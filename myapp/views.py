@@ -5,6 +5,7 @@ from .decorators import *
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from .serializers import *
+
 from django.contrib.auth.hashers import make_password
 from rest_framework.parsers import JSONParser,api_settings
 from django.views.decorators.csrf import csrf_exempt
@@ -701,7 +702,19 @@ def api_create_user(request):
                     else :
                        CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_chefservice=True, is_active=False,service=Service)
                        for d in directeur :
-                        Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type chefservice",is_read=False)
+                        notification=Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type chefservice",is_read=False)
+                        channel_layer = get_channel_layer()
+                        async_to_sync(channel_layer.group_send)(
+                    f'notifications_{d.id}', {
+                        'type': 'send_notification',
+                        'notification': {
+                            'id': notification.id,
+                            'message': notification.message,
+                            'is_read': notification.is_read,
+                            'created_at': str(notification.created_at),
+                        }
+                    }
+                )
 
                        return JsonResponse({'message': 'User created successfully'}, status=201)
 
@@ -716,19 +729,56 @@ def api_create_user(request):
                 elif is_chefservice:
                     CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_chefservice=True, is_active=False)
                     for d in directeur :
-                     Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type chefservice",is_read=False)
-
+                     notification=Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type chefservice",is_read=False)
+                     channel_layer = get_channel_layer()
+                     async_to_sync(channel_layer.group_send)(
+                    f'notifications_{d.id}', {
+                        'type': 'send_notification',
+                        'notification': {
+                            'id': notification.id,
+                            'message': notification.message,
+                            'is_read': notification.is_read,
+                            'created_at': str(notification.created_at),
+                        }
+                    }
+                )
                     return JsonResponse({'message': 'User created successfully'}, status=201)
                 elif is_technicien:
                     CustomUser.objects.create(username=username, first_name=first_name, last_name=last_name, password=hashed_password, email=email, is_technicien=True, is_active=False)
                     for d in directeur :
-                     Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type technicien",is_read=False)
+                     notification=Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type technicien",is_read=False)
+                     channel_layer = get_channel_layer()
+                     async_to_sync(channel_layer.group_send)(
+                    f'notifications_{d.id}', {
+                        'type': 'send_notification',
+                        'notification': {
+                            'id': notification.id,
+                            'message': notification.message,
+                            'is_read': notification.is_read,
+                            'created_at': str(notification.created_at),
+                        }
+                    }
+                )
+
+                     
 
                     return JsonResponse({'message': 'User created successfully'}, status=201)
                 elif is_citoyen:
                     CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_citoyen=True, is_active=True)
                     for d in directeur :
-                     Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type citoyen",is_read=False)
+                     notification=Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type citoyen",is_read=False)
+                     channel_layer = get_channel_layer()
+                     async_to_sync(channel_layer.group_send)(
+                    f'notifications_{d.id}', {
+                        'type': 'send_notification',
+                        'notification': {
+                            'id': notification.id,
+                            'message': notification.message,
+                            'is_read': notification.is_read,
+                            'created_at': str(notification.created_at),
+                        }
+                    }
+                )
                     return JsonResponse({'message': 'User created successfully'}, status=201)
                 elif is_admin:
                     CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_admin=True, is_active=True)
@@ -811,15 +861,28 @@ def assign_service_or_technician(request, id):
                 message = f"Nouvelle intervention est assigne - citoyen email: {intervention.citoyen.email},"
                 chefservice=CustomUser.objects.get(service=service_instance,is_chefservice=True)
 
-                Notification.objects.create(recipient=chefservice,message=message,is_read=False)
+                notification=Notification.objects.create(recipient=chefservice,message=message,is_read=False)
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f'notifications_{chefservice.id}', {
+                        'type': 'send_notification',
+                        'notification': {
+                            'id': notification.id,
+                            'message': notification.message,
+                            'is_read': notification.is_read,
+                            'created_at': str(notification.created_at),
+                        }
+                    }
+                )
+
                 
             else :
                 try:
                     date_debut = datetime.strptime(start_date, '%Y-%m-%d')
                     date_fin = datetime.strptime(end_date, '%Y-%m-%d')
                     
-                    if date_debut > date_fin:
-                        return JsonResponse({"error": "La date de début est postérieure à la date de fin"}, status=401)
+                    if date_debut > date_fin or date_debut.date() <date.today():
+                        return JsonResponse({"error": "errurt de seririe la date "}, status=401)
                 
                 except ValueError:
                     return JsonResponse({"error": "Invalid date format. Please provide dates in the format YYYY-MM-DD."}, status=400)
@@ -836,7 +899,19 @@ def assign_service_or_technician(request, id):
                 intervention.date_debut=start_date
                 intervention.date_fin=end_date
                 message = "Nouvelle intervention vous a été assignée."
-                Notification.objects.create(recipient=technicien, message=message, is_read=False)
+                notification2=Notification.objects.create(recipient=technicien, message=message, is_read=False)
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f'notifications_{technicien.id}', {
+                        'type': 'send_notification',
+                        'notification': {
+                            'id': notification2.id,
+                            'message': notification2.message,
+                            'is_read': notification2.is_read,
+                            'created_at': str(notification2.created_at),
+                        }
+                    }
+                )
                
                     
 
@@ -866,8 +941,19 @@ def assign_service_or_technician(request, id):
             message = "New intervention has been assigned to you"
            
            
-            Notification.objects.create(recipient=citoyen,message="intervetion est bien assigne a technicine  ",is_read=False)
-            
+            notification3=Notification.objects.create(recipient=citoyen,message="intervetion est bien assigne a technicine  ",is_read=False)
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                    f'notifications_{citoyen.id}', {
+                        'type': 'send_notification',
+                        'notification': {
+                            'id': notification3.id,
+                            'message': notification3.message,
+                            'is_read': notification3.is_read,
+                            'created_at': str(notification3.created_at),
+                        }
+                    }
+                )
             return JsonResponse({"message": "Le service/technicien et les équipements sont bien assignés à l'intervention."}, status=200)
         except interven.DoesNotExist:
             return JsonResponse({"error": "Intervention with the provided ID does not exist."}, status=402,safe=False)
@@ -969,7 +1055,19 @@ def api_create_intervention(request,id):
             )
             message = f"Nouvelle intervention créée - citoyen email: {user.email},"
             for user in chefnoservice:
-                Notification.objects.create(recipient=user, message=message, is_read=False)
+                notification1=Notification.objects.create(recipient=user, message=message, is_read=False)
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f'notifications_{user.id}', {
+                        'type': 'send_notification',
+                        'notification': {
+                            'id': notification1.id,
+                            'message': notification1.message,
+                            'is_read': notification1.is_read,
+                            'created_at': str(notification1.created_at),
+                        }
+                    }
+                )
 
             return JsonResponse({'message': 'Intervention created successfully', 'id': intervention.id}, status=200)
            
@@ -1228,10 +1326,34 @@ def api_demarer_inetrvetion(request,intervtion_id):
         citoyen=CustomUser.objects.get(id=interveton_cible.citoyen.id)
         interveton_cible.etat="En cours"
         interveton_cible.save()
-        message = f"Intervention has been started for {interveton_cible.technicien}."
+        message = f"Intervention est demaré par le technicien  {interveton_cible.technicien}."
         for user in chefservice:
-                Notification.objects.create(recipient=user, message=message, is_read=False)
-        Notification.objects.create(recipient=citoyen,message="intervetion est demarer ",is_read=False)
+                notification1=Notification.objects.create(recipient=user, message=message, is_read=False)
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f'notifications_{user.id}', {
+                        'type': 'send_notification',
+                        'notification': {
+                            'id': notification1.id,
+                            'message': notification1.message,
+                            'is_read': notification1.is_read,
+                            'created_at': str(notification1.created_at),
+                        }
+                    }
+                )
+        notification2=Notification.objects.create(recipient=citoyen,message="intervetion est demarer par le techcicien  ",is_read=False)
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+                    f'notifications_{citoyen.id}', {
+                        'type': 'send_notification',
+                        'notification': {
+                            'id': notification2.id,
+                            'message': notification2.message,
+                            'is_read': notification2.is_read,
+                            'created_at': str(notification2.created_at),
+                        }
+                    }
+                )
         return JsonResponse({"message":"le inetrvetion est encour "},status=200)
      except interven.DoesNotExist :
          return JsonResponse({"eroor:inetrvtion do not existe "},status=404)
@@ -1251,10 +1373,34 @@ def api_finish_inetrvetion(request,intervtion_id):
 
         interveton_cible.etat="Terminé"
         interveton_cible.save()
-        message = f"Intervention has been finish for {interveton_cible.technicien}."
+        message = f"Intervention est terminé est terminé par le tehnicien  {interveton_cible.technicien}."
         for user in chefservice:
-                Notification.objects.create(recipient=user, message=message, is_read=False)
-        Notification.objects.create(recipient=citoyen,message="intervetion est finish ",is_read=False)
+                notification1=Notification.objects.create(recipient=user, message=message, is_read=False)
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f'notifications_{user.id}', {
+                        'type': 'send_notification',
+                        'notification': {
+                            'id': notification1.id,
+                            'message': notification1.message,
+                            'is_read': notification1.is_read,
+                            'created_at': str(notification1.created_at),
+                        }
+                    }
+                )
+        notification2=Notification.objects.create(recipient=citoyen,message="intervetion est terminé  par le technciein ",is_read=False)
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+                    f'notifications_{citoyen.id}', {
+                        'type': 'send_notification',
+                        'notification': {
+                            'id': notification2.id,
+                            'message': notification2.message,
+                            'is_read': notification2.is_read,
+                            'created_at': str(notification2.created_at),
+                        }
+                    }
+                )
         return JsonResponse({"message":"le inetrvetion est Terminé "},status=200)
      except interven.DoesNotExist :
          return JsonResponse({"eroor:inetrvtion do not existe "},status=404)
@@ -1279,11 +1425,34 @@ def api_create_raison(request,intervtion_id):
             intervention_cible.raison = raison_cible
             intervention_cible.etat="En attente"
             intervention_cible.save()
-            message = f"Intervention has been pause  for {intervention_cible.technicien}."
+            message = f"Intervention est en attend  {intervention_cible.technicien}."
             for user in chefservice:
-                Notification.objects.create(recipient=user, message=message, is_read=False)
-            Notification.objects.create(recipient=citoyen,message="intervetion est en attente  ",is_read=False)
-
+                notification1=Notification.objects.create(recipient=user, message=message, is_read=False)
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    f'notifications_{user.id}', {
+                        'type': 'send_notification',
+                        'notification': {
+                            'id': notification1.id,
+                            'message': notification1.message,
+                            'is_read': notification1.is_read,
+                            'created_at': str(notification1.created_at),
+                        }
+                    }
+                )
+            notification2=Notification.objects.create(recipient=citoyen,message="intervetion est en attente  ",is_read=False)
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                    f'notifications_{citoyen.id}', {
+                        'type': 'send_notification',
+                        'notification': {
+                            'id': notification2.id,
+                            'message': notification2.message,
+                            'is_read': notification2.is_read,
+                            'created_at': str(notification2.created_at),
+                        }
+                    }
+                )
             
             return JsonResponse({"message": "La raison de l'attente a été ajoutée avec succès à l'intervention"}, status=200)
         
@@ -1428,8 +1597,36 @@ def api_cloture_inetrvetion (request,intervtion_id):
        intervetion_cible=interven.objects.get(id=intervtion_id)
        intervetion_cible.etat="Clôture"
        citoyen=intervetion_cible.citoyen
+       technicien=CustomUser.objects.get(id=intervetion_cible.technicien)
        intervetion_cible.save()
-       Notification.objects.create(recipient=citoyen,message="intervetion est cloture ",is_read=False)
+       notification1=Notification.objects.create(recipient=citoyen,message="intervetion est cloture ",is_read=False)
+       notification2=Notification.objects.create(recipient=technicien,message=" intervention est cloture par chef service",is_read=False)
+       channel_layer = get_channel_layer()
+       async_to_sync(channel_layer.group_send)(
+                    f'notifications_{citoyen.id}', {
+                        'type': 'send_notification',
+                        'notification': {
+                            'id': notification1.id,
+                            'message': notification1.message,
+                            'is_read': notification1.is_read,
+                            'created_at': str(notification1.created_at),
+                        }
+                    }
+                )
+       chanel_layer2=get_channel_layer()
+       async_to_sync(chanel_layer2.group_send)(
+                    f'notifications_{technicien.id}', {
+                        'type': 'send_notification',
+                        'notification': {
+                            'id': notification2.id,
+                            'message': notification2.message,
+                            'is_read': notification2.is_read,
+                            'created_at': str(notification2.created_at),
+                        }
+                    }
+                )
+                
+        
        return JsonResponse({"message":"le intervetion est bien cloture "},status=200)
    except interven.DoesNotExist :
        return JsonResponse({"eoor":"cat find id of intervetion  "},status=404)
@@ -1748,16 +1945,18 @@ def api_get_rapport(request):
     else :
         return JsonResponse({"eroor":"method not allow"},status=405)
 @csrf_exempt
-def api_delete_rapport(request,rapport_id):
-    if request.method =="DELETE" :
+def api_delete_rapport(request, rapport_id):
+    if request.method == "DELETE":
         try:
-            rapport_cible=Rapport.objects.get(id=rapport_id)
+            rapport_cible = Rapport.objects.get(id=rapport_id)
             rapport_cible.delete()
-            return JsonResponse({"rapport est bien supprie"},status=200)
+            return JsonResponse({"message": "Le rapport a été supprimé avec succès."}, status=200, safe=False)
         except Rapport.DoesNotExist:
-            return JsonResponse({"eror":"le rapport do not existe "},status=404)
-    else :
-        return JsonResponse({"eroor":"method nt allow "},status=405)
+            return JsonResponse({"error": "Le rapport demandé n'existe pas."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": "Une erreur s'est produite: {}".format(str(e))}, status=500)
+    else:
+        return JsonResponse({"error": "Méthode non autorisée."}, status=405)
 @csrf_exempt
 def api_create_rapport(request):
     if request.method == "POST":

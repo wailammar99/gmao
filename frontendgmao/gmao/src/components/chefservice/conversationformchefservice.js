@@ -195,6 +195,7 @@ const ConversationMessageschefservice = () => {
                             value="public"
                             checked={typeMessage === 'public'}
                             onChange={handleMessageTypeChange}
+                            required
                           />
                           <label htmlFor="public" className="form-check-label">Public</label>
                         </div>
@@ -207,6 +208,7 @@ const ConversationMessageschefservice = () => {
                             value="private"
                             checked={typeMessage === 'private'}
                             onChange={handleMessageTypeChange}
+                            required
                           />
                           <label htmlFor="private" className="form-check-label">Private</label>
                         </div>

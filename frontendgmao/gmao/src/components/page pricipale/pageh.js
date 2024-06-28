@@ -48,7 +48,7 @@ const Header = () => {
           </div>
         <ul>
         <li><a href="#home"><i></i>{t('home')}</a></li>
-        <li><a href="#about">{t('about')}</a></li>
+       
         <li><a href="#features">{t('features')}</a></li>
         <li><a href="/login">{t('login')}</a></li>
         <li><a href="#contact">{t('contact')}</a></li>
@@ -91,7 +91,7 @@ const Header = () => {
                 <div className="row justify-content-center">
                     <div className="col-12">
                         <div className="section-title text-center mb-4 pb-2">
-                            <h1 className="display-1" style={{frontsize:"100px"}}>{t('service')}</h1>
+                            <h1 className="display-1" id="services" style={{frontsize:"200px"}}>{t('service')}</h1>
                         </div>
                     </div>
                     <Logo/>
@@ -101,7 +101,7 @@ const Header = () => {
         </div>
       </section>
     
-      <section id=""contact style={{border:"solid", borderColor:"white"}}>
+      <section id="contact" style={{border:"solid", borderColor:"white"}}>
   <div className="row justify-content-center">
     <div className="col-12">
       <div className="contenair">

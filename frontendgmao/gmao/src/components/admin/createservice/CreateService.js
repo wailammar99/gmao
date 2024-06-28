@@ -81,6 +81,11 @@ const role =localStorage.getItem("role");
          <Sidebar/>
         <div className="listContainer">
          <Navbar/>
+         {successMessage && (
+        <div >
+          {successMessage && <PopupMessage message={messageee}  color={color} />}
+        </div>
+      )}
       <h2>Créer un Nouveau Service </h2>
       <form onSubmit={handleCreateService} required>
         <div className="formInput">
@@ -106,11 +111,7 @@ const role =localStorage.getItem("role");
 
 
 
-        {successMessage && (
-        <div >
-          {successMessage && <PopupMessage message={messageee}  color={color} />}
-        </div>
-      )}
+        
       </form>
     </div>
     </div>

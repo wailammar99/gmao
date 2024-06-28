@@ -1,0 +1,23 @@
+# Ignore environment variables file
+.env
+
+# Ignore node_modules directory
+node_modules/
+
+# Ignore build directories
+build/
+dist/
+
+# Ignore log files
+*.log
+
+# Ignore compiled files
+*.pyc
+__pycache__/
+
+# Ignore local settings
+local_settings.py
+
+# Ignore IDE settings
+.vscode/
+.idea/

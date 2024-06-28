@@ -5,10 +5,11 @@ from django.contrib.auth.models import AbstractUser, Group,User
 from datetime import *
 from django.http import FileResponse
 from django.utils.timezone import *
-
+from django.utils import timezone
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from django.http import HttpResponse
 
 class service (models.Model):
@@ -19,7 +20,7 @@ class service (models.Model):
 
 class enatte (models.Model):
     description=models.TextField()
-    date_de_creation=models.DateField(default=date.today())
+    date_de_creation=models.DateField(default=timezone.now)
 
 
 class Equipement(models.Model):
@@ -72,9 +73,9 @@ class interven(models.Model):
     date_creation = models.DateField(default=date.today)
     date_debut = models.DateField(null=True, blank=True)
     date_fin = models.DateField(null=True, blank=True)
-    citoyen = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    citoyen = models.ForeignKey(CustomUser, on_delete=models.CASCADE,null=True,blank=True)
     technicien = models.IntegerField(null=True, blank=True)
-    service=models.ForeignKey('service',on_delete=models.CASCADE)
+    service=models.ForeignKey('service',on_delete=models.CASCADE,null=True,blank=True)
     equipements = models.ManyToManyField(Equipement, blank=True)
     raison=models.ForeignKey(enatte,on_delete=models.CASCADE,null=True ,blank=True)
     adresse=models.CharField("adresse ",blank=True,null=True,max_length=500)
@@ -133,7 +134,7 @@ class Notification(models.Model):
 class Contact (models.Model):
     email=models.EmailField(max_length=100)
     nom=models.CharField(max_length=100)
-    telephone=models.IntegerField(max_length=100)
+    telephone=models.IntegerField()
     SUJET_TYPE = (
         ('probleme avec compte ', 'probleme avec compte '),
         ('publicite', 'publicite '),
@@ -147,7 +148,7 @@ class Rapport(models.Model):
     date_rapport = models.DateField(auto_now_add=True)
     date_debut = models.DateField(null=True, blank=True)
     date_fin = models.DateField(null=True, blank=True)
-    interventions = models.ManyToManyField(interven,null=True,blank=True)
+    interventions = models.ManyToManyField(interven)
 
     def generate_rapport(self):
         interventions = interven.objects.filter(date_debut__range=[self.date_debut, self.date_fin],date_fin__range=[self.date_debut, self.date_fin])
@@ -163,19 +164,25 @@ class Rapport(models.Model):
         
 
         # Add header row
-        header = ['Date début', 'Date fin', 'Description',"etat", 'Citoyen', 'Technicien', 'Service']
+        header = ['Date début', 'Date fin',"Etat", 'Technicien', 'Service', 'Citoyen','chefservice']
         data.append(header)
-
+        
         # Add data rows
         for intervention in self.interventions.all().select_related("service").select_related("citoyen"):
+            tech = CustomUser.objects.get(id=intervention.technicien) if intervention.technicien else None
+            chf = CustomUser.objects.filter(service=intervention.service, is_chefservice=True).first()
             row = [
                             intervention.date_debut,
                             intervention.date_fin,
-                            intervention.description,
+                           
                             intervention.etat,
-                            intervention.technicien if intervention.technicien else "",  # Accessing technicien
+                            tech.email if tech.email else "",  # Accessing technicien
                             intervention.service.nom if intervention.service else "",  # Accessing service name
                             intervention.citoyen.email if intervention.citoyen else "",
+                            chf.email if chf.email else "",
+                               
+                            
+                            
                 
                
                 
@@ -205,6 +212,8 @@ class Rapport(models.Model):
         doc.build([table])
 
         return response
+
+        
 
 
 

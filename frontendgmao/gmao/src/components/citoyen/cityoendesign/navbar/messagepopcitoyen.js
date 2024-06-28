@@ -56,7 +56,7 @@ const  MMessagePopupCitoyen= () => {
     <div className="notification-popup">
       <Button onClick={handleOpen}>
         <ChatBubbleOutlineOutlinedIcon className="icon" />
-        <span className="counter">{interventions.reduce((total, intervention) => total + (intervention.conversations ? intervention.conversations.length : 0), 0)}</span>
+       
       </Button>
       <Dialog open={isOpen} onClose={handleClose} fullWidth maxWidth="md">
         <DialogTitle>Les Conversations</DialogTitle>

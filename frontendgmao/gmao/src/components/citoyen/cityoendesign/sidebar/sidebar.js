@@ -105,7 +105,7 @@ const Sidebar = () => {
           
           </li>
           
-          <Link to="/" style={{ textDecoration: "none" }} onClick={handleLogout}>
+          <Link to="/login" style={{ textDecoration: "none" }} onClick={handleLogout}>
            <li>
                 <ExitToAppIcon className="icon" />
                   Déconnexion

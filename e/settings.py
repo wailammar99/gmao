@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path,os
+from decouple import config
 import environ
 from channels.layers import get_channel_layer
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -187,7 +188,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = 'static/' 
 STATICFILES_DIRS =(os.path.join(BASE_DIR,'static'),)
 
 # Default primary key field type
@@ -196,9 +197,9 @@ STATICFILES_DIRS =(os.path.join(BASE_DIR,'static'),)
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 env = environ.Env()
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'bulk.smtp.mailtrap.io'
-EMAIL_PORT = 587  # You can also use 2525 or 25
-EMAIL_HOST_USER = 'api'
-EMAIL_HOST_PASSWORD = '19e94660429a781884f38d1702651586'  # Update with your Mailtrap password
-EMAIL_USE_TLS = True
+EMAIL_BACKEND = config('EMAIL_BACKEND')
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT', cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
