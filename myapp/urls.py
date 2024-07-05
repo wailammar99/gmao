@@ -1,5 +1,6 @@
 from django.urls import path,include
 from . import views
+from .views import EnterpriseView
 
 #web socket 
 
@@ -93,7 +94,8 @@ urlpatterns = [
                     path("generate/rapport/<int:rapport_id>/",views.api_generate_pdf),
                     path("api_create_intervention_preventive/<int:user_id>/",views.api_create_intervention_preventive),
                     path("intervention/<int:intevtion_id>/update",views.api_update_intevetion_citoyen),
-                    path("get_tech/<int:tech_id>",views.api_get_tech)
+                    path("get_tech/<int:tech_id>",views.api_get_tech),
+                    path('enterprise', EnterpriseView.as_view(), name='create-enterprise'),
                     
 
 

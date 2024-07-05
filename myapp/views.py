@@ -2075,4 +2075,15 @@ def api_get_tech(request,tech_id):
          return JsonResponse({"eroor":"tech do not existe "},status=404)
     else :
         return JsonResponse({"eoor":"method not allow "},status=405)
-            
+class EnterpriseView(APIView):
+    def post(self, request):
+        serializer = EnterpriseSerialize(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get(self,request):
+        setqury=Enterprise.objects.all()
+        serailizer=EnterpriseSerialize(setqury,many=True)
+        return Response(serailizer.data, status=200)
+    

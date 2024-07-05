@@ -16,7 +16,7 @@ import environ
 from channels.layers import get_channel_layer
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-AUTH_USER_MODEL = 'myapp.CustomUser'
+
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
@@ -26,7 +26,7 @@ CORS_ALLOWED_ORIGINS = [
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-o4#yy4j-6&-8o!7dazke2k=mm4x9y9^_+2(erey&6xv$gf4z=+'
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -146,7 +146,7 @@ DATABASES = {
          'USER':'root',
          'PASSWORD':'',
          'HOST':'localhost',
-         'PORT':'',
+         'PORT':'3306',
          'OPTIONS': {
             'sql_mode': 'STRICT_TRANS_TABLES',  # Enable Strict Mode
         },
@@ -203,3 +203,4 @@ EMAIL_PORT = config('EMAIL_PORT', cast=int)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
+AUTH_USER_MODEL = 'myapp.CustomUser'

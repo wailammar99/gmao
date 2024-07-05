@@ -16,4 +16,4 @@ RUN npm run build
 
 # Serve the React application
 RUN npm install -g serve
-CMD ["npm", "run", "build"]
+CMD ["serve", "-s", "npm start "]

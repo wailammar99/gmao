@@ -55,3 +55,7 @@ class RapportSerialize(serializers.ModelSerializer):
     class Meta :
         model=Rapport
         fields="__all__"
+class EnterpriseSerialize(serializers.ModelSerializer):
+    class Meta :
+        model=Enterprise
+        fields="__all__"

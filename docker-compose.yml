@@ -6,7 +6,7 @@ services:
     container_name: mysql_db
     environment:
       MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: ecommerce
+      MYSQL_DATABASE: gmao3
       MYSQL_USER: root
       MYSQL_PASSWORD: 
     ports:
@@ -28,7 +28,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ./frontendgmao/gmao
     container_name: react_frontend
     volumes:
       - ./frontend:/app

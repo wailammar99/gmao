@@ -19,7 +19,7 @@ class service (models.Model):
         return self.nom
 
 class enatte (models.Model):
-    description=models.TextField()
+    description=models.TextField(null=True,blank=True)
     date_de_creation=models.DateField(default=timezone.now)
 
 
@@ -213,7 +213,12 @@ class Rapport(models.Model):
 
         return response
 
-        
+class Enterprise(models.Model):
+    name = models.CharField(max_length=150)
+    description = models.TextField(max_length=3000, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
 
 
 
