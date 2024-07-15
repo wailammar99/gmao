@@ -142,7 +142,7 @@ WSGI_APPLICATION = 'e.wsgi.application'
 DATABASES = {
      'default': {
          'ENGINE': 'django.db.backends.mysql',
-         'NAME': 'ecommerce',
+         'NAME': 'gmao3',
          'USER':'root',
          'PASSWORD':'',
          'HOST':'localhost',
@@ -150,7 +150,7 @@ DATABASES = {
          'OPTIONS': {
             'sql_mode': 'STRICT_TRANS_TABLES',  # Enable Strict Mode
         },
-     }
+     }                                              
  }
 
 
@@ -204,3 +204,5 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
 AUTH_USER_MODEL = 'myapp.CustomUser'
+ALLOWED_HOSTS = ['*']
+    

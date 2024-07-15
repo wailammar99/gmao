@@ -12,7 +12,15 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from django.http import HttpResponse
 
+class Enterprise(models.Model):
+    name = models.CharField(max_length=150)
+    description = models.TextField(max_length=3000, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+    
 class service (models.Model):
+    enterprise=models.ForeignKey(Enterprise,on_delete=models.CASCADE,null=True,blank=True)
     nom=models.CharField(max_length=150)
     descrtions=models.TextField(max_length=3000)
     def __str__(self):
@@ -42,6 +50,7 @@ class Equipement(models.Model):
 
 
 class CustomUser(AbstractUser):
+    enterprise=models.ForeignKey(Enterprise,on_delete=models.CASCADE,null=True,blank=True)
     is_admin= models.BooleanField('Is admin', default=False)
     is_technicien = models.BooleanField('is technicien', default=False)
     is_chefservice = models.BooleanField('Is chef service', default=False)
@@ -54,7 +63,8 @@ class CustomUser(AbstractUser):
     adresse=models.CharField(max_length=500,blank=True,null=True)
     
     def __str__(self):
-        return self.username
+        id_str=str(self.id)
+        return id_str
 
    
 class converstation(models.Model):
@@ -69,6 +79,7 @@ class converstation(models.Model):
     def test_particepemnt(self,user):
         return self.participants.filter(pk=user.pk).exists()
 class interven(models.Model):
+    enterprise=models.ForeignKey(Enterprise,on_delete=models.CASCADE,null=True,blank=True)
     description = models.TextField(max_length=2048)
     date_creation = models.DateField(default=date.today)
     date_debut = models.DateField(null=True, blank=True)
@@ -213,12 +224,7 @@ class Rapport(models.Model):
 
         return response
 
-class Enterprise(models.Model):
-    name = models.CharField(max_length=150)
-    description = models.TextField(max_length=3000, blank=True, null=True)
 
-    def __str__(self):
-        return self.name
 
 
 

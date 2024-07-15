@@ -23,6 +23,7 @@ function ListService() {
   const [selectedService, setSelectedService] = useState(null);
   const token=localStorage.getItem("token");
   const role =localStorage.getItem("role");
+  const enprise_id=localStorage.getItem('enterprise_id')
   const navigate=useNavigate();
 
   useEffect(() => {
@@ -39,7 +40,7 @@ function ListService() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/Serviceliste/',
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${enprise_id}/services`,
       {
         method:"GET",
         
@@ -129,6 +130,7 @@ function ListService() {
   const columns = [
     { field: 'nom', headerName: 'Nom', flex: 1 },
     { field: 'descrtions', headerName: 'Description', flex: 1 },
+    
     {
       field: 'actions',
       headerName: 'Action',

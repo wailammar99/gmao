@@ -1,15 +1,23 @@
 from .models import *
 from rest_framework import serializers
+
+
+class EnterpriseSerialize(serializers.ModelSerializer):
+    class Meta :
+        model=Enterprise
+        fields="__all__"
 class enattenSerializers(serializers.ModelSerializer):
     class Meta :
         model=enatte
         fields="__all__"
 class ServiceSerializers(serializers.ModelSerializer):
+    
     class Meta:
         model=service
         fields='__all__'
 class CustomeUserSerializers(serializers.ModelSerializer):
     service = ServiceSerializers()
+    enterprise=EnterpriseSerialize()
     class Meta:
         model = CustomUser
         fields = '__all__'
@@ -20,6 +28,7 @@ class ConversationSerializers(serializers.ModelSerializer):
         fields="__all__"
 class IntervetionSerializers(serializers.ModelSerializer):
     citoyen = CustomeUserSerializers()
+    enterprise=EnterpriseSerialize()
     service = ServiceSerializers()
     raison=enattenSerializers()
     conversation=ConversationSerializers()
@@ -54,8 +63,4 @@ class RapportSerialize(serializers.ModelSerializer):
     interventions = IntervetionSerializers(many=True)
     class Meta :
         model=Rapport
-        fields="__all__"
-class EnterpriseSerialize(serializers.ModelSerializer):
-    class Meta :
-        model=Enterprise
         fields="__all__"

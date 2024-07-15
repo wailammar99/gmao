@@ -19,6 +19,7 @@ const CreateService = ({ onServiceCreated }) => {
   
 const token=localStorage.getItem("token");
 const role =localStorage.getItem("role");
+const en =localStorage.getItem('enterprise_id')
 
   const handleCreateService = async (e) => {
     e.preventDefault();
@@ -27,7 +28,7 @@ const role =localStorage.getItem("role");
       if (!token || role!="admin") {
         navigate("/login");
       }
-      const response = await fetch('http://127.0.0.1:8000/api_create_service/', {
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${en}/services/create`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -1,4 +1,3 @@
-# Dockerfile for Django
 FROM python:3.9
 
 # Set the working directory
@@ -13,6 +12,8 @@ COPY . .
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
+ENV DJANGO_SETTINGS_MODULE=e.settings
+ENV PYTHONPATH=/app  
 
-# Run migrations and start the Django server
-CMD ["sh", "-c", "python -m  manage.py makemigrations && python -m manage migrate && python manage.py runserver "]
+# Run gunicorn
+CMD ["gunicorn", "e.wsgi:application", "--bind", "0.0.0.0:8000"]

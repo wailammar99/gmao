@@ -560,17 +560,15 @@ def loginn(request):
         except CustomUser.DoesNotExist:
             return JsonResponse({"message": "le compte n'existe pas"}, status=403)
       
-        if user.is_active== False :
-            return JsonResponse({"message":"le compte est pas active voulez contact admistateur"},status=404)
+        if not user.is_active:
+            return JsonResponse({"message": "le compte est pas active, veuillez contacter l'administrateur"}, status=404)
         
         user = authenticate(request, username=username, password=password)
-     
-            
-        
-        if user is not None :
+        if user is not None:
             login(request, user)
             token, _ = Token.objects.get_or_create(user=user)
             request.session['user_id'] = user.id
+            
             # Determine the user's role
             if user.is_admin:
                 role = 'admin'
@@ -585,7 +583,23 @@ def loginn(request):
             else:
                 role = 'unknown'
 
-            return JsonResponse({'message': 'login success','role': role, 'userId': user.id,'token': token.key,"user_username":user.username})
+            # Serialize the enterprise if it exists
+            if user.enterprise:
+                enterprise_name = user.enterprise.name
+                enterprise_id = user.enterprise.id
+            else:
+                enterprise_name = "pas de entreprise"
+                enterprise_id = None
+
+            return JsonResponse({
+                'message': 'login success',
+                'role': role,
+                'userId': user.id,
+                'token': token.key,
+                'user_username': user.username,
+                'enterprise_name': enterprise_name,
+                'enterprise_id': enterprise_id
+            })
         else:
             return JsonResponse({'error': 'invalid password or username'}, status=400)
     else:
@@ -597,9 +611,10 @@ def logout_view(request):
 @api_view(["GET"])
 #@authentication_classes([TokenAuthentication])
 #@permission_classes([IsAuthenticated])
-def Serviceliste(request):
+def Serviceliste(request,enprise_id):
     if request.method == 'GET':
-        s = service.objects.filter()
+        enprise=Enterprise.objects.get(id=enprise_id)
+        s = service.objects.filter(enterprise=enprise)
         serializer = ServiceSerializers(s, many=True)
         return JsonResponse(serializer.data, safe=False)
     elif request.method == 'PUT':
@@ -643,11 +658,11 @@ def user_infoo(request, id):
         return JsonResponse({'error': 'Method not allowed'}, status=406) 
 @csrf_exempt
 
-def create_service_api(request):
+def create_service_api(request,enprise_id):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            
+            enprise=Enterprise.objects.get(id=enprise_id)
             
             servicename = data.get('nom')
             servicedes = data.get('descriptions')
@@ -656,7 +671,7 @@ def create_service_api(request):
 
             if servicename == "" or servicedes =="" :
                 return JsonResponse({"eroor":"remplire le form si vous plais "},status=402)
-            s = service.objects.create(nom=servicename, descrtions=servicedes)
+            s = service.objects.create(nom=servicename, descrtions=servicedes,enterprise=enprise)
             return JsonResponse({"message": "Creation successful"}, status=200)
         except Exception as e :
             return JsonResponse({'error': 'Failed to create user: {}'.format(str(e))}, status=406)
