@@ -322,9 +322,9 @@ def activer(request):
 #rest full api test Customer    
 
 
-def CustomerListe(request):
+def CustomerListe(request,en_id):
     if request.method == 'GET':
-        users = CustomUser.objects.all().select_related('service')
+        users = CustomUser.objects.filter(enterprise=en_id).select_related('service')
         user_ser = CustomeUserSerializers(users, many=True)
         return JsonResponse(user_ser.data, status=200, safe=False)  # Use safe=False to allow serializing non-dictionary objects
     elif request.method == 'POST':
@@ -678,13 +678,13 @@ def create_service_api(request,enprise_id):
     else :
         return JsonResponse({"eroor":"le metthode not allow"},status=405)
 @csrf_exempt
-def api_create_user(request):
+def api_create_user(request, en_id):
     if request.method == "POST":
         try:
-            
             data = json.loads(request.body)
+            enprise = Enterprise.objects.get(id=en_id)
+
             username = data.get('username')
-            directeur = CustomUser.objects.filter(is_directeur=True)
             first_name = data.get('first_name')
             last_name = data.get('last_name')
             password1 = data.get('password1')
@@ -695,115 +695,79 @@ def api_create_user(request):
             is_chefservice = data.get('is_chefservice', False)
             is_admin = data.get('is_admin', False)
             is_citoyen = data.get('is_citoyen', False)
-            is_maitenant=data.get('is_maitenant',False)
-            Service, created = service.objects.get_or_create(nom="noservice")
+            is_maitenant = data.get('is_maitenant', False)
 
-            
+            service_obj, created = service.objects.get_or_create(nom="noservice")
 
-            if CustomUser.objects.filter(username=username).exists():
+            # Check if the username or email already exists
+            if CustomUser.objects.filter(username=username,enterprise=enprise).exists():
                 return JsonResponse({'error': 'Username already exists'}, status=400)
-            if CustomUser.objects.filter(email=email).exists():
-                return JsonResponse({'error': 'email   already exists'}, status=403)
-            
-                
+            if CustomUser.objects.filter(email=email,enterprise=enprise).exists():
+                return JsonResponse({'error': 'Email already exists'}, status=403)
 
-                
-            if password1 == password2:
-                hashed_password = make_password(password1)
-            
-                if is_maitenant :
-                    if CustomUser.objects.filter(is_chefservice=True,service=Service):
-                        return JsonResponse({'message':"il existe deja une chef service de maitencace  "},status=420)
-                    else :
-                       CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_chefservice=True, is_active=False,service=Service)
-                       for d in directeur :
-                        notification=Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type chefservice",is_read=False)
-                        channel_layer = get_channel_layer()
-                        async_to_sync(channel_layer.group_send)(
-                    f'notifications_{d.id}', {
-                        'type': 'send_notification',
-                        'notification': {
-                            'id': notification.id,
-                            'message': notification.message,
-                            'is_read': notification.is_read,
-                            'created_at': str(notification.created_at),
-                        }
-                    }
-                )
-
-                       return JsonResponse({'message': 'User created successfully'}, status=201)
-
-              
-                if is_directeur :
-                    
-                      if CustomUser.objects.filter(is_directeur=True) :
-                       return JsonResponse({"message":"existe deja direvteur"},status=408)
-                      else:
-                       CustomUser.objects.create(username=username, first_name=first_name, last_name=last_name, password=hashed_password, email=email, is_directeur=True, is_active=True)
-                       return JsonResponse({'message': 'User created successfully'}, status=201)
-                elif is_chefservice:
-                    CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_chefservice=True, is_active=False)
-                    for d in directeur :
-                     notification=Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type chefservice",is_read=False)
-                     channel_layer = get_channel_layer()
-                     async_to_sync(channel_layer.group_send)(
-                    f'notifications_{d.id}', {
-                        'type': 'send_notification',
-                        'notification': {
-                            'id': notification.id,
-                            'message': notification.message,
-                            'is_read': notification.is_read,
-                            'created_at': str(notification.created_at),
-                        }
-                    }
-                )
-                    return JsonResponse({'message': 'User created successfully'}, status=201)
-                elif is_technicien:
-                    CustomUser.objects.create(username=username, first_name=first_name, last_name=last_name, password=hashed_password, email=email, is_technicien=True, is_active=False)
-                    for d in directeur :
-                     notification=Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type technicien",is_read=False)
-                     channel_layer = get_channel_layer()
-                     async_to_sync(channel_layer.group_send)(
-                    f'notifications_{d.id}', {
-                        'type': 'send_notification',
-                        'notification': {
-                            'id': notification.id,
-                            'message': notification.message,
-                            'is_read': notification.is_read,
-                            'created_at': str(notification.created_at),
-                        }
-                    }
-                )
-
-                     
-
-                    return JsonResponse({'message': 'User created successfully'}, status=201)
-                elif is_citoyen:
-                    CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_citoyen=True, is_active=True)
-                    for d in directeur :
-                     notification=Notification.objects.create(recipient=d,message="nouveux utilisateur est cree de type citoyen",is_read=False)
-                     channel_layer = get_channel_layer()
-                     async_to_sync(channel_layer.group_send)(
-                    f'notifications_{d.id}', {
-                        'type': 'send_notification',
-                        'notification': {
-                            'id': notification.id,
-                            'message': notification.message,
-                            'is_read': notification.is_read,
-                            'created_at': str(notification.created_at),
-                        }
-                    }
-                )
-                    return JsonResponse({'message': 'User created successfully'}, status=201)
-                elif is_admin:
-                    CustomUser.objects.create(username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_admin=True, is_active=True)
-                    return JsonResponse({'message': 'User created successfully'}, status=201)
-                else:
-                    return JsonResponse({'error': 'Forgot to specify the user role'}, status=401)
-            else:
+            # Check if passwords match
+            if password1 != password2:
                 return JsonResponse({'error': 'Passwords do not match'}, status=402)
+
+            hashed_password = make_password(password1)
+
+            # Create user based on their role
+            if is_maitenant:
+                if CustomUser.objects.filter(is_chefservice=True, service=service_obj, enterprise=enprise).exists():
+                    return JsonResponse({'message': "There is already a maintenance chief service"}, status=420)
+                else:
+                    user = CustomUser.objects.create(
+                        username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_chefservice=True, is_active=False, service=service_obj, enterprise=enprise
+                    )
+            elif is_directeur:
+                if CustomUser.objects.filter(is_directeur=True, enterprise=enprise).exists():
+                    return JsonResponse({"message": "Director already exists"}, status=408)
+                else:
+                    user = CustomUser.objects.create(
+                        username=username, first_name=first_name, last_name=last_name, password=hashed_password, email=email, is_directeur=True, is_active=True, enterprise=enprise
+                    )
+            elif is_chefservice:
+                user = CustomUser.objects.create(
+                    username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_chefservice=True, is_active=False, enterprise=enprise
+                )
+            elif is_technicien:
+                user = CustomUser.objects.create(
+                    username=username, first_name=first_name, last_name=last_name, password=hashed_password, email=email, is_technicien=True, is_active=False, enterprise=enprise
+                )
+            elif is_citoyen:
+                user = CustomUser.objects.create(
+                    username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_citoyen=True, is_active=True, enterprise=enprise
+                )
+            elif is_admin:
+                user = CustomUser.objects.create(
+                    username=username, password=hashed_password, first_name=first_name, last_name=last_name, email=email, is_admin=True, is_active=True, enterprise=enprise
+                )
+            else:
+                return JsonResponse({'error': 'Forgot to specify the user role'}, status=401)
+
+            # Create notifications for the director(s)
+            if not is_directeur:
+                directeur = CustomUser.objects.filter(is_directeur=True, enterprise=enprise)
+                for d in directeur:
+                    notification = Notification.objects.create(recipient=d, message=f"New user of type {user.get_role_display()} created", is_read=False)
+                    channel_layer = get_channel_layer()
+                    async_to_sync(channel_layer.group_send)(
+                        f'notifications_{d.id}', {
+                            'type': 'send_notification',
+                            'notification': {
+                                'id': notification.id,
+                                'message': notification.message,
+                                'is_read': notification.is_read,
+                                'created_at': str(notification.created_at),
+                            }
+                        }
+                    )
+
+            return JsonResponse({'message': 'User created successfully'}, status=201)
+        except Enterprise.DoesNotExist :
+            return JsonResponse({'error': 'Enterprise not found'}, status=404)
         except Exception as e:
-            return JsonResponse({'error': 'Failed to create user: {}'.format(str(e))}, status=406)
+            return JsonResponse({'error': f'Failed to create user: {str(e)}'}, status=406)
     else:
         return JsonResponse({'error': 'Method not allowed, only POST is allowed'}, status=400)
 @csrf_exempt

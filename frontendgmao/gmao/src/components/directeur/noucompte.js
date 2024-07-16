@@ -29,7 +29,7 @@ const CompteNoActive = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(5); // Number of users per page
- 
+ const en_id=localStorage.getItem("enterprise_id");
 
   useEffect(() => {
     fetchData();
@@ -46,7 +46,7 @@ const CompteNoActive = () => {
 
   const fetchDropdownOptions = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/Serviceliste/',
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${en_id}/services`,
       {
         method:"GET",
         headers:
@@ -68,7 +68,7 @@ const CompteNoActive = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/listecustomer/');
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${en_id}/users`);
       if (response.ok) {
         const data = await response.json();
         // Filter users where is_active is false

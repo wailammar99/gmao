@@ -33,6 +33,7 @@ const Listtechnicien = () => {
   const [upgradeMessage, setUpgradeMessage] = useState('');
   const token=localStorage.getItem("token");
   const role =localStorage.getItem("role");
+  const en_id=localStorage.getItem("enterprise_id");
   
 
 
@@ -51,7 +52,7 @@ const Listtechnicien = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/listecustomer/');
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${en_id}/users`);
       if (response.ok) {
         const data = await response.json();
         const techniciens = data.filter(user => user.is_technicien && user.is_active === true);
@@ -70,7 +71,7 @@ const Listtechnicien = () => {
 
   const fetchDropdownOptions = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/Serviceliste/');
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${en_id}/services`);
       if (response.ok) {
         const data = await response.json();
         setDropdownOptions(data);

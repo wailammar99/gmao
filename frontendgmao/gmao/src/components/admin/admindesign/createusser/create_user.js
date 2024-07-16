@@ -26,6 +26,7 @@ const CreateUser = ({ onUserCreated }) => {
   const [first_name, setfirst_name] = useState('');
   const [last_name, setlast_name] = useState('');
   const [phone, setPhone] = useState('');
+  const en_id=localStorage.getItem("enterprise_id")
   
   const [showMessage, setShowMessage] = useState(false);
   const[messagee,setmessage]=useState("");
@@ -42,7 +43,7 @@ const CreateUser = ({ onUserCreated }) => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api_create_user/', {
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${en_id}/user/create/`, {
         method:"POST",
         headers: {
           'Content-Type': 'application/json',

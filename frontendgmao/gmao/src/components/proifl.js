@@ -48,6 +48,7 @@ const UserProfile = () => {
         setEmail(data.user_info.email);
         setfirstname(data.user_info.first_name); // Corrected typo
         setlastname(data.user_info.last_name)
+        
       } else {
         console.error('Failed to fetch user data');
       }

@@ -26,10 +26,11 @@ const UserListPage = () => {
   const token =localStorage.getItem("token");
   const role =localStorage.getItem("role");
   const navigate=useNavigate();
+  const en_id=localStorage.getItem("enterprise_id");
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/listecustomer/');
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${en_id}/users`);
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }

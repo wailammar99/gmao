@@ -34,6 +34,9 @@ const Listtechnicien = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [interventionsPerPage, setInterventionsPerPage] = useState(5);
   const [totalUsers, setTotalUsers] = useState(0);
+  const en_id=localStorage.getItem("enterprise_id");
+
+
 
   useEffect(() => {
     if (token && role =="directeur")
@@ -50,7 +53,7 @@ const Listtechnicien = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/listecustomer/');
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${en_id}/users`);
       if (response.ok) {
         const data = await response.json();
         const techniciens = data.filter(user => user.is_chefservice && user.is_active==true);
@@ -71,7 +74,7 @@ const Listtechnicien = () => {
 
   const fetchDropdownOptions = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/Serviceliste/');
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${en_id}/services`);
       if (response.ok) {
         const data = await response.json();
         setDropdownOptions(data);

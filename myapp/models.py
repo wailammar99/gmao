@@ -61,6 +61,20 @@ class CustomUser(AbstractUser):
 
     date_de_naissance=models.DateField(blank=True,null=True)
     adresse=models.CharField(max_length=500,blank=True,null=True)
+    def get_role_display(self):
+        if self.is_directeur:
+            return "Director"
+        if self.is_technicien:
+            return "Technician"
+        if self.is_chefservice:
+            return "Chief Service"
+        if self.is_admin:
+            return "Admin"
+        if self.is_citoyen:
+            return "Citizen"
+        if self.is_maitenant:
+            return "Maintenance"
+        return "User"
     
     def __str__(self):
         id_str=str(self.id)

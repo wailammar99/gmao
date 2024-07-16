@@ -9,6 +9,7 @@ const Featured = () => {
   const [t, setT] = useState(0);
   const token =localStorage.getItem("token");
   const role =localStorage.getItem("role");
+  const en_id=localStorage.getItem("enterprise_id");
   const navigate=useNavigate();
   useEffect(() => {
     if (token && role==="admin")
@@ -24,7 +25,7 @@ const Featured = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/Serviceliste/',
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${en_id}/services`,
       {
         method:"GET",
         headers: {

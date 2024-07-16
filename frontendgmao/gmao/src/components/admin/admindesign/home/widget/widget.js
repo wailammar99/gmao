@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Widget = ({ type, userData }) => {
   const [Data, setData] = useState([]);
-
+  const en_id=localStorage.getItem("enterprise_id");
   useEffect(() => {
     fetchInterventionData();
   }, []); // Fetch data only once when the component mounts
@@ -19,7 +19,7 @@ const Widget = ({ type, userData }) => {
       }
 
       const response = await fetch(
-        'http://127.0.0.1:8000/listecustomer/',
+        `http://127.0.0.1:8000/enterprise/${en_id}/users`,
         {
           method: "GET",
           headers: {
