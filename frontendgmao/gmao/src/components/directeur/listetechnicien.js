@@ -140,7 +140,7 @@ const Listtechnicien = () => {
 
   const handleUpgrade = async (id) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/update_tehcncien/${id}/`, { method: 'POST' });
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${en_id}/technicien/${id}/upgrade`, { method: 'POST' });
       if (response.ok) {
         console.log('Technician upgraded successfully');
         setMessage("le tehncien est devenze chefservice ");

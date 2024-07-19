@@ -22,11 +22,12 @@ const BarsDirecteur = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [interventionsParMois, setInterventionsParMois] = useState({});
+  const en_id = localStorage.getItem('enterprise_id');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/intervention/');
+        const response = await fetch(`http://127.0.0.1:8000/enterprise/${en_id}/intervention/`);
         if (!response.ok) {
           throw new Error('Failed to fetch data');
         }
@@ -35,7 +36,7 @@ const BarsDirecteur = () => {
         // Créer un objet pour stocker les interventions par mois et par état
         const interventionsParMois = {};
 
-        data.forEach(intervention => {
+        data.interventions.forEach(intervention => {
           const dateDebut = new Date(intervention.date_debut);
           const mois = dateDebut.toLocaleString('default', { month: 'short' }); // Obtenez le nom abrégé du mois
           const etat = intervention.etat.toLowerCase();
@@ -56,7 +57,7 @@ const BarsDirecteur = () => {
     };
 
     fetchData();
-  }, []);
+  }, [en_id]);
 
   // Créer le dataset pour le BarChart
   const dataset = Object.entries(interventionsParMois).map(([mois, interventions]) => ({
@@ -67,24 +68,25 @@ const BarsDirecteur = () => {
   const valueFormatter = (value) => `${value}`;
 
   return (
-   
-  
-    <BarChart
-      dataset={dataset}
-     
-      xAxis={[{ scaleType: 'band', dataKey: 'month' }]}
-      series={[
-        { dataKey: 'encour', valueFormatter, label: 'En cours' },
-        { dataKey: 'terminé', valueFormatter, label: 'Terminé' },
-        { dataKey: 'clôture', valueFormatter, label: 'Clôture' },
-        { dataKey: 'assigné', valueFormatter, label: 'Assigné' },
-        { dataKey: 'nouveau', valueFormatter, label: 'Nouveau' },
-        { dataKey: 'en attente', valueFormatter, label: 'En attente' },
-      ]}
-      {...chartSetting}
-    />
-    
-     
+    <>
+      {loading && <p>Loading...</p>}
+      {error && <p>Error: {error.message}</p>}
+      {!loading && !error && (
+        <BarChart
+          dataset={dataset}
+          xAxis={[{ scaleType: 'band', dataKey: 'month' }]}
+          series={[
+            { dataKey: 'encour', valueFormatter, label: 'En cours' },
+            { dataKey: 'terminé', valueFormatter, label: 'Terminé' },
+            { dataKey: 'clôture', valueFormatter, label: 'Clôture' },
+            { dataKey: 'assigné', valueFormatter, label: 'Assigné' },
+            { dataKey: 'nouveau', valueFormatter, label: 'Nouveau' },
+            { dataKey: 'en attente', valueFormatter, label: 'En attente' },
+          ]}
+          {...chartSetting}
+        />
+      )}
+    </>
   );
 };
 

@@ -8,14 +8,14 @@ const Circlecompte = () => {
   const [citoyen, setCitoyen] = useState(0);
   const [chefService, setChefService] = useState(0);
   const [technicien, setTechnicien] = useState(0);
-
+  const en_id=localStorage.getItem("enterprise_id")
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/listecustomer/');
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${en_id}/users`);
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }

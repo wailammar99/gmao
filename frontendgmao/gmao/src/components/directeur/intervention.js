@@ -7,7 +7,6 @@ import Navbar from './directeurdesi/Navbar/navbardic';
 import { Link } from 'react-router-dom';
 import { Tooltip, IconButton, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-
 import Pagination from '@mui/material/Pagination';
 
 const Intervention = () => {
@@ -17,18 +16,21 @@ const Intervention = () => {
   const [filteredInterventions, setFilteredInterventions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [interventionsPerPage] = useState(7);
+  const [totalPages, setTotalPages] = useState(0);
+  const en_id = localStorage.getItem('enterprise_id');
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(currentPage);
+  }, [currentPage]);
 
-  const fetchData = async () => {
+  const fetchData = async (page) => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/intervention/');
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${en_id}/intervention/?page=${page}&per_page=${interventionsPerPage}`);
       if (response.ok) {
         const data = await response.json();
-        setInterventionData(data);
-        setFilteredInterventions(data); // Set initial filtered interventions
+        setInterventionData(data.interventions);
+        setFilteredInterventions(data.interventions); // Set initial filtered interventions
+        setTotalPages(data.pages);
       } else {
         console.error('Failed to fetch intervention data');
       }
@@ -57,25 +59,24 @@ const Intervention = () => {
   };
 
   const columns = [
-    // { field: 'date_creation', headerName: 'Date de création', width: 200 },
-    { field: 'date_debut', headerName: 'Date de début', width: 200 ,renderCell: (params) => (
+    { field: 'date_debut', headerName: 'Date de début', width: 200, renderCell: (params) => (
       params.value ? params.value : 'Intervention pas assignée'
-  )},
-    { field: 'date_fin', headerName: 'Date de fin', width: 200 ,renderCell: (params) => (
+    )},
+    { field: 'date_fin', headerName: 'Date de fin', width: 200, renderCell: (params) => (
       params.value ? params.value : 'Intervention pas assignée'
-  )},
+    )},
     { field: 'etat', headerName: 'État', width: 200 },
     {
       field: 'conversation',
       headerName: 'Conversation',
       width: 200,
       renderCell: (params) => (
-        params.row.conversation ?(
-        <Link to={`/conversation/${params.row.conversation ? params.row.conversation.id : ''}/directeur/${localStorage.getItem('userId')}`}>
-          {params.row.conversation ? params.row.conversation.title : ' '}
-        </Link>
-      ):"no conversation "
-    )
+        params.row.conversation ? (
+          <Link to={`/conversation/${params.row.conversation ? params.row.conversation.id : ''}/directeur/${localStorage.getItem('userId')}`}>
+            {params.row.conversation ? params.row.conversation.title : ' '}
+          </Link>
+        ) : "no conversation "
+      )
     },
     {
       field: 'actions',
@@ -83,27 +84,23 @@ const Intervention = () => {
       width: 150,
       renderCell: (params) => (
         <Tooltip title="Voir Plus" arrow>
-        <IconButton onClick={() => handleOpenDialog(params.row)} color="primary">
-          <AddIcon />
-        </IconButton>
-      </Tooltip>
+          <IconButton onClick={() => handleOpenDialog(params.row)} color="primary">
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
       ),
     },
   ];
- 
-  const indexOfLastIntervention = currentPage * interventionsPerPage;
-  const indexOfFirstIntervention = indexOfLastIntervention - interventionsPerPage;
-  const currentInterventions = filteredInterventions.slice(indexOfFirstIntervention, indexOfLastIntervention);
- 
-  const paginate = (event, value) => {
+
+  const handlePageChange = (event, value) => {
     setCurrentPage(value);
   };
 
   return (
     <div className="list">
-      <Sidebar/>
+      <Sidebar />
       <div className="listContainer">
-        <Navbar/>
+        <Navbar />
         <div className="top">
           <h1>Les interventions</h1>
           <div>
@@ -118,46 +115,45 @@ const Intervention = () => {
             <Button onClick={() => filterInterventionsByType('Clôture')}>Clôture</Button>
           </div>
         </div>
-        <div className="botom">
+        <div className="bottom">
           <div style={{ height: 500, width: '100%' }}>
             <DataGrid
-              rows={currentInterventions}
+              rows={filteredInterventions}
               columns={columns}
               checkboxSelection={false}
               hideFooterPagination={true}
               autoHeight={true} // Supprimer la barre de défilement
             />
-             <Pagination
-            count={Math.ceil(filteredInterventions.length / interventionsPerPage)}
-            page={currentPage}
-            onChange={paginate}
-          />
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+            />
           </div>
         </div>
       </div>
-      
+
       {/* Dialog pour afficher plus d'informations sur l'intervention */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>details de intervention </DialogTitle>
+        <DialogTitle>Détails de l'intervention</DialogTitle>
         <DialogContent>
           {selectedIntervention && (
             <>
-            {selectedIntervention.description && <p>Description: {selectedIntervention.description}</p>}
-{ <p>titre: {selectedIntervention.titre ? selectedIntervention.titre : "sans titre"}</p>}
-{ <p>adresse: {selectedIntervention.adresse ? selectedIntervention.adresse : "sans adresse "}</p>}
-{ <p>Date de création: {selectedIntervention.date_creation}</p>}
-{ <p>Date de début: {selectedIntervention.date_debut ? selectedIntervention.date_debut : "intervention pas assignée"}</p>}
-{<p>Date de fin: {selectedIntervention.date_fin ? selectedIntervention.date_fin : "intervention pas assignée"}</p>}
-{ <p>État: {selectedIntervention.etat}</p>}
-{  <p>Service : {selectedIntervention.service.nom }</p>}
-{ <p>Technicien : {selectedIntervention.technicien ? selectedIntervention.technicien :"pas assigné"}</p>}
-{  <p>En attente : {selectedIntervention.raison ? selectedIntervention.raison.description :"le intervention pas en attende"}</p>}
-{  <p>Citoyen: {selectedIntervention.citoyen.email}</p>}
-
+              {selectedIntervention.description && <p>Description: {selectedIntervention.description}</p>}
+              {<p>Titre: {selectedIntervention.titre ? selectedIntervention.titre : "sans titre"}</p>}
+              {<p>Adresse: {selectedIntervention.adresse ? selectedIntervention.adresse : "sans adresse "}</p>}
+              {<p>Date de création: {selectedIntervention.date_creation}</p>}
+              {<p>Date de début: {selectedIntervention.date_debut ? selectedIntervention.date_debut : "intervention pas assignée"}</p>}
+              {<p>Date de fin: {selectedIntervention.date_fin ? selectedIntervention.date_fin : "intervention pas assignée"}</p>}
+              {<p>État: {selectedIntervention.etat}</p>}
+              {<p>Service: {selectedIntervention.service ? selectedIntervention.service.nom :"pas de service"}</p>}
+              {<p>Technicien: {selectedIntervention.technicien ? selectedIntervention.technicien : "pas assigné"}</p>}
+              {<p>En attente: {selectedIntervention.raison ? selectedIntervention.raison.description : "l'intervention pas en attente"}</p>}
+              {<p>Citoyen: {selectedIntervention.citoyen ? selectedIntervention.citoyen.email :"intervetion preventive pas de citoyen "}</p>}
             </>
           )}
         </DialogContent>
-       
         <DialogActions>
           <Button onClick={handleCloseDialog}>Fermer</Button>
         </DialogActions>

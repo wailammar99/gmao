@@ -5,6 +5,7 @@ from .decorators import *
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from .serializers import *
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.contrib.auth.hashers import make_password
 from rest_framework.parsers import JSONParser,api_settings
@@ -354,11 +355,28 @@ def CustomerListet(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
     #api to show liste of intervention 
 @csrf_exempt
-def intervention(request):
+def intervention(request,enterprise_id):
     if request.method == 'GET':
-        interventions = interven.objects.all().select_related("citoyen").select_related("service")
+        enprise=Enterprise.objects.get(id=enterprise_id)
+        interventions_list = interven.objects.filter(enterprise=enprise).select_related("citoyen").select_related("service")
+        
+        # Pagination
+        page = request.GET.get('page', 1)
+        paginator = Paginator(interventions_list, 4)  # Show 10 interventions per page
+        print(f"page :{page}")
+        try:
+            interventions = paginator.page(page)
+        except PageNotAnInteger:
+            interventions = paginator.page(1)
+        except EmptyPage:
+            interventions = paginator.page(paginator.num_pages)
+
         serializer = IntervetionSerializers(interventions, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        return JsonResponse({
+            'interventions': serializer.data,
+            'page': interventions.number,
+            'pages': paginator.num_pages
+        }, safe=False)
     elif request.method == 'PUT':
         data = JSONParser().parse(request)
         intervention_id = data.get('id')  # Assuming 'id' is provided in the request data
@@ -1513,7 +1531,10 @@ def api_liste_notification_unread(request, user_id):
     if request.method == "GET":
         try:
             user = CustomUser.objects.get(id=user_id)
+           
+            
             notif_cible = Notification.objects.filter(recipient=user,is_read=False )
+           
             serializer = NotificationSerialize(notif_cible, many=True)
             return JsonResponse(serializer.data, status=200,safe=False)
         except CustomUser.DoesNotExist:
@@ -1547,7 +1568,19 @@ def api_all_nofication(request,user_id):
     if request.method=="GET" :
         try :
             user=CustomUser.objects.get(id=user_id)
+            page = request.GET.get('page', 1)
+            page_size = request.GET.get('page_size', 5)
+
+
             notif=Notification.objects.filter(recipient=user).order_by('created_at')
+            paginator = Paginator(notif, page_size)
+            
+            try:
+                notif = paginator.page(page)
+            except PageNotAnInteger:
+                notif = paginator.page(1)
+            except EmptyPage:
+                notif = paginator.page(paginator.num_pages)
             serializer=NotificationSerialize(notif,many=True)
             return JsonResponse(serializer.data,status=200,safe=False)
         except CustomUser.DoesNotExist :
@@ -1813,11 +1846,12 @@ def api_forget_password(request):
     else:
         return JsonResponse({"message": "Invalid request method"}, status=405)
 @csrf_exempt
-def updrade_technicien_to_chef_service(request,user_id):
+def updrade_technicien_to_chef_service(request,user_id,enterprise_id):
     if request.method=="POST" :
         try :
             technicien=CustomUser.objects.get(id=user_id)
-            chefservice_exitse=CustomUser.objects.filter(service=technicien.service ,is_chefservice=True).exists()
+            Enprise=Enterprise.objects.get(id=enterprise_id)
+            chefservice_exitse=CustomUser.objects.filter(service=technicien.service ,is_chefservice=True,enterprise=Enprise).exists()
             if chefservice_exitse:
                 return JsonResponse({"message":"on a deja chef service ,on peut pas faire deux chefservice"},status=404)
 
@@ -1937,9 +1971,10 @@ def api_delete_rapport(request, rapport_id):
     else:
         return JsonResponse({"error": "Méthode non autorisée."}, status=405)
 @csrf_exempt
-def api_create_rapport(request):
+def api_create_rapport(request,en_id):
     if request.method == "POST":
         try:
+            enprise=Enterprise.objects.get(id=en_id)
             data = json.loads(request.body.decode('utf-8'))
             date_debut_str = data.get("date_debut")
             date_fin_str = data.get("date_fin")
@@ -1954,7 +1989,7 @@ def api_create_rapport(request):
                 return JsonResponse({"error": "The start date cannot be greater than the end date."}, status=401)
             
             rapport_cible = Rapport.objects.create(date_debut=date_debut, date_fin=date_fin)
-            intervention_intervert = rapport_cible.generate_rapport()
+            intervention_intervert = interven.objects.filter(date_debut__range=[date_debut, date_fin],date_fin__range=[date_debut, date_fin],enterprise=enprise)
             rapport_cible.interventions.set(intervention_intervert)
             
             return JsonResponse({"message": "Rapport created successfully."}, status=201)

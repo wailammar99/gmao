@@ -12,33 +12,37 @@ import { Tooltip, IconButton } from '@mui/material';
 const Notificationdirecteur = () => {
   const [notifications, setNotifications] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [usersPerPage] = useState(5);
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
   const [popupColor, setPopupColor] = useState('');
-  const role =localStorage.getItem("role");
-  const token =localStorage.getItem("token");
-  const navigate=useNavigate("");
-  useEffect(() => {
-    if (token && role =="directeur")
-      {
-        fetchNotifications();
-      }
-      else {
-        navigate("/login");
-      }
-    
-  }, [currentPage]); // Fetch notifications whenever currentPage changes
+  const role = localStorage.getItem("role");
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate("");
 
-  const fetchNotifications = async () => {
+  useEffect(() => {
+    if (token && role === "directeur") {
+      fetchNotifications(currentPage);
+    } else {
+      navigate("/login");
+    }
+  }, [currentPage]);
+
+  const fetchNotifications = async (page) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:8000/api_liste_notifcation/${localStorage.getItem('userId')}/`, {
+      const response = await fetch(`http://127.0.0.1:8000/api_liste_notifcation/${localStorage.getItem('userId')}/?page=${page}&page_size=${usersPerPage}`, {
         method: 'GET'
       });
       if (response.ok) {
         const data = await response.json();
-        setNotifications(data);
+        if (data.notifications && data.pages) {
+          setNotifications(data.notifications);
+          setTotalPages(data.pages);
+        } else {
+          setNotifications([]);
+          setTotalPages(1);
+        }
       } else {
         console.error('Failed to fetch notifications');
       }
@@ -59,7 +63,7 @@ const Notificationdirecteur = () => {
         setTimeout(() => {
           setShowPopup(false);
         }, 1500);
-        fetchNotifications(); // Refetch notifications after deletion
+        fetchNotifications(currentPage);
       } else {
         setPopupMessage('Failed to delete notification');
         setPopupColor('error');
@@ -73,31 +77,24 @@ const Notificationdirecteur = () => {
     }
   };
 
-  // Pagination logic
-  const indexOfLastNotification = currentPage * usersPerPage;
-  const indexOfFirstNotification = indexOfLastNotification - usersPerPage;
-  const currentNotifications = notifications.slice(indexOfFirstNotification, indexOfLastNotification);
-
-  // Change page
   const paginate = (event, pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
   const columns = [
     { field: 'id', headerName: 'ID', width: 100 },
-    { field: 'message', headerName: 'Message', width: 200},
-    { field: 'created_at', headerName: 'date de creation', width: 600},
-
+    { field: 'message', headerName: 'Message', width: 200 },
+    { field: 'created_at', headerName: 'date de creation', width: 600 },
     {
       field: 'action',
       headerName: 'Action',
       width: 200,
       renderCell: (params) => (
         <Tooltip title="supprimé" arrow>
-  <IconButton onClick={() => deleteNotification(params.row.id)} color="error">
-    <DeleteIcon />
-  </IconButton>
-</Tooltip>
+          <IconButton onClick={() => deleteNotification(params.row.id)} color="error">
+            <DeleteIcon />
+          </IconButton>
+        </Tooltip>
       ),
     },
   ];
@@ -111,17 +108,22 @@ const Notificationdirecteur = () => {
         {showPopup && <PopupMessage message={popupMessage} color={popupColor} />}
         <div style={{ height: 400, width: '100%' }}>
           <DataGrid
-            rows={currentNotifications}
+            rows={notifications}
             columns={columns}
             pageSize={usersPerPage}
             rowsPerPageOptions={[usersPerPage]}
             hideFooterPagination={true}
-            
             hideFooter={true}
             hideFooterSelectedRowCount={true}
           />
         </div>
-        <Pagination count={Math.ceil(notifications.length / usersPerPage)} page={currentPage} onChange={paginate} />
+        {notifications && notifications.length > 0 && (
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={paginate}
+          />
+        )}
       </div>
     </div>
   );

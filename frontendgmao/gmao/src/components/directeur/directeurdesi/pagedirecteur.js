@@ -25,12 +25,12 @@ const Pagedirecteur = () => {
       <div className="directeur-content">
         <Navbar />
         <div className="widgets">
-          <Widget type="encour" />
-          <Widget type="termine" />
-          <Widget type="enattend" />
-          <Widget type="Assigné" />
-          <Widget type="Clôture" />
-          <Widget type="Nouveau" />
+        <Widget type="encour" />
+      <Widget type="termine" />
+      <Widget type="enattend" />
+      <Widget type="Assigné" />
+      <Widget type="Clôture" />
+      <Widget type="Nouveau" />
         </div>
         <div className='bar'>
           <BarsDirecteur/>

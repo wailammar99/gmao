@@ -6,7 +6,7 @@ const Circleactivenoactive = () => {
   const [error, setError] = useState(null);
   const [active, setActive] = useState(0);
   const [noActive, setNoActive] = useState(0);
-  
+  const en_id=localStorage.getItem("enterprise_id")
   useEffect(() => {
     
       
@@ -17,7 +17,7 @@ const Circleactivenoactive = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/listecustomer/');
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${en_id}/users`);
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }

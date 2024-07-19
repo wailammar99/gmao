@@ -175,10 +175,7 @@ class Rapport(models.Model):
     date_fin = models.DateField(null=True, blank=True)
     interventions = models.ManyToManyField(interven)
 
-    def generate_rapport(self):
-        interventions = interven.objects.filter(date_debut__range=[self.date_debut, self.date_fin],date_fin__range=[self.date_debut, self.date_fin])
-        
-        return interventions
+   
 
     def generate_pdf(self):
         response = HttpResponse(content_type='application/pdf')

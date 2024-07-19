@@ -11,6 +11,7 @@ const Rapportform = ({ onInterventionCreated }) => {
   const [popupMessage, setPopupMessage] = useState('');
   const [popupColor, setPopupColor] = useState('');
   const navigate=useNavigate();
+  const en_id =localStorage.getItem('enterprise_id');
 
   const handleStartDateChange = (e) => {
     setStartDate(e.target.value);
@@ -24,7 +25,7 @@ const Rapportform = ({ onInterventionCreated }) => {
     e.preventDefault();
 
  
-      const response = await fetch('http://127.0.0.1:8000/create/rapport/', {
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${en_id}/rapport/create/`, {
         method: 'POST',
         body: JSON.stringify({
           date_debut: startDate,
