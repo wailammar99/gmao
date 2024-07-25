@@ -20,7 +20,7 @@ const PieChartComponent = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api_intervetion_chefservice/${localStorage.getItem('userId')}/`,
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${localStorage.getItem("enterprise_id")}/chefservice/${localStorage.getItem('userId')}/interventions`,
       {
         method:"GET",
         headers: {
@@ -30,7 +30,8 @@ const PieChartComponent = () => {
       if (!response.ok) {
         throw new Error('Failed to fetch data');
       }
-      const data = await response.json();
+     
+      
 
       let enCoursCount = 0;
       let termineCount = 0;
@@ -40,6 +41,11 @@ const PieChartComponent = () => {
       let enAttenteCount = 0;
       let annuleCount = 0;
 
+      
+      const responseData = await response.json();
+      console.log(responseData); // Log the response data to understand its structure
+
+      const data = responseData.data;
       const dataLength = data.length;
       
       data.forEach(intervention => {

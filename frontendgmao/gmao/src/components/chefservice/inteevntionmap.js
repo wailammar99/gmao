@@ -59,7 +59,7 @@ const InterventionMap = () => {
 
   const fetchInterventions = async (page) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api_intervetion_chefservice/${localStorage.getItem('userId')}/`, {
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${localStorage.getItem("enterprise_id")}/chefservice/${localStorage.getItem('userId')}/interventions`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Token ${token}`,
@@ -67,7 +67,8 @@ const InterventionMap = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const responsedata = await response.json();
+        const data =responsedata.data
         console.log('Fetched interventions:', data); // Log fetched data
 
         if (data.length > 0) {

@@ -9,7 +9,7 @@ class CustomUserAdmin(admin.ModelAdmin):
     list_display = ('id', 'username', 'email', 'first_name', 'last_name', 'is_active','service',"enterprise","get_role_display")  
 class IntervetionAdmin(admin.ModelAdmin):
     model=interven
-    list_display=("id","service","technicien","citoyen","enterprise")
+    list_display=("id","service","technicien","citoyen","enterprise","etat")
 class ServiceAdmin(admin.ModelAdmin):
     model=service
     list_display=("id","nom","enterprise")

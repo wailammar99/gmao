@@ -38,6 +38,7 @@ class IntervetionSerializers(serializers.ModelSerializer):
 
 class EquimenentSerializers(serializers.ModelSerializer):
     service = ServiceSerializers()
+    enterprise=EnterpriseSerialize()
     class Meta :
         model=Equipement
         fields='__all__'

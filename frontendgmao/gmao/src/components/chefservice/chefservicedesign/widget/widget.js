@@ -21,7 +21,7 @@ const Widget = ({ type }) => {
       }
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api_intervetion_chefservice/${userId}/`,
+        `http://127.0.0.1:8000/enterprise/${localStorage.getItem("enterprise_id")}/chefservice/${localStorage.getItem('userId')}/interventions`,
         {
           method: "GET",
           headers: {
@@ -32,7 +32,8 @@ const Widget = ({ type }) => {
       );
 
       if (response.ok) {
-        const data = await response.json();
+        const resoposnedata = await response.json();
+        const data=resoposnedata.data;
         setInterventionData(data);
       } else {
         console.error(

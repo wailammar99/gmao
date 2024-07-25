@@ -425,14 +425,44 @@ def modify_service_page(request):
     
 #api for equiment 
 
-def equipement_list(request,user_id):
+def equipement_list(request,user_id,en_id):
     
     if request.method == 'GET':
-        user=CustomUser.objects.get(id=user_id)
-        equipements = Equipement.objects.filter(service=user.service)
+        try:
+            user = CustomUser.objects.get(id=user_id)
+            equipements = Equipement.objects.filter(service=user.service, enterprise=user.enterprise)
+            
+            # Get page number from request parameters
+            page_number = request.GET.get("page", 1)
+            
+            # Create paginator with page size, e.g., 10
+            paginator = Paginator(equipements, 10)
+            
+            try:
+                # Get the appropriate page of results
+                equipements_page = paginator.page(page_number)
+            except PageNotAnInteger:
+                # If page is not an integer, deliver first page
+                equipements_page = paginator.page(1)
+            except EmptyPage:
+                # If page is out of range, deliver last page of results
+                equipements_page = paginator.page(paginator.num_pages)
+            
+            serializer = EquimenentSerializers(equipements_page, many=True)
+            
+            return JsonResponse({
+                "data": serializer.data,
+                "page": page_number,
+                "pages": paginator.num_pages,
+            }, safe=False, status=200)
         
-        serializer = EquimenentSerializers(equipements, many=True)
-        return JsonResponse(serializer.data,safe=False)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"error": "Customer user does not exist"}, status=404)
+        except Equipement.DoesNotExist:
+            return JsonResponse({"error": "Equipement does not exist"}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=500)
+    
 
     elif request.method == 'POST':
         serializer = EquimenentSerializers(data=request.data)
@@ -853,10 +883,11 @@ def assign_service_or_technician(request, id):
             if intervention.service.nom == 'noservice':
                 
                 service_instance = service.objects.get(id=new_service_id)
+                
                 intervention.service = service_instance
                 intervention.etat = "Nouveau"
                 message = f"Nouvelle intervention est assigne - citoyen email: {intervention.citoyen.email},"
-                chefservice=CustomUser.objects.get(service=service_instance,is_chefservice=True)
+                chefservice=CustomUser.objects.get(service=service_instance,is_chefservice=True,enterprise=intervention.enterprise)
 
                 notification=Notification.objects.create(recipient=chefservice,message=message,is_read=False)
                 channel_layer = get_channel_layer()
@@ -910,13 +941,6 @@ def assign_service_or_technician(request, id):
                     }
                 )
                
-                    
-
-                 
-                  
-               
-               
-            
             # Add equipment to intervention
             if equipment_ids:
               for equipment_id in equipment_ids:
@@ -1137,16 +1161,34 @@ def sendmessage(request, conversation_id,user_id):
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
 
-def api_intervetion_chefservice(request, user_id):
+def api_intervention_chefservice(request, en_id, user_id):
     if request.method == "GET":
         try:
             user = CustomUser.objects.get(id=user_id)
             user_service = user.service
-            interventions = interven.objects.filter(service=user_service).select_related("service").prefetch_related("conversation").prefetch_related("equipements")
-            serializer = IntervetionSerializers(interventions, many=True)
-            # Access the serialized data directly
+            interventions = interven.objects.filter(
+                service=user_service, enterprise=user.enterprise
+            ).select_related("service").prefetch_related("conversation", "equipements")
             
-            return JsonResponse(serializer.data, status=200, safe=False)  # Set safe=False since we're returning a list
+            page = request.GET.get("page", 1)
+            paginator = Paginator(interventions, 6)  # Show 10 interventions per page
+
+            try:
+                interventions = paginator.page(page)
+            except PageNotAnInteger:
+                interventions = paginator.page(1)
+            except EmptyPage:
+                interventions = paginator.page(paginator.num_pages)
+
+            serializer = IntervetionSerializers(interventions, many=True    )
+
+            return JsonResponse({
+                "data": serializer.data,
+                "page": page,
+                "pages": paginator.num_pages,
+                
+            }, status=200, safe=False)
+            
         except CustomUser.DoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=404)
         except Exception as e:
@@ -1496,35 +1538,67 @@ def api_assigne_service_user(request, user_id):
             return JsonResponse({"error": "Impossible d'assigner le service : {}".format(str(e))}, status=403)
     else:
         return JsonResponse({"error": "Méthode non autorisée"}, status=405)
-def api_notification_liste(request,user_id):
-    if request.method=="GET":
-        try :
-            user=CustomUser.objects.get(id=user_id)
-            notification=Notification.objects.filter(recipient=user)
-            serializer=NotificationSerialize(notification,many=True)
-            return response(serializer.data)
-        except CustomUser.DoesNotExist :
-            return JsonResponse({"eroor":"user do not exite"},status=404)
-        except Notification.DoesNotExist :
-            return JsonResponse({"eroor":"notification do not exttse "},status=404)
-        except Exception as e :
-               return JsonResponse({'error': 'Impossible de démarrer l\'intervention à cause de : {}'.format(str(e))}, status=403)
-    else :
-        return JsonResponse({"eooor":"methode not allow "},statut=405)
-def api_liste_technicien_par_service(request,user_id):
-    if request.method=="GET":
-      try:
-        user=CustomUser.objects.get(id=user_id)
-        service=user.service
-        technicien=CustomUser.objects.filter(service=service ,is_technicien=True)
-        serializer=CustomeUserSerializers(technicien,many=True).data
-        return JsonResponse(serializer,status=200,safe=False)
-      except CustomUser.DoesNotExist :
-          return JsonResponse({"eroor":"Customer user do not exite"},status=404)
-      except Exception as e :
-               return JsonResponse({'error': 'Impossible de démarrer l\'intervention à cause de : {}'.format(str(e))}, status=403)
-    else :
-       return JsonResponse({"eroor":"Customer user do not exite"},status=405)
+def api_notification_liste(request, user_id):
+    if request.method == "GET":
+        try:
+            user = CustomUser.objects.get(id=user_id)
+            notifications = Notification.objects.filter(recipient=user)
+            page=request.GET.get("page",1)
+            paginator=Paginator(notifications,5)
+            try :
+                page_obj=paginator.page(page)
+            except PageNotAnInteger :
+                page_obj=paginator.page(1)
+            except EmptyPage :
+                page_obj=paginator.page(paginator.num_pages)
+
+            serializer = NotificationSerialize(page_obj, many=True)
+            return JsonResponse({
+                'notifications': serializer.data,
+                'total_pages': paginator.num_pages,
+                'current_page': page_obj.number
+            }, safe=False)
+            return JsonResponse(serializer.data, safe=False)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"error": "User does not exist"}, status=404)
+        except Notification.DoesNotExist:
+            return JsonResponse({"error": "Notification does not exist"}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': f'Impossible de démarrer l\'intervention à cause de : {str(e)}'}, status=403)
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+#get techncien par service and enterprise for a chefservice 
+def api_liste_technicien_par_service(request, user_id, en_id):
+    if request.method == "GET":
+        try:
+            user = CustomUser.objects.get(id=user_id)
+            service = user.service
+            techniciens = CustomUser.objects.filter(service=service, is_technicien=True, enterprise=user.enterprise)
+
+            page = request.GET.get("page", 1)
+            paginator = Paginator(techniciens, 5)  # Show 10 techniciens per page
+
+            try:
+                techniciens = paginator.page(page)
+            except PageNotAnInteger:
+                techniciens = paginator.page(1)
+            except EmptyPage:
+                techniciens = paginator.page(paginator.num_pages)
+
+            serializer = CustomeUserSerializers(techniciens, many=True)
+
+            return JsonResponse({
+                "data": serializer.data,
+                "page": page,
+                "pages": paginator.num_pages,
+            }, status=200, safe=False)
+
+        except CustomUser.DoesNotExist:
+            return JsonResponse({"error": "Customer user does not exist"}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': 'Impossible de démarrer l\'intervention à cause de : {}'.format(str(e))}, status=403)
+    else:
+        return JsonResponse({"error": "Method not allowed"}, status=405)
 #systeme de notifacion 
 @csrf_exempt
 def api_liste_notification_unread(request, user_id):
@@ -1723,7 +1797,7 @@ def api_put_service(request,service_id):
     else :
         return JsonResponse({"eroor":"le method not allow"},status=405)
 @csrf_exempt
-def api_create_equipment(request, user_id):
+def api_create_equipment(request, user_id,en_id):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
@@ -1745,7 +1819,8 @@ def api_create_equipment(request, user_id):
                 stock=data.get('stock', 0),
                 numero_serie=data.get('numero_serie', ''),
                 date_expiration=data.get('date_expiration', None),
-                caracteristiques_techniques=data.get('caracteristiques_techniques', '')
+                caracteristiques_techniques=data.get('caracteristiques_techniques', ''),
+                enterprise=user_cible.enterprise
             )
 
             return JsonResponse({'message': 'Equipment created successfully', 'equipment_id': equipment.id}, status=200)
@@ -2017,7 +2092,7 @@ def api_generate_pdf(request,rapport_id):
 
 
 @csrf_exempt
-def api_create_intervention_preventive(request, user_id):
+def api_create_intervention_preventive(request, user_id,en_id):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
@@ -2040,7 +2115,8 @@ def api_create_intervention_preventive(request, user_id):
                 citoyen=None,  # You can change this to an actual citoyen if needed
                 adresse=adresse,
                 etat="Assigné",
-                description=description
+                description=description,
+                enterprise=chefservcie.enterprise
             )
 
             if equipment_ids:

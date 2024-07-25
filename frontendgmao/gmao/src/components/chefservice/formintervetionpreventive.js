@@ -34,14 +34,14 @@ const Forminterventionpreventive = ({ onSubmit, onClose }) => {
 
   const fetchDropdownOptions = async () => {
     try {
-      const serviceResponse = await fetch(`${API_BASE_URL}/api_liste_technicien_par_service/${userid}/`);
-      const equipmentResponse = await fetch(`${API_BASE_URL}/equipements/${userid}/`);
+      const serviceResponse = await fetch(`${API_BASE_URL}/enterprise/${localStorage.getItem("enterprise_id")}/chefservice/${localStorage.getItem('userId')}/techniciens`);
+      const equipmentResponse = await fetch(`${API_BASE_URL}/enterprise/${localStorage.getItem("enterprise_id")}/chefservice/${userid}/equipements`);
 
       if (serviceResponse.ok && equipmentResponse.ok) {
         const serviceData = await serviceResponse.json();
         const equipmentData = await equipmentResponse.json();
 
-        setServiceOptions(serviceData);
+        setServiceOptions(serviceData.data);
         setEquipmentOptions(equipmentData);
       } else {
         console.error('Failed to fetch dropdown options');
@@ -57,7 +57,7 @@ const Forminterventionpreventive = ({ onSubmit, onClose }) => {
     const { titre, startDate, endDate, selectedOption, selectedEquipment, adresse, description } = formData;
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api_create_intervention_preventive/${userid}/`, {
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${localStorage.getItem("enterprise_id")}/chefservice/${localStorage.getItem('userId')}/intervention/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

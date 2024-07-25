@@ -16,7 +16,7 @@ const Enattendecom = () => {
 
         const userId = localStorage.getItem('userId');
 
-        const response = await fetch(`http://127.0.0.1:8000/api_intervetion_chefservice/${userId}/`, {
+        const response = await fetch(`http://127.0.0.1:8000/enterprise/${localStorage.getItem("enterprise_id")}/chefservice/${localStorage.getItem('userId')}/interventions`, {
           method: 'GET',
           headers: {
             Authorization: `Token ${token}`, // Include the token in the request headers
@@ -28,8 +28,9 @@ const Enattendecom = () => {
         }
 
         const responseData = await response.json();
+        const data=responseData.data ;
 
-        const filteredData = responseData.filter(intervention => intervention.etat === "En attente");
+        const filteredData = data.filter(intervention => intervention.etat === "En attente");
 
         setData(filteredData);
         setIsLoading(false);

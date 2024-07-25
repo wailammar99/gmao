@@ -10,7 +10,7 @@ const   InterventionForm = ({ interventionId, onSubmit,onClose }) => {
   const[message,setmessage]=useState("");
   const [colors,setcolor]=useState("");
   const[showMessage,setshowMessage]=useState(false);
-  
+  const en_id = localStorage.getItem("enterprise_id");  
 
   useEffect(() => {
     fetchDropdownOptions();
@@ -18,7 +18,7 @@ const   InterventionForm = ({ interventionId, onSubmit,onClose }) => {
 
   const fetchDropdownOptions = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/Serviceliste/');
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${en_id}/services`);
       if (response.ok) {
         const data = await response.json();
         setDropdownOptions(data);

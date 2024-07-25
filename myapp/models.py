@@ -33,6 +33,7 @@ class enatte (models.Model):
 
 class Equipement(models.Model):
     service=models.ForeignKey('service',on_delete=models.CASCADE,blank=True, null=True)
+    enterprise=models.ForeignKey("enterprise",on_delete=models.CASCADE,blank=True,null=True)
  
     nom = models.CharField(max_length=100,null=True)
     marque = models.CharField(max_length=100,null=True)

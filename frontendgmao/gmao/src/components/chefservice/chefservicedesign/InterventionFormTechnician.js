@@ -19,6 +19,7 @@ const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose,fetchDat
   const navigate = useNavigate();
   const [message,setmessage]=useState("");
   const [color,setcolor]=useState("");
+  const token =localStorage.getItem("token");
  
   useEffect(() => {
     fetchDropdownOptions();
@@ -26,13 +27,15 @@ const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose,fetchDat
  
   const fetchDropdownOptions = async () => {
     try {
-      const serviceResponse = await fetch(`http://127.0.0.1:8000/liste_technicien/${interventionId}/`);
-      const equipmentResponse = await fetch(`http://127.0.0.1:8000/equipements/${userid}/`);
+      const serviceResponse = await fetch(`http://127.0.0.1:8000/enterprise/${localStorage.getItem("enterprise_id")}/chefservice/${userid}/techniciens`);
+      const equipmentResponse = await fetch(`http://127.0.0.1:8000/enterprise/${localStorage.getItem("enterprise_id")}/chefservice/${userid}/equipements`);
       const intervention_info = await fetch(`http://127.0.0.1:8000/api/intervention/${interventionId}/`);
  
       if (serviceResponse.ok && equipmentResponse.ok) {
-        const serviceData = await serviceResponse.json();
-        const equipmentData = await equipmentResponse.json();
+        const s = await serviceResponse.json();
+        const serviceData=s.data ;
+        const e = await equipmentResponse.json();
+        const equipmentData=e.data ;
         const interventionData = await intervention_info.json();
        
         setFormData(prevState => ({
@@ -59,6 +62,7 @@ const InterventionFormTechnician = ({ interventionId, onSubmit ,onClose,fetchDat
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Token ${token}`,
         },
         body: JSON.stringify({
           service_id: formData.selectedOption,

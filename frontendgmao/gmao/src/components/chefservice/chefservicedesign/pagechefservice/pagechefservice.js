@@ -37,6 +37,7 @@ const Chefservice = () => {
           <Widget type="enattend" />
           <Widget type="Assigné" />
           <Widget type="Clôture" />
+          <Widget type="Nouveau" />
           
 
           

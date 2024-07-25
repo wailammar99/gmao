@@ -3,11 +3,10 @@ import Sidebar from './chefservicedesign/sidebar/sidebar';
 import Navbar from './chefservicedesign/navbar/navbar';
 import { DataGrid } from '@mui/x-data-grid';
 import { Button, Dialog, DialogContent, DialogTitle, Typography } from '@mui/material';
-import PopupMessage from '../message';
-import { Navigate, useNavigate } from 'react-router-dom';
+import PopupMessage from '../message'; // Assuming this component exists
+import { useNavigate } from 'react-router-dom';
 import { Tooltip, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ModeIcon from '@mui/icons-material/Mode';
 import AddIcon from '@mui/icons-material/Add';
 import { Pagination } from '@mui/material';
 
@@ -16,9 +15,10 @@ const ListEquipement = () => {
   const [selectedEquipement, setSelectedEquipement] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [message, setMessage] = useState('');
+  const [messageColor, setMessageColor] = useState(''); // Added missing state
+  const [showMessage, setShowMessage] = useState(false); // Added missing state
   const [currentPage, setCurrentPage] = useState(1);
-  const [showMessage, setShowMessage] = useState(false);
-  const [messageColor, setMessageColor] = useState('');
+  const [totalPages, setTotalPages] = useState(1);
   const [token, setToken] = useState(localStorage.getItem('token'));
   const role = localStorage.getItem("role");
   const userid = localStorage.getItem("userId");
@@ -29,13 +29,13 @@ const ListEquipement = () => {
       console.log("Vous n'avez pas accès à cette page.");
       navigate("/login");
     } else {
-      fetchData();
+      fetchData(currentPage);
     }
-  }, [token, role]);
+  }, [token, role, currentPage]);
 
-  const fetchData = async () => {
+  const fetchData = async (page = 1) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/equipements/${userid}/`, {
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${localStorage.getItem("enterprise_id")}/chefservice/${userid}/equipements?page=${page}`, {
         method: "GET",
         headers: {
           Authorization: `Token ${token}`,
@@ -43,12 +43,13 @@ const ListEquipement = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        setEquipements(data);
+        setEquipements(data.data); // Set the data from the response
+        setTotalPages(data.pages); // Set total pages from the response
       } else {
-        console.error('Failed to fetch user data');
+        console.error('Failed to fetch data');
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('Error fetching data:', error);
     }
   };
 
@@ -63,14 +64,13 @@ const ListEquipement = () => {
       });
 
       if (response.ok) {
-        console.log('Équipement supprimé avec succès');
         setMessage('Équipement supprimé avec succès');
         setMessageColor('success');
         setShowMessage(true);
         setTimeout(() => {
           setShowMessage(false);
         }, 1500);
-        fetchData();
+        fetchData(currentPage); // Fetch data again to reflect changes
       } else {
         throw new Error('Échec de la suppression de l\'équipement');
       }
@@ -86,10 +86,10 @@ const ListEquipement = () => {
 
   const columns = [
     { field: 'nom', headerName: 'Nom', width: 200 },
-    { field: 'marque', headerName: 'marque', width: 200 },
+    { field: 'marque', headerName: 'Marque', width: 200 },
     {
       field: 'actions',
-      headerName: 'Action',
+      headerName: 'Actions',
       width: 400,
       renderCell: (params) => (
         <>
@@ -116,13 +116,9 @@ const ListEquipement = () => {
     },
   ];
 
-  const pageSize = 5; // Nombre d'éléments par page
-  const indexOfLastEquipement = currentPage * pageSize;
-  const indexOfFirstEquipement = indexOfLastEquipement - pageSize;
-  const currentEquipements = equipements.slice(indexOfFirstEquipement, indexOfLastEquipement);
-
-  const paginate = (event, pageNumber) => {
-    setCurrentPage(pageNumber);
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+    fetchData(value); // Fetch data for the selected page
   };
 
   return (
@@ -135,27 +131,25 @@ const ListEquipement = () => {
         </div>
         <div className="bottom">
           <DataGrid
-            rows={currentEquipements}
+            rows={equipements}
             columns={columns}
             pageSize={5}
             rowsPerPageOptions={[5]}
             autoHeight={true}
             hideFooterPagination={true}
-            hideFooter={true}
           />
-                    <Pagination
-            count={Math.ceil(equipements.length / pageSize)}
+          <Pagination
+            count={totalPages}
             page={currentPage}
-            onChange={paginate}
+            onChange={handlePageChange}
           />
-
           <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
             <DialogTitle>Informations sur l'équipement</DialogTitle>
             <DialogContent>
               {selectedEquipement && (
                 <>
                   <Typography>Nom: {selectedEquipement.nom}</Typography>
-                  <Typography>marque: {selectedEquipement.marque}</Typography>
+                  <Typography>Marque: {selectedEquipement.marque}</Typography>
                   <Typography>Prix: {selectedEquipement.prix}</Typography>
                   <Typography>Stock: {selectedEquipement.stock}</Typography>
                   <Typography>Date d'ajout: {selectedEquipement.date_ajout}</Typography>
@@ -175,4 +169,3 @@ const ListEquipement = () => {
 };
 
 export default ListEquipement;
-
