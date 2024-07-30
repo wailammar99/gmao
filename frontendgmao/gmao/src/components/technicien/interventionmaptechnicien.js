@@ -59,7 +59,7 @@ const InterventionMapTechncicien = () => {
 
   const fetchInterventions = async (page) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/liste_intervetion_technicien/${localStorage.getItem('userId')}/`, {
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${localStorage.getItem('enterprise_id')}/technicien/${localStorage.getItem('userId')}/interventions`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Token ${token}`,

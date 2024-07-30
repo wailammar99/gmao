@@ -6,7 +6,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from .serializers import *
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+from .utils import cache_queryset
 from django.contrib.auth.hashers import make_password
 from rest_framework.parsers import JSONParser,api_settings
 from django.views.decorators.csrf import csrf_exempt
@@ -326,7 +326,11 @@ def activer(request):
 def CustomerListe(request,en_id):
     if request.method == 'GET':
         users = CustomUser.objects.filter(enterprise=en_id).select_related('service')
-        user_ser = CustomeUserSerializers(users, many=True)
+        #redis 
+        cache_key = f'customer_list_{en_id}'
+        user_data = cache_queryset(users, cache_key)
+        user_ser = CustomeUserSerializers(user_data, many=True)
+        #redis
         return JsonResponse(user_ser.data, status=200, safe=False)  # Use safe=False to allow serializing non-dictionary objects
     elif request.method == 'POST':
         try:
@@ -1214,14 +1218,16 @@ def liste_technicien(request, id):
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
 @csrf_exempt  
-def api_intervetion_techn(request, id):
+def api_intervetion_techn(request, user_id,en_id):
     if request.method == "GET":
         try:
-            user=CustomUser.objects.get(id=id)
+            user=CustomUser.objects.get(id=user_id)
  
             
             
             interventions = interven.objects.filter(technicien=user.id).select_related("service").prefetch_related("conversation").prefetch_related("equipements").select_related("raison")
+            """ cash_key=f'intervention_technicien_{user.id}'
+            user_data=cache_queryset(interventions,cash_key) """
             serialize = IntervetionSerializers(interventions, many=True)
             # Access the serialized data directly
            

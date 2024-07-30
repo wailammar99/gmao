@@ -1,3 +1,4 @@
+# Use the official Python image
 FROM python:3.9
 
 # Set the working directory
@@ -13,7 +14,9 @@ COPY . .
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=e.settings
-ENV PYTHONPATH=/app  
+
+# Expose port 8000
+EXPOSE 8000
 
 # Run gunicorn
 CMD ["gunicorn", "e.wsgi:application", "--bind", "0.0.0.0:8000"]

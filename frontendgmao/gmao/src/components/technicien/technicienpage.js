@@ -60,7 +60,7 @@ const Technicienpage = () => {
   }, [interventions]);
   const fetchEquipmentData = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/equipements/${localStorage.getItem('userId')}/`);
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${localStorage.getItem('enterprise_id')}/chefservice/${localStorage.getItem('userId')}/equipements`);
       if (response.ok) {
         const equipmentData = await response.json();
         setEquipments(equipmentData);
@@ -80,7 +80,7 @@ const Technicienpage = () => {
         return;
       }
 
-      const response = await fetch(`http://127.0.0.1:8000/liste_intervetion_technicien/${localStorage.getItem('userId')}/`, {
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${localStorage.getItem('enterprise_id')}/technicien/${localStorage.getItem('userId')}/interventions`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

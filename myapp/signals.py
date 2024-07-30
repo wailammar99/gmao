@@ -126,3 +126,14 @@ def socket_intervention_delete(sender, instance, **kwargs):
             logger.info(f"Delete notification sent to group {user_group}")
     except Exception as e:
         logger.error(f"Error in socket_intervention_delete: {e}")
+#solution when we delete data from datbasse but still get data from chashe redis 
+""" @receiver(post_delete, sender=interven)
+def invalidate_cache_on_delete(sender, instance, **kwargs):
+    cache_key = 'interven_list'
+    cache.delete(cache_key)
+
+@receiver(post_save, sender=interven)
+def update_cache_on_save(sender, instance, **kwargs):
+    cache_key = 'interven_list'
+    interventions = list(Interven.objects.all())
+    cache.set(cache_key, interventions) """

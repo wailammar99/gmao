@@ -15,7 +15,7 @@ const MessagePopupTechnicien = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/liste_intervetion_technicien/${userId}/`);
+      const response = await fetch(`http://127.0.0.1:8000/enterprise/${localStorage.getItem('enterprise_id')}/technicien/${localStorage.getItem('userId')}/interventions`);
       if (response.ok) {
         const data = await response.json();
         const interventionsWithConversation = data.filter(intervention => intervention.conversation);

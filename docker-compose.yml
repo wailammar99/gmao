@@ -15,25 +15,25 @@ services:
 
   backend:
     build:
-      context: ./test1
+      context: .
       dockerfile: Dockerfile
     container_name: django_backend
-    command: ["gunicorn", "e.e.wsgi:application", "--bind", "0.0.0.0:8000"]
     volumes:
-      - ./test1:/app
+      - .:/app
     ports:
       - "8000:8000"
     depends_on:
       - db
     environment:
-      - PYTHONPATH=/app  # Add this line
+      - DJANGO_SETTINGS_MODULE=e.settings
+      - PYTHONPATH=/app
 
   frontend:
     build:
       context: ./frontendgmao/gmao
     container_name: react_frontend
     ports:
-      - "80:80"
+      - "3000:3000"
     depends_on:
       - backend
 

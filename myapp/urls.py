@@ -59,7 +59,7 @@ urlpatterns = [
                  path('conversation/<int:conversation_id>/citoyen/<int:user_id>/',views.sendmessage),
                  path("enterprise/<int:en_id>/chefservice/<int:user_id>/interventions",views.api_intervention_chefservice),
                  path("liste_technicien/<int:id>/",views.liste_technicien),
-                 path('liste_intervetion_technicien/<int:id>/',views.api_intervetion_techn),
+                 path('enterprise/<int:en_id>/technicien/<int:user_id>/interventions',views.api_intervetion_techn),
                 
                  path("liste_equipment/<int:user_id>/",views.api_liste_equipment),
                  path("delete_service/<int:id>/",views.api_delete_service),

@@ -61,11 +61,21 @@ INSTALLED_APPS = [
     
 ]
 #channle config 
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels.layers.InMemoryChannelLayer',  # Use In-Memory layer for development
+#     },
+# }
+#fooor production :
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',  # Use In-Memory layer for development
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],  # Adjust the host and port if needed
+        },
     },
 }
+
 APPEND_SLASH = False
 
 
@@ -205,4 +215,14 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
 AUTH_USER_MODEL = 'myapp.CustomUser'
 ALLOWED_HOSTS = ['*']
-    
+#cachesss
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',  # Use localhost
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+

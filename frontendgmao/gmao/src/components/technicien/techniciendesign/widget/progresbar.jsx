@@ -26,7 +26,7 @@ const NavigationBar = () => {
       }
 
       const response = await fetch(
-        `http://127.0.0.1:8000/liste_intervetion_technicien/${userId}/`,
+        `http://127.0.0.1:8000/enterprise/${localStorage.getItem('enterprise_id')}/technicien/${localStorage.getItem('userId')}/interventions`,
         {
           method: "GET",
           headers: {
